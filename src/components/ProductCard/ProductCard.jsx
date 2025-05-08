@@ -2,7 +2,7 @@
 
 import React from 'react';
 
-const ProdutosEmAlta = () => {
+const ProductCard = () => {
   // Array com os dados dos produtos
   // Em um projeto real, estes dados viriam de uma API ou banco de dados
   const produtos = [
@@ -84,4 +84,4 @@ const ProdutosEmAlta = () => {
   );
 };
 
-export default ProdutosEmAlta;
+export default ProductCard;
