@@ -1,0 +1,122 @@
+/* components/ProductGallery/ProductGallery.module.css */
+
+.productGallery {
+  width: 100%;
+  max-width: 550px;
+  margin: 0 auto;
+}
+
+/* Main image styles */
+.mainImageContainer {
+  margin-bottom: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.mainSwiper {
+  width: 100%;
+  height: 450px;
+}
+
+.mainImageWrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+}
+
+.mainImage {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Navigation arrow styles */
+.swiperButtonPrev,
+.swiperButtonNext {
+  width: 40px;
+  height: 40px;
+  background-color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  color: #6b7280;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+.swiperButtonPrev {
+  left: 10px;
+}
+
+.swiperButtonNext {
+  right: 10px;
+}
+
+/* Thumbnail styles */
+.thumbnailContainer {
+  width: 100%;
+}
+
+.thumbnailSwiper {
+  width: 100%;
+}
+
+.thumbnailWrapper {
+  height: 80px;
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+}
+
+/* This targets the active slide from Swiper */
+:global(.swiper-slide-thumb-active) .thumbnailWrapper {
+  border-color: #db2777; /* Pink color for active thumbnail, matching your prototype */
+}
+
+.thumbnailImage {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .mainSwiper {
+    height: 350px;
+  }
+  
+  .thumbnailWrapper {
+    height: 60px;
+  }
+}
+
+@media (max-width: 640px) {
+  .mainSwiper {
+    height: 300px;
+  }
+  
+  .thumbnailWrapper {
+    height: 50px;
+  }
+  
+  .thumbnailSwiper {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
