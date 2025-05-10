@@ -1,0 +1,38 @@
+/* src/components/HeroBanner/HeroBanner.css */
+
+/* Estilos para os pontinhos do carrossel */
+.hero-banner-swiper .swiper-pagination {
+  position: relative;
+  margin-top: 16px;
+  bottom: 0;
+}
+
+/* Estilo base dos pontinhos */
+.hero-banner-swiper .custom-bullet {
+  width: 8px;
+  height: 8px;
+  background-color: #d1d5db; /* Cor cinza (gray-300) */
+  opacity: 1;
+  margin: 0 4px;
+}
+
+/* Estilo do pontinho ativo */
+.hero-banner-swiper .custom-bullet-active {
+  background-color: #db2777; /* Cor rosa (pink-600) */
+  opacity: 1;
+}
+
+/* Removendo a borda que o Swiper adiciona por padrão */
+.hero-banner-swiper .swiper-pagination-bullet {
+  border: none;
+}
+
+/* Ajustando o tamanho do container do Swiper */
+.hero-banner-swiper {
+  margin-bottom: 20px;
+}
+
+/* Garante que o cursor seja um ponteiro ao passar o mouse pelos pontinhos */
+.hero-banner-swiper .swiper-pagination-bullet {
+  cursor: pointer;
+}
