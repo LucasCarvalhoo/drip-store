@@ -1,13 +1,20 @@
-import { Link } from 'react-router-dom';
+// src/components/SpecialOffer/SpecialOffer.jsx
+import React from 'react';
 
-const SpecialOffer = () => {
+const SpecialOffer = ({
+  title = "Air Jordan edição de colecionador",
+  description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.",
+  imageUrl = "../public/images/products/produc-image-6.jpeg",
+  buttonText = "Ver Oferta",
+  buttonLink = "#"
+}) => {
   return (
-    <div className="bg-purple-50 rounded-lg overflow-hidden">
-      <div className="flex flex-col md:flex-row">
+    <div className="bg-purple-50 rounded-lg overflow-hidden w-full">
+      <div className="flex flex-col md:flex-row w-full">
         <div className="w-full md:w-1/3 p-6 flex items-center justify-center">
           <img 
-            src="/api/placeholder/300/300" 
-            alt="Air Jordan Edição de Colecionador" 
+            src={imageUrl} 
+            alt={title} 
             className="max-w-full h-auto object-contain"
           />
         </div>
@@ -16,20 +23,17 @@ const SpecialOffer = () => {
             <span className="text-pink-600 text-sm font-medium">Oferta especial</span>
           </div>
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            Air Jordan edição de colecionador
+            {title}
           </h2>
           <p className="text-gray-600 mb-6">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor 
-            incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud 
-            exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute 
-            irure dolor in reprehenderit voluptas velit esse cillum dolore eu fugiat nulla pariatur.
+            {description}
           </p>
-          <Link 
-            to="/produto/air-jordan-collector" 
-            className="bg-pink-600 text-white py-2 px-6 rounded-md font-medium inline-block hover:bg-pink-700 transition duration-300 w-fit"
+          <a 
+            href={buttonLink} 
+            className="bg-pink-600 text-white hover:text-white py-2 px-6 rounded-md font-medium inline-block hover:bg-pink-700 transition-colors w-fit"
           >
-            Ver Oferta
-          </Link>
+            {buttonText}
+          </a>
         </div>
       </div>
     </div>
