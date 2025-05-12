@@ -1,12 +1,70 @@
-# React + Vite
+# 📝 Sobre o Projeto
+Este é um projeto educacional de e-commerce desenvolvido para o curso da Geração Tech. A DripStore é uma loja virtual de tênis e produtos esportivos, criada para demonstrar a implementação de um front-end moderno com React e Tailwind CSS.
+O projeto foi desenvolvido com foco em práticas modernas de desenvolvimento web, componentização, e uma experiência de usuário fluida e responsiva.
+🚀 Principais Tecnologias
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+⚛️ React - Biblioteca JavaScript para construção de interfaces
+🎨 Tailwind CSS - Framework CSS utilitário
+⚡ Vite - Build tool e dev server
+🧭 React Router - Roteamento para aplicações React
+💅 CSS Modules - Estilos com escopo local para componentes
+📱 Design Responsivo - Layout adaptável para todos os dispositivos
+🖼️ Swiper - Biblioteca para galerias e carrosséis
 
-Currently, two official plugins are available:
+🛠️ Instalação
+Para rodar este projeto localmente, siga estas etapas:
+Pré-requisitos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Node.js (versão 14 ou superior)
+Node Package Manager (npm)
 
-## Expanding the ESLint configuration
+Clonando o repositório
+# Clone o repositório
+git clone https://github.com/ArthurDiogenes/drip-store.git
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+# Entre na pasta do projeto
+cd dripstore
+
+# Instalando dependências
+npm install
+
+# Rodando o projeto
+npm run dev
+
+Acesse http://localhost:5173 para visualizar a aplicação no navegador.
+
+🔄 Atualizando o projeto
+Se você já clonou o projeto anteriormente e deseja atualizar para a versão mais recente:
+# Certifique-se de estar na branch main
+git checkout main
+
+# Busque as atualizações
+git pull
+
+# Instale possíveis novas dependências
+npm install
+
+
+🤝 Contribuindo
+
+Faça um fork do projeto
+Crie uma branch para sua feature (git checkout -b feature/nova-feature)
+Faça commit das suas alterações (git commit -m 'Adiciona nova feature')
+Faça push para a branch (git push origin feature/nova-feature)
+Abra um Pull Request
+
+📚 Recursos de Aprendizado
+
+Documentação do React
+Documentação do Tailwind CSS
+Guia do React Router
+Documentação do Vite
+
+👨‍💻 Desenvolvido por
+Arthur Diógenes
+Filippe Monteiro
+Lucas Carvalho
+
+Alunos do curso Geração Tech 2025
+
+Feito com ❤️ e muito ☕
