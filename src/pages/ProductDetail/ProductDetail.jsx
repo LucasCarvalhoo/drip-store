@@ -27,27 +27,27 @@ const ProductDetail = () => {
     images: [
       { 
         id: 1, 
-        src: '/path-to-images/tenis-nike-1.jpg', 
+        src: '../public/images/products/produc-image-0.png', 
         alt: 'Tênis Nike Revolution 6 frente' 
       },
       { 
         id: 2, 
-        src: '/path-to-images/tenis-nike-2.jpg', 
+        src: '../public/images/products/produc-image-0.png', 
         alt: 'Tênis Nike Revolution 6 lado' 
       },
       { 
         id: 3, 
-        src: '/path-to-images/tenis-nike-3.jpg', 
+        src: '../public/images/products/produc-image-0.png', 
         alt: 'Tênis Nike Revolution 6 costas' 
       },
       { 
         id: 4, 
-        src: '/path-to-images/tenis-nike-4.jpg', 
+        src: '../public/images/products/produc-image-0.png', 
         alt: 'Tênis Nike Revolution 6 sola' 
       },
       { 
         id: 5, 
-        src: '/path-to-images/tenis-nike-5.jpg', 
+        src: '../public/images/products/produc-image-0.png', 
         alt: 'Tênis Nike Revolution 6 detalhe' 
       }
     ]
