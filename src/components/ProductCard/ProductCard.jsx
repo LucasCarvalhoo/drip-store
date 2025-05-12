@@ -11,7 +11,7 @@ const ProductCard = ({ produtos }) => {
       precoAtual: 100,
       desconto: 30,
       categoria: 'Tênis',
-      imagemUrl: '../public/images/products/produc-image-0.png', // Ajuste o caminho conforme a localização da sua imagem
+      imagemUrl: '../images/products/produc-image-0.png', // Ajuste o caminho conforme a localização da sua imagem
     },
     {
       id: 2,
@@ -19,7 +19,7 @@ const ProductCard = ({ produtos }) => {
       precoOriginal: 200,
       precoAtual: 100,
       categoria: 'Tênis',
-      imagemUrl: '../public/images/products/produc-image-0.png',
+      imagemUrl: '../images/products/produc-image-0.png',
     }
   ];
 

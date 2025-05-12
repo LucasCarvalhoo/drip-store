@@ -27,27 +27,27 @@ const ProductDetail = () => {
     images: [
       { 
         id: 1, 
-        src: '../public/images/products/produc-image-0.png', 
+        src: '../images/products/produc-image-7.png', 
         alt: 'Tênis Nike Revolution 6 frente' 
       },
       { 
         id: 2, 
-        src: '../public/images/products/produc-image-0.png', 
+        src: '../images/products/produc-image-7.png', 
         alt: 'Tênis Nike Revolution 6 lado' 
       },
       { 
         id: 3, 
-        src: '../public/images/products/produc-image-0.png', 
+        src: '../images/products/produc-image-7.png', 
         alt: 'Tênis Nike Revolution 6 costas' 
       },
       { 
         id: 4, 
-        src: '../public/images/products/produc-image-0.png', 
+        src: '../images/products/produc-image-7.png', 
         alt: 'Tênis Nike Revolution 6 sola' 
       },
       { 
         id: 5, 
-        src: '../public/images/products/produc-image-0.png', 
+        src: '../images/products/produc-image-7.png', 
         alt: 'Tênis Nike Revolution 6 detalhe' 
       }
     ]
@@ -161,7 +161,7 @@ const ProductDetail = () => {
             precoAtual: 100,
             desconto: 30,
             categoria: 'Tênis',
-            imagemUrl: '../public/images/products/produc-image-0.png',
+            imagemUrl: '../images/products/produc-image-0.png',
           },
           {
             id: 2,
@@ -170,7 +170,7 @@ const ProductDetail = () => {
             precoAtual: 100,
             desconto: 30,
             categoria: 'Tênis',
-            imagemUrl: '../public/images/products/produc-image-0.png',
+            imagemUrl: '../images/products/produc-image-0.png',
           },
           {
             id: 3,
@@ -179,7 +179,7 @@ const ProductDetail = () => {
             precoAtual: 100,
             desconto: 0,
             categoria: 'Tênis',
-            imagemUrl: '../public/images/products/produc-image-0.png',
+            imagemUrl: '../images/products/produc-image-0.png',
           },
           {
             id: 4,
@@ -188,7 +188,7 @@ const ProductDetail = () => {
             precoAtual: 100,
             desconto: 0,
             categoria: 'Tênis',
-            imagemUrl: '../public/images/products/produc-image-0.png',
+            imagemUrl: '../images/products/produc-image-0.png',
           }
         ]} />
       </div>
