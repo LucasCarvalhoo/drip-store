@@ -1,16 +1,15 @@
 // src/App.jsx
-import React from "react";
-import "./App.css";
-import ProductCard from "./components/ProductCard/ProductCard";
-import Layout from "./components/layout/Layout";
+import React from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
+import './App.css';
+import AppRoutes from './routes/AppRoutes';
+import Layout from './components/layout/Layout';
 
 function App() {
   return (
-    <Layout>
-      <div className="container mx-auto px-4">
-        <ProductCard />
-      </div>
-    </Layout>
+    <Router>
+        <AppRoutes />
+    </Router>
   );
 }
 

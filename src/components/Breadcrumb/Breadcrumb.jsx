@@ -1,6 +1,5 @@
 // components/Breadcrumb/Breadcrumb.jsx
 import React from 'react';
-import { Link } from 'react-router-dom'; // Assuming you're using React Router
 
 const Breadcrumb = ({ items }) => {
   // If no items provided, return null
@@ -27,12 +26,12 @@ const Breadcrumb = ({ items }) => {
                   {item.label}
                 </span>
               ) : (
-                <Link 
-                  to={item.path} 
+                <a 
+                  href={item.path} 
                   className="text-gray-500 hover:text-gray-700"
                 >
                   {item.label}
-                </Link>
+                </a>
               )}
             </li>
           );
@@ -41,14 +40,5 @@ const Breadcrumb = ({ items }) => {
     </nav>
   );
 };
-
-// Example usage:
-// <Breadcrumb items={[
-//   { label: 'Home', path: '/' },
-//   { label: 'Produtos', path: '/produtos' },
-//   { label: 'Tênis', path: '/produtos/tenis' },
-//   { label: 'Nike', path: '/produtos/tenis/nike' },
-//   { label: 'Tênis Nike Revolution 6 Next Nature Masculino', path: '#' }
-// ]} />
 
 export default Breadcrumb;
