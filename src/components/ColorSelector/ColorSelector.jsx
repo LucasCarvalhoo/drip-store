@@ -17,9 +17,9 @@ const ColorSelector = ({ colors, selectedColor, onColorSelect }) => {
             type="button"
             className={`
               h-8 w-8 rounded-full flex items-center justify-center
-              transition-all duration-200
-              ${selectedColor === color 
-                ? 'ring-2 ring-offset-2 ring-pink-500' 
+              transition-all duration-200 p-0 overflow-hidden
+              ${selectedColor === color
+                ? 'ring-2 ring-offset-2 ring-pink-500'
                 : 'hover:ring-2 hover:ring-offset-2 hover:ring-gray-300'
               }
             `}
@@ -28,21 +28,6 @@ const ColorSelector = ({ colors, selectedColor, onColorSelect }) => {
             aria-pressed={selectedColor === color}
             aria-label={`Color: ${color}`}
           >
-            {selectedColor === color && (
-              <svg 
-                className="w-4 h-4 text-white" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth="2" 
-                  d="M5 13l4 4L19 7" 
-                />
-              </svg>
-            )}
           </button>
         ))}
       </div>
