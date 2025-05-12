@@ -30,8 +30,8 @@
 }
 
 .mainImage {
-  max-width: 100%;
-  max-height: 100%;
+  max-width: 70%;
+  max-height: 70%;
   object-fit: contain;
 }
 
@@ -90,8 +90,8 @@
 }
 
 .thumbnailImage {
-  max-width: 100%;
-  max-height: 100%;
+  max-width: 70%;
+  max-height: 70%;
   object-fit: contain;
 }
 
