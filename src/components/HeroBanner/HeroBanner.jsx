@@ -49,7 +49,7 @@ const HeroBanner = ({ slides = [] }) => {
             id: 1,
             title: "Queima de estoque Nike 🔥",
             description: "Consequat culpa exercitation mollit nisi excepteur do do tempor labore adipiscing nunc consectetur.",
-            imageUrl: '../public/images/home-slides/White-Sneakers-PNG-Clipart 1.png',
+            imageUrl: '../images/home-slides/White-Sneakers-PNG-Clipart 1.png',
             buttonText: "Ver Ofertas",
             buttonLink: "#"
         },
@@ -57,7 +57,7 @@ const HeroBanner = ({ slides = [] }) => {
             id: 2,
             title: "Queima de estoque Nike 🔥",
             description: "Consequat culpa exercitation mollit nisi excepteur do do tempor labore adipiscing nunc consectetur.",
-            imageUrl: '../public/images/home-slides/White-Sneakers-PNG-Clipart 1.png',
+            imageUrl: '../images/home-slides/White-Sneakers-PNG-Clipart 1.png',
             buttonText: "Ver Ofertas",
             buttonLink: "#"
         },
@@ -65,7 +65,7 @@ const HeroBanner = ({ slides = [] }) => {
             id: 3,
             title: "Queima de estoque Nike 🔥",
             description: "Consequat culpa exercitation mollit nisi excepteur do do tempor labore adipiscing nunc consectetur.",
-            imageUrl: '../public/images/home-slides/White-Sneakers-PNG-Clipart 1.png',
+            imageUrl: '../images/home-slides/White-Sneakers-PNG-Clipart 1.png',
             buttonText: "Ver Ofertas",
             buttonLink: "#"
         },
@@ -73,7 +73,7 @@ const HeroBanner = ({ slides = [] }) => {
             id: 4,
             title: "Queima de estoque Nike 🔥",
             description: "Consequat culpa exercitation mollit nisi excepteur do do tempor labore adipiscing nunc consectetur.",
-            imageUrl: '../public/images/home-slides/White-Sneakers-PNG-Clipart 1.png',
+            imageUrl: '../images/home-slides/White-Sneakers-PNG-Clipart 1.png',
             buttonText: "Ver Ofertas",
             buttonLink: "#"
         },
@@ -81,7 +81,7 @@ const HeroBanner = ({ slides = [] }) => {
             id: 5,
             title: "Queima de estoque Nike 🔥",
             description: "Consequat culpa exercitation mollit nisi excepteur do do tempor labore adipiscing nunc consectetur.",
-            imageUrl: '../public/images/home-slides/White-Sneakers-PNG-Clipart 1.png',
+            imageUrl: '../images/home-slides/White-Sneakers-PNG-Clipart 1.png',
             buttonText: "Ver Ofertas",
             buttonLink: "#"
         },
@@ -89,7 +89,7 @@ const HeroBanner = ({ slides = [] }) => {
             id: 6,
             title: "Queima de estoque Nike 🔥",
             description: "Consequat culpa exercitation mollit nisi excepteur do do tempor labore adipiscing nunc consectetur.",
-            imageUrl: '../public/images/home-slides/White-Sneakers-PNG-Clipart 1.png',
+            imageUrl: '../images/home-slides/White-Sneakers-PNG-Clipart 1.png',
             buttonText: "Ver Ofertas",
             buttonLink: "#"
         }
