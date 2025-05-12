@@ -49,7 +49,7 @@ const Header = () => {
 
   return (
     <header className="w-full bg-white shadow-sm">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 py-2">
         {/* Parte superior do header */}
         <div className="py-4 md:py-5 flex items-center">
           {/* Mobile layout */}
@@ -110,7 +110,7 @@ const Header = () => {
                   className="w-full pl-4 pr-10 py-2.5 rounded-md bg-gray-100 focus:outline-none text-gray-800 focus:placeholder-transparent"
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                  <Search className="text-gray-400" size={20} />
+                  <Search className="text-gray-400 cursor-pointer" size={20} />
                 </div>
               </div>
             </div>
