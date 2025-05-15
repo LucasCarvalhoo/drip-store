@@ -1,0 +1,70 @@
+/* src/components/ShippingCalculator/ShippingCalculator.module.css */
+
+.shippingContainer {
+  margin: 1.5rem 0;
+}
+
+.shippingHeader {
+  margin-bottom: 0.5rem;
+}
+
+.shippingTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+.shippingForm {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.shippingInput {
+  flex-grow: 1;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  color: #111827;
+  background-color: #f9fafb;
+}
+
+.shippingInput::placeholder {
+  color: #9ca3af;
+}
+
+.shippingInput:focus {
+  outline: none;
+  border-color: #d1d5db;
+  background-color: white;
+}
+
+.shippingButton {
+  min-width: 4rem;
+  padding: 0.625rem 1rem;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.shippingButton:hover:not(:disabled) {
+  background-color: #e5e7eb;
+}
+
+.shippingButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Desktop adjustments */
+@media (min-width: 768px) {
+  .shippingContainer {
+    width: 100%;
+    max-width: 24rem;
+  }
+}
