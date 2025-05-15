@@ -2,27 +2,28 @@
 
 .cartSummary {
   background-color: white;
-  border-radius: 0.5rem;
+  border-radius: 0.25rem;
   padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .heading {
   font-size: 1rem;
   font-weight: 600;
-  margin-bottom: 1.25rem;
   color: #111827;
-  border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
 }
 
-.summaryItems {
-  margin-bottom: 1.5rem;
+.divider {
+  height: 1px;
+  background-color: #f3f4f6;
+  margin: 1rem 0;
 }
 
 .summaryItem {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 0.75rem;
 }
 
@@ -37,15 +38,11 @@
   color: #111827;
 }
 
-.totalContainer {
-  margin-bottom: 1rem;
-}
-
 .totalItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.375rem;
+  margin-bottom: 0.25rem;
 }
 
 .totalLabel {
@@ -64,19 +61,18 @@
   font-size: 0.75rem;
   color: #6b7280;
   text-align: right;
+  margin-bottom: 1.5rem;
 }
 
 .checkoutButton {
-  display: block;
   width: 100%;
   background-color: #f59e0b;
   color: white;
   border: none;
-  border-radius: 0.375rem;
+  border-radius: 0.25rem;
   padding: 0.75rem 1rem;
   font-size: 0.875rem;
   font-weight: 600;
-  text-align: center;
   cursor: pointer;
   transition: background-color 0.2s;
 }
@@ -85,33 +81,8 @@
   background-color: #d97706;
 }
 
-/* Desktop-specific styles */
-.desktopFixedTotal {
-  display: none;
-}
-
-/* Mobile-specific styles */
 @media (max-width: 767px) {
   .cartSummary {
-    padding: 1rem;
     margin-top: 1.5rem;
-  }
-}
-
-/* Desktop layout */
-@media (min-width: 768px) {
-  .desktopFixedTotal {
-    display: block;
-    position: sticky;
-    bottom: 0;
-    background-color: white;
-    padding-top: 1rem;
-    margin-top: 1.5rem;
-    border-top: 1px solid #e5e7eb;
-  }
-  
-  /* Hide the non-sticky total on desktop */
-  .totalContainer:first-of-type {
-    display: none;
   }
 }

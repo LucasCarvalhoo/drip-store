@@ -12,7 +12,7 @@ import styles from './Cart.module.css';
 const Cart = () => {
   const navigate = useNavigate();
   
-  // Mock cart data - in a real app, this would come from a state management solution
+  // Mock cart data
   const [cartItems, setCartItems] = useState([
     {
       id: 1,
@@ -22,12 +22,12 @@ const Cart = () => {
       precoOriginal: 319,
       precoAtual: 219,
       quantidade: 1,
-      imagemUrl: '/src/assets/products/tenis-nike.png', // Update with actual path
+      imagemUrl: '/src/assets/products/tenis-nike.png',
     },
   ]);
   
-  const [discount, setDiscount] = useState(30); // Default discount amount
-  const [shipping, setShipping] = useState(0); // Default shipping cost
+  const [discount, setDiscount] = useState(30);
+  const [shipping, setShipping] = useState(0);
   
   // Calculate cart subtotal
   const subtotal = cartItems.reduce(
@@ -35,7 +35,7 @@ const Cart = () => {
     0
   );
   
-  // Related products - in a real app, these would be fetched from an API
+  // Mock related products
   const relatedProducts = [
     {
       id: 1,
@@ -44,7 +44,7 @@ const Cart = () => {
       precoAtual: 100,
       desconto: 30,
       categoria: 'Tênis',
-      imagemUrl: '/src/assets/products/product-image-0.png', // Update with actual path
+      imagemUrl: '/src/assets/products/product-image-0.png',
     },
     {
       id: 2,
@@ -53,7 +53,7 @@ const Cart = () => {
       precoAtual: 100,
       desconto: 30,
       categoria: 'Tênis',
-      imagemUrl: '/src/assets/products/product-image-0.png', // Update with actual path
+      imagemUrl: '/src/assets/products/product-image-0.png',
     },
     {
       id: 3,
@@ -62,7 +62,7 @@ const Cart = () => {
       precoAtual: 100,
       desconto: 0,
       categoria: 'Tênis',
-      imagemUrl: '/src/assets/products/product-image-0.png', // Update with actual path
+      imagemUrl: '/src/assets/products/product-image-0.png',
     },
     {
       id: 4,
@@ -71,7 +71,7 @@ const Cart = () => {
       precoAtual: 100,
       desconto: 0,
       categoria: 'Tênis',
-      imagemUrl: '/src/assets/products/product-image-0.png', // Update with actual path
+      imagemUrl: '/src/assets/products/product-image-0.png',
     }
   ];
   
@@ -89,30 +89,23 @@ const Cart = () => {
   };
   
   const handleApplyDiscount = (code) => {
-    // In a real app, you would validate the discount code with an API
     console.log(`Applying discount code: ${code}`);
-    // For demo purposes, let's set a fixed discount
     setDiscount(30);
   };
   
   const handleCalculateShipping = (zipCode) => {
-    // In a real app, you would calculate shipping with an API
     console.log(`Calculating shipping for: ${zipCode}`);
-    // For demo purposes, let's set a fixed shipping cost
     setShipping(0);
   };
   
   const handleCheckout = () => {
-    // In a real app, you would proceed to checkout
     console.log('Proceeding to checkout');
-    navigate('/checkout'); // Navigate to checkout page
+    navigate('/checkout');
   };
   
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <h1 className={styles.pageTitle}>MEU CARRINHO</h1>
-        
         {cartItems.length === 0 ? (
           <div className={styles.emptyCart}>
             <p>Seu carrinho está vazio.</p>
@@ -124,60 +117,67 @@ const Cart = () => {
             </button>
           </div>
         ) : (
-          <div className={styles.cartLayout}>
-            {/* Cart Items Section */}
-            <div className={styles.cartItemsSection}>
-              {/* Header - Desktop only */}
-              <div className={styles.cartHeader}>
-                <div className={styles.productHeaderCol}>PRODUTO</div>
-                <div className={styles.quantityHeaderCol}>QUANTIDADE</div>
-                <div className={styles.unitPriceHeaderCol}>UNITÁRIO</div>
-                <div className={styles.totalHeaderCol}>TOTAL</div>
-              </div>
-              
-              {/* Cart Items */}
-              <div className={styles.cartItemsList}>
+          <>
+            <h1 className={styles.pageTitle}>MEU CARRINHO</h1>
+            
+            <div className={styles.cartContent}>
+              {/* Cart Main Section */}
+              <div className={styles.cartMain}>
+                {/* Cart Header - Desktop Only */}
+                <div className={styles.cartHeader}>
+                  <div className={styles.productHeader}>PRODUTO</div>
+                  <div className={styles.quantityHeader}>QUANTIDADE</div>
+                  <div className={styles.unitPriceHeader}>UNITÁRIO</div>
+                  <div className={styles.totalHeader}>TOTAL</div>
+                </div>
+                
+                {/* Cart Items */}
                 {cartItems.map(item => (
                   <CartItem 
                     key={item.id}
-                    product={item}
+                    product={{
+                      ...item,
+                      cor: item.cor,
+                      tamanho: item.tamanho,
+                      precoOriginal: item.precoOriginal,
+                      precoAtual: item.precoAtual,
+                      imagemUrl: item.imagemUrl,
+                    }}
                     quantity={item.quantidade}
                     onQuantityChange={(quantity) => handleQuantityChange(item.id, quantity)}
                     onRemove={() => handleRemoveItem(item.id)}
                   />
                 ))}
+                
+                {/* Discount Code */}
+                <DiscountCode onApplyDiscount={handleApplyDiscount} />
+                
+                {/* Shipping Calculator */}
+                <ShippingCalculator onCalculateShipping={handleCalculateShipping} />
               </div>
               
-              {/* Discount and Shipping - Mobile & Desktop */}
-              <div className={styles.cartTools}>
-                <DiscountCode onApplyDiscount={handleApplyDiscount} />
-                <ShippingCalculator onCalculateShipping={handleCalculateShipping} />
+              {/* Cart Summary */}
+              <div className={styles.cartSummary}>
+                <CartSummary 
+                  subtotal={subtotal}
+                  shipping={shipping}
+                  discount={discount}
+                  onCheckout={handleCheckout}
+                />
               </div>
             </div>
             
-            {/* Cart Summary Section */}
-            <div className={styles.cartSummarySection}>
-              <CartSummary 
-                subtotal={subtotal}
-                shipping={shipping}
-                discount={discount}
-                onCheckout={handleCheckout}
-              />
+            {/* Related Products */}
+            <div className={styles.relatedProducts}>
+              <div className={styles.relatedProductsHeader}>
+                <h2 className={styles.relatedProductsTitle}>Produtos Relacionados</h2>
+                <a href="/produtos" className={styles.viewAllLink}>
+                  Ver todos <span className={styles.arrow}>→</span>
+                </a>
+              </div>
+              <ProductCard produtos={relatedProducts} />
             </div>
-          </div>
-        )}
-        
-        {/* Related Products Section */}
-        {cartItems.length > 0 && (
-          <div className={styles.relatedProductsSection}>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-800">Produtos Relacionados</h2>
-              <a href="/produtos" className="text-pink-600 text-sm flex items-center">
-                Ver todos <span className="ml-1">→</span>
-              </a>
-            </div>
-            <ProductCard produtos={relatedProducts} />
-          </div>
+          </>
         )}
       </div>
     </Layout>
