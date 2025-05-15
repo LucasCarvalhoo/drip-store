@@ -26,6 +26,7 @@
   padding: 0.625rem 1rem;
   font-size: 0.875rem;
   background-color: #f9fafb;
+  color: #111827;
 }
 
 .shippingInput:focus {
@@ -35,8 +36,8 @@
 
 .shippingButton {
   border: none;
-  background-color: #f3f4f6;
-  color: #111827;
+  background-color: #db2777; /* Pink color */
+  color: white; /* White text */
   padding: 0.625rem 1.25rem;
   font-size: 0.875rem;
   font-weight: 500;
@@ -45,7 +46,7 @@
 }
 
 .shippingButton:hover {
-  background-color: #e5e7eb;
+  background-color: #be185d; /* Darker pink on hover */
 }
 
 @media (min-width: 768px) {

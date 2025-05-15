@@ -131,7 +131,27 @@
   }
 }
 
-/* Background color for the page */
-:global(body) {
-  background-color: #f9fafb;
+/* Discount and Shipping section */
+.discountAndShipping {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.discountSection,
+.shippingSection {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .discountAndShipping {
+    flex-direction: row;
+    gap: 2rem;
+  }
+  
+  .discountSection,
+  .shippingSection {
+    flex: 1;
+  }
 }

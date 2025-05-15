@@ -149,11 +149,15 @@ const Cart = () => {
                   />
                 ))}
                 
-                {/* Discount Code */}
-                <DiscountCode onApplyDiscount={handleApplyDiscount} />
-                
-                {/* Shipping Calculator */}
-                <ShippingCalculator onCalculateShipping={handleCalculateShipping} />
+                {/* Discount and Shipping side by side */}
+                <div className={styles.discountAndShipping}>
+                  <div className={styles.discountSection}>
+                    <DiscountCode onApplyDiscount={handleApplyDiscount} />
+                  </div>
+                  <div className={styles.shippingSection}>
+                    <ShippingCalculator onCalculateShipping={handleCalculateShipping} />
+                  </div>
+                </div>
               </div>
               
               {/* Cart Summary */}
