@@ -22,7 +22,7 @@ const Cart = () => {
       precoOriginal: 319,
       precoAtual: 219,
       quantidade: 1,
-      imagemUrl: '/src/assets/products/tenis-nike.png',
+      imagemUrl: '../images/products/produc-image-7.png',
     },
   ]);
   
@@ -44,7 +44,7 @@ const Cart = () => {
       precoAtual: 100,
       desconto: 30,
       categoria: 'Tênis',
-      imagemUrl: '/src/assets/products/product-image-0.png',
+      imagemUrl: '../images/products/produc-image-0.png',
     },
     {
       id: 2,
@@ -53,7 +53,7 @@ const Cart = () => {
       precoAtual: 100,
       desconto: 30,
       categoria: 'Tênis',
-      imagemUrl: '/src/assets/products/product-image-0.png',
+      imagemUrl: '../images/products/produc-image-0.png',
     },
     {
       id: 3,
@@ -62,7 +62,7 @@ const Cart = () => {
       precoAtual: 100,
       desconto: 0,
       categoria: 'Tênis',
-      imagemUrl: '/src/assets/products/product-image-0.png',
+      imagemUrl: '../images/products/produc-image-0.png',
     },
     {
       id: 4,
@@ -71,7 +71,7 @@ const Cart = () => {
       precoAtual: 100,
       desconto: 0,
       categoria: 'Tênis',
-      imagemUrl: '/src/assets/products/product-image-0.png',
+      imagemUrl: '../images/products/produc-image-0.png',
     }
   ];
   
