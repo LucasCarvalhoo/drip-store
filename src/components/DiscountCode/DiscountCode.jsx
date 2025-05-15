@@ -30,7 +30,6 @@ const DiscountCode = ({ onApplyDiscount }) => {
         <button 
           type="submit" 
           className={styles.discountButton}
-          disabled={!code.trim()}
         >
           OK
         </button>

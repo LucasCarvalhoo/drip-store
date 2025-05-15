@@ -5,7 +5,7 @@
 }
 
 .discountHeader {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .discountTitle {
@@ -16,55 +16,41 @@
 
 .discountForm {
   display: flex;
-  gap: 0.5rem;
+  width: 100%;
 }
 
 .discountInput {
-  flex-grow: 1;
+  flex: 1;
   border: 1px solid #e5e7eb;
-  border-radius: 0.375rem;
-  padding: 0.625rem 0.75rem;
+  border-radius: 0.25rem 0 0 0.25rem;
+  padding: 0.625rem 1rem;
   font-size: 0.875rem;
-  color: #111827;
   background-color: #f9fafb;
-}
-
-.discountInput::placeholder {
-  color: #9ca3af;
+  color: #111827;
 }
 
 .discountInput:focus {
   outline: none;
-  border-color: #d1d5db;
   background-color: white;
 }
 
 .discountButton {
-  min-width: 4rem;
-  padding: 0.625rem 1rem;
-  background-color: #f3f4f6;
-  border: 1px solid #e5e7eb;
-  border-radius: 0.375rem;
+  border: none;
+  background-color: #db2777; /* Pink color */
+  color: white; /* White text */
+  padding: 0.625rem 1.25rem;
   font-size: 0.875rem;
   font-weight: 500;
-  color: #111827;
+  border-radius: 0 0.25rem 0.25rem 0;
   cursor: pointer;
-  transition: all 0.2s;
 }
 
-.discountButton:hover:not(:disabled) {
-  background-color: #e5e7eb;
+.discountButton:hover {
+  background-color: #be185d; /* Darker pink on hover */
 }
 
-.discountButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Desktop adjustments */
 @media (min-width: 768px) {
   .discountContainer {
-    width: 100%;
     max-width: 24rem;
   }
 }
