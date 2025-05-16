@@ -3,6 +3,7 @@
 // src/components/layout/Header.jsx
 import { useState, useEffect, useRef } from "react";
 import { Search, ShoppingCart, Menu, X } from "lucide-react";
+import { useLocation, Link } from "react-router-dom";
 
 const Header = () => {
   // Estados para controlar os menus mobile
@@ -12,8 +13,32 @@ const Header = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
-  // Estado atual da página (simulado, seria controlado por rotas)
-  const currentPage = "produtos"; // Isso seria dinâmico com React Router
+  // Usar o hook useLocation para obter a pathname atual
+  const location = useLocation();
+  const [currentPage, setCurrentPage] = useState("");
+
+  // Atualizar currentPage quando a localização mudar
+  useEffect(() => {
+    const path = location.pathname;
+
+    if (path === "/") {
+      setCurrentPage("home");
+    } else if (
+      path.startsWith("/produto") ||
+      path === "/product-detail" ||
+      path.startsWith("/produtos")
+    ) {
+      setCurrentPage("produtos");
+    } else if (path.startsWith("/categorias")) {
+      setCurrentPage("categorias");
+    } else if (path.startsWith("/meus-pedidos")) {
+      setCurrentPage("meus-pedidos");
+    } else if (path === "/carrinho") {
+      setCurrentPage("carrinho");
+    } else {
+      setCurrentPage("");
+    }
+  }, [location.pathname]); // Este efeito roda sempre que a rota muda
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -93,13 +118,13 @@ const Header = () => {
 
             {/* Área central - logo centralizada (6 colunas) */}
             <div className="col-span-6 flex justify-center">
-              <a href="/" className="flex items-center">
+              <Link to="/" className="flex items-center">
                 <img
                   src="/src/assets/logos/logo-header.svg"
                   alt="Digital Store"
                   className="h-6"
                 />
-              </a>
+              </Link>
             </div>
 
             {/* Área direita - ícones de pesquisa e carrinho (3 colunas) */}
@@ -114,7 +139,7 @@ const Header = () => {
 
               <div className="relative flex items-center">
                 <button
-                  className="bg-transparent border-none p-0 flex items-center justify-center"
+                  className="bg-transparent border-none p-0 flex items-center justify-center relative"
                   onClick={toggleCart}
                   aria-label="Carrinho"
                 >
@@ -132,13 +157,13 @@ const Header = () => {
           <div className="hidden md:flex items-center justify-between w-full">
             {/* Lado esquerdo com logo */}
             <div className="flex items-center">
-              <a href="/" className="flex items-center">
+              <Link to="/" className="flex items-center">
                 <img
                   src="/src/assets/logos/logo-header.svg"
                   alt="Digital Store"
                   className="h-9"
                 />
-              </a>
+              </Link>
             </div>
 
             {/* Barra de pesquisa centralizada */}
@@ -175,7 +200,7 @@ const Header = () => {
               {/* Área do carrinho */}
               <div className="relative flex items-center">
                 <button
-                  className="bg-transparent border-none p-0 flex items-center justify-center"
+                  className="bg-transparent border-none p-0 flex items-center justify-center relative"
                   onClick={toggleCart}
                   aria-label="Carrinho"
                 >
@@ -214,8 +239,8 @@ const Header = () => {
         {/* Navegação desktop */}
         <nav className="hidden md:block">
           <div className="flex py-4 space-x-8">
-            <a
-              href="/"
+            <Link
+              to="/"
               className={`text-sm transition-colors hover:text-pink-600 ${
                 currentPage === "home"
                   ? "text-pink-600 border-b-2 border-pink-600 pb-1 font-medium"
@@ -223,9 +248,9 @@ const Header = () => {
               }`}
             >
               Home
-            </a>
-            <a
-              href="/produtos"
+            </Link>
+            <Link
+              to="/produtos"
               className={`text-sm transition-colors hover:text-pink-600 ${
                 currentPage === "produtos"
                   ? "text-pink-600 border-b-2 border-pink-600 pb-1 font-medium"
@@ -233,9 +258,9 @@ const Header = () => {
               }`}
             >
               Produtos
-            </a>
-            <a
-              href="/categorias"
+            </Link>
+            <Link
+              to="/categorias"
               className={`text-sm transition-colors hover:text-pink-600 ${
                 currentPage === "categorias"
                   ? "text-pink-600 border-b-2 border-pink-600 pb-1 font-medium"
@@ -243,9 +268,9 @@ const Header = () => {
               }`}
             >
               Categorias
-            </a>
-            <a
-              href="/meus-pedidos"
+            </Link>
+            <Link
+              to="/meus-pedidos"
               className={`text-sm transition-colors hover:text-pink-600 ${
                 currentPage === "meus-pedidos"
                   ? "text-pink-600 border-b-2 border-pink-600 pb-1 font-medium"
@@ -253,7 +278,7 @@ const Header = () => {
               }`}
             >
               Meus Pedidos
-            </a>
+            </Link>
           </div>
         </nav>
       </div>
@@ -264,13 +289,13 @@ const Header = () => {
           <div className="container mx-auto p-4">
             {/* Cabeçalho do menu com botão de fechar */}
             <div className="flex justify-between items-center mb-6">
-              <a href="/" className="flex items-center">
+              <Link to="/" className="flex items-center">
                 <img
                   src="/src/assets/logos/logo-header.svg"
                   alt="Digital Store"
                   className="h-6"
                 />
-              </a>
+              </Link>
               <button
                 onClick={toggleMenu}
                 className="bg-transparent border-none p-0"
@@ -283,8 +308,8 @@ const Header = () => {
             <div className="pt-4">
               <p className="text-pink-600 font-medium mb-2">Páginas</p>
               <nav className="flex flex-col mb-8">
-                <a
-                  href="/"
+                <Link
+                  to="/"
                   className={`py-2 text-base transition-colors hover:text-pink-600 ${
                     currentPage === "home"
                       ? "text-pink-600 font-medium"
@@ -292,9 +317,9 @@ const Header = () => {
                   }`}
                 >
                   Home
-                </a>
-                <a
-                  href="/produtos"
+                </Link>
+                <Link
+                  to="/produtos"
                   className={`py-2 text-base transition-colors hover:text-pink-600 ${
                     currentPage === "produtos"
                       ? "text-pink-600 font-medium"
@@ -302,9 +327,9 @@ const Header = () => {
                   }`}
                 >
                   Produtos
-                </a>
-                <a
-                  href="/categorias"
+                </Link>
+                <Link
+                  to="/categorias"
                   className={`py-2 text-base transition-colors hover:text-pink-600 ${
                     currentPage === "categorias"
                       ? "text-pink-600 font-medium"
@@ -312,9 +337,9 @@ const Header = () => {
                   }`}
                 >
                   Categorias
-                </a>
-                <a
-                  href="/meus-pedidos"
+                </Link>
+                <Link
+                  to="/meus-pedidos"
                   className={`py-2 text-base transition-colors hover:text-pink-600 ${
                     currentPage === "meus-pedidos"
                       ? "text-pink-600 font-medium"
@@ -322,7 +347,7 @@ const Header = () => {
                   }`}
                 >
                   Meus Pedidos
-                </a>
+                </Link>
               </nav>
 
               <div className="mt-auto pt-4 border-t">
@@ -357,7 +382,7 @@ const Header = () => {
                   <img
                     src="../images/products/produc-image-7.png"
                     alt="Produto"
-                    className="object-cover w-10/12"
+                    className="object-cover w-10"
                   />
                 </div>
                 <div className="flex-grow">
@@ -406,9 +431,12 @@ const Header = () => {
                 </span>
               </div>
               <div className="flex flex-col space-y-2">
-                <button className="w-full bg-pink-600 text-white py-2 px-4 rounded-md hover:bg-pink-700 transition-colors text-sm font-medium">
+                <Link
+                  to="/carrinho"
+                  className="w-full bg-pink-600 text-white py-2 px-4 rounded-md hover:bg-pink-700 transition-colors text-sm font-medium text-center"
+                >
                   Ver Carrinho
-                </button>
+                </Link>
                 <button className="w-full py-2 text-sm bg-transparent text-gray-700 hover:text-pink-600 active:text-pink-600 transition-colors underline">
                   Esvaziar
                 </button>
