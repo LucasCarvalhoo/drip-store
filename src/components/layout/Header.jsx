@@ -1,7 +1,7 @@
 "use client";
 
 // src/components/layout/Header.jsx
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Search, ShoppingCart, Menu, X } from "lucide-react";
 
 const Header = () => {
@@ -46,6 +46,32 @@ const Header = () => {
   const handleSearchChange = (e) => {
     setSearchValue(e.target.value);
   };
+
+  // Estado para React para detectar cliques fora do componente:
+  const cartRef = useRef(null);
+
+  // Adicione este useEffect depois dos outros hooks
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        cartRef.current &&
+        !cartRef.current.contains(event.target) &&
+        isCartOpen
+      ) {
+        setIsCartOpen(false);
+      }
+    }
+
+    // Adicionar event listener quando o carrinho estiver aberto
+    if (isCartOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    // Cleanup do event listener
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isCartOpen]); // Dependência do useEffect
 
   return (
     <header className="w-full bg-white shadow-sm">
@@ -318,7 +344,10 @@ const Header = () => {
 
       {/* Carrinho dropdown */}
       {isCartOpen && (
-        <div className="absolute right-4 md:right-8 top-16 md:top-20 bg-white rounded-md shadow-lg z-50 w-80">
+        <div
+          ref={cartRef}
+          className="absolute right-4 md:right-8 top-16 md:top-20 bg-white rounded-md shadow-lg z-50 w-80"
+        >
           <div className="p-4">
             <h3 className="text-lg font-medium mb-3">Meu Carrinho (2)</h3>
             <div className="space-y-3 max-h-64 overflow-auto">
