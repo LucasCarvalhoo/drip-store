@@ -346,51 +346,53 @@ const Header = () => {
       {isCartOpen && (
         <div
           ref={cartRef}
-          className="absolute right-4 md:right-8 top-16 md:top-20 bg-white rounded-md shadow-lg z-50 w-80"
+          className="absolute right-4 md:right-8 top-14 md:top-16 bg-white rounded-lg shadow-lg z-50 w-72 md:w-80"
         >
           <div className="p-4">
-            <h3 className="text-lg font-medium mb-3">Meu Carrinho (2)</h3>
+            <h3 className="text-base font-medium mb-3">Meu Carrinho</h3>
             <div className="space-y-3 max-h-64 overflow-auto">
               {/* Item de carrinho 1 */}
               <div className="flex gap-3 border-b pb-3">
-                <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center">
+                <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden">
                   <img
-                    src="/src/assets/products/product-thumb.jpg"
+                    src="../images/products/produc-image-7.png"
                     alt="Produto"
-                    className="max-h-14"
+                    className="object-cover w-10/12"
                   />
                 </div>
                 <div className="flex-grow">
-                  <h4 className="text-sm font-medium">Tênis Nike Air Force</h4>
-                  <p className="text-xs text-gray-500">Tamanho: 42</p>
+                  <h4 className="text-sm font-medium text-gray-800">
+                    Tênis Nike Revolution 6 Next Nature Masculino
+                  </h4>
+                  <p className="text-xs text-gray-500 mt-1">Masculino</p>
                   <div className="flex justify-between mt-1">
-                    <span className="text-sm text-pink-600 font-medium">
-                      R$ 499,99
+                    <span className="text-sm text-pink-600 font-small">
+                      R$ 219,00
                     </span>
-                    <span className="text-xs">Qtd: 1</span>
+                    <span className="text-xs text-gray-500">1 unid.</span>
                   </div>
                 </div>
               </div>
 
-              {/* Item de carrinho 2 */}
+              {/* Item de carrinho 2 (igual ao Figma) */}
               <div className="flex gap-3">
-                <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center">
+                <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden">
                   <img
-                    src="/src/assets/products/product-thumb2.jpg"
+                    src="../images/products/produc-image-7.png"
                     alt="Produto"
-                    className="max-h-14"
+                    className="object-cover w-10/12"
                   />
                 </div>
                 <div className="flex-grow">
-                  <h4 className="text-sm font-medium">
-                    Camiseta Adidas Originals
+                  <h4 className="text-sm font-medium text-gray-800">
+                    Tênis Nike Revolution 6 Next Nature Masculino
                   </h4>
-                  <p className="text-xs text-gray-500">Tamanho: M</p>
+                  <p className="text-xs text-gray-500 mt-1">Masculino</p>
                   <div className="flex justify-between mt-1">
-                    <span className="text-sm text-pink-600 font-medium">
-                      R$ 149,90
+                    <span className="text-sm text-pink-600 font-small">
+                      R$ 219,00
                     </span>
-                    <span className="text-xs">Qtd: 1</span>
+                    <span className="text-xs text-gray-500">1 unid.</span>
                   </div>
                 </div>
               </div>
@@ -398,16 +400,19 @@ const Header = () => {
 
             <div className="mt-4 pt-3 border-t">
               <div className="flex justify-between mb-4">
-                <span className="text-sm">Subtotal:</span>
-                <span className="text-sm font-medium">R$ 649,89</span>
+                <span className="text-sm font-medium">Valor total:</span>
+                <span className="text-sm font-medium text-pink-600">
+                  R$ 438,00
+                </span>
               </div>
-              <button className="w-full bg-pink-600 text-white py-2 rounded-md hover:bg-pink-700 transition-colors">
-                Finalizar Compra
-              </button>
-
-              <button className="w-full py-2 mt-2 text-sm bg-transparent border-none text-pink-600 hover:text-pink-700 transition-colors">
-                Ver Carrinho Completo
-              </button>
+              <div className="flex flex-col space-y-2">
+                <button className="w-full bg-pink-600 text-white py-2 px-4 rounded-md hover:bg-pink-700 transition-colors text-sm font-medium">
+                  Ver Carrinho
+                </button>
+                <button className="w-full py-2 text-sm bg-transparent text-gray-700 hover:text-pink-600 active:text-pink-600 transition-colors underline">
+                  Esvaziar
+                </button>
+              </div>
             </div>
           </div>
         </div>
