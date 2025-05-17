@@ -382,7 +382,7 @@ const Header = () => {
                   <img
                     src="../images/products/produc-image-7.png"
                     alt="Produto"
-                    className="object-cover w-10"
+                    className="object-cover w-10/12"
                   />
                 </div>
                 <div className="flex-grow">
