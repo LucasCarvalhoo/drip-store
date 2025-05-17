@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import Home from '../pages/Home/Home.jsx';
 import ProductDetail from '../pages/ProductDetail/ProductDetail.jsx';
 import ProductList from '../pages/ProductList/ProductList.jsx';
+import Checkout from '../pages/Checkout/Checkout.jsx'
 import Cart from '../pages/Cart/Cart.jsx';
 
 
@@ -26,7 +27,7 @@ const AppRoutes = () => {
       <Route path="/produto/:id" element={<ProductDetail />} />
       <Route path="/carrinho" element={<Cart />} />
       <Route path="/produto" element={<ProductDetail />} />
-      {/* <Route path="/checkout" element={< />} /> */}
+      <Route path="/checkout" element={<Checkout />} />
       {/* <Route path="/compra-realizada" element={< />} /> */}
       {/* <Route path="/login" element={< />} /> */}
       {/* <Route path="/cadastro" element={< />} /> */}
