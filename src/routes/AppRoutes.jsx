@@ -1,12 +1,13 @@
-// src/routes/AppRoutes.jsx
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-
-// Import your existing page components with correct paths
-import Home from '../pages/Home/Home.jsx'; // Corrected path
+import Home from '../pages/Home/Home.jsx';
 import ProductDetail from '../pages/ProductDetail/ProductDetail.jsx';
+import ProductList from '../pages/ProductList/ProductList.jsx';
+import Checkout from '../pages/Checkout/Checkout.jsx'
+import Cart from '../pages/Cart/Cart.jsx';
 
-// Simple NotFound component
+
+//404
 const NotFound = () => (
   <div className="container mx-auto px-4 py-16 text-center text-black">
     <h1 className="text-3xl font-bold mb-4 text-black">404 - Página não encontrada</h1>
@@ -17,21 +18,23 @@ const NotFound = () => (
   </div>
 );
 
+//Rotas
 const AppRoutes = () => {
   return (
     <Routes>
-      {/* Main pages */}
       <Route path="/" element={<Home />} />
-      
-      {/* Temporarily comment out ProductList until it's done */}
-      {/* <Route path="/produtos" element={<ProductList />} /> */}
-      
+      <Route path="/produtos" element={<ProductList />} />
       <Route path="/produto/:id" element={<ProductDetail />} />
-      
-      {/* Direct access to ProductDetail for development */}
-      <Route path="/product-detail" element={<ProductDetail />} />
-      
-      {/* 404 route */}
+      <Route path="/carrinho" element={<Cart />} />
+      <Route path="/produto" element={<ProductDetail />} />
+      <Route path="/checkout" element={<Checkout />} />
+      {/* <Route path="/compra-realizada" element={< />} /> */}
+      {/* <Route path="/login" element={< />} /> */}
+      {/* <Route path="/cadastro" element={< />} /> */}
+      {/* <Route path="/cadastro-formulario" element={< />} /> */}
+      {/* <Route path="/pedidos" element={< />} /> */}
+      {/* <Route path="/perfil" element={< />} /> */}
+
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

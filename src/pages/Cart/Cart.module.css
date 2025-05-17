@@ -1,0 +1,157 @@
+/* src/pages/Cart/Cart.module.css */
+
+.pageTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+}
+
+.cartContent {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cart Main Section */
+.cartMain {
+  flex: 1;
+  background-color: white;
+  border-radius: 0.25rem;
+  padding: 0 1rem 1rem;
+  margin-bottom: 2rem;
+}
+
+/* Cart Header - Desktop only */
+.cartHeader {
+  display: none;
+}
+
+/* Empty Cart */
+.emptyCart {
+  background-color: white;
+  border-radius: 0.25rem;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.continueShoppingButton {
+  margin-top: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #f59e0b;
+  color: white;
+  font-weight: 500;
+  border-radius: 0.25rem;
+  border: none;
+  cursor: pointer;
+}
+
+/* Cart Summary */
+.cartSummary {
+  width: 100%;
+}
+
+/* Related Products */
+.relatedProducts {
+  margin-top: 3rem;
+}
+
+.relatedProductsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.relatedProductsTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.viewAllLink {
+  display: flex;
+  align-items: center;
+  color: #ef4444;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.arrow {
+  margin-left: 0.25rem;
+}
+
+/* Desktop Layout */
+@media (min-width: 768px) {
+  .cartContent {
+    flex-direction: row;
+    gap: 2rem;
+    align-items: flex-start;
+  }
+  
+  .cartMain {
+    flex: 3;
+    padding: 1.5rem;
+  }
+  
+  .cartSummary {
+    flex: 1;
+    position: sticky;
+    top: 2rem;
+  }
+  
+  .cartHeader {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    padding: 0.75rem 0;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  
+  .productHeader {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+  }
+  
+  .quantityHeader,
+  .unitPriceHeader,
+  .totalHeader {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-align: center;
+    text-transform: uppercase;
+  }
+  
+  .totalHeader {
+    text-align: right;
+  }
+}
+
+/* Discount and Shipping section */
+.discountAndShipping {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+}
+
+.discountSection,
+.shippingSection {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .discountAndShipping {
+    flex-direction: row;
+    gap: 2rem;
+  }
+  
+  .discountSection,
+  .shippingSection {
+    flex: 1;
+  }
+}

@@ -1,0 +1,88 @@
+/* src/components/CartSummary/CartSummary.module.css */
+
+.cartSummary {
+  background-color: white;
+  border-radius: 0.25rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.heading {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 1rem;
+}
+
+.divider {
+  height: 1px;
+  background-color: #f3f4f6;
+  margin: 1rem 0;
+}
+
+.summaryItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.summaryLabel {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.summaryValue {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+.totalItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.totalLabel {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.totalValue {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #ef4444;
+}
+
+.installmentInfo {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-align: right;
+  margin-bottom: 1.5rem;
+}
+
+.checkoutButton {
+  width: 100%;
+  background-color: #f59e0b;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.checkoutButton:hover {
+  background-color: #d97706;
+}
+
+@media (max-width: 767px) {
+  .cartSummary {
+    margin-top: 1.5rem;
+  }
+}

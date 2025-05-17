@@ -1,0 +1,56 @@
+/* src/components/DiscountCode/DiscountCode.module.css */
+
+.discountContainer {
+  margin: 1.5rem 0;
+}
+
+.discountHeader {
+  margin-bottom: 0.75rem;
+}
+
+.discountTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+.discountForm {
+  display: flex;
+  width: 100%;
+}
+
+.discountInput {
+  flex: 1;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.25rem 0 0 0.25rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  background-color: #f9fafb;
+  color: #111827;
+}
+
+.discountInput:focus {
+  outline: none;
+  background-color: white;
+}
+
+.discountButton {
+  border: none;
+  background-color: #db2777; /* Pink color */
+  color: white; /* White text */
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0 0.25rem 0.25rem 0;
+  cursor: pointer;
+}
+
+.discountButton:hover {
+  background-color: #be185d; /* Darker pink on hover */
+}
+
+@media (min-width: 768px) {
+  .discountContainer {
+    max-width: 24rem;
+  }
+}

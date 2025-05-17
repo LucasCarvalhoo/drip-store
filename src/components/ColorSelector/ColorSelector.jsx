@@ -9,7 +9,7 @@ const ColorSelector = ({ colors, selectedColor, onColorSelect }) => {
 
   return (
     <div className="mb-6">
-      <h3 className="text-sm font-medium text-gray-700 mb-3">Tamanho</h3>
+      <h3 className="text-sm font-medium text-gray-700 mb-3">Cor</h3>
       <div className="flex gap-3">
         {colors.map((color) => (
           <button

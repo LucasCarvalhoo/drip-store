@@ -1,0 +1,56 @@
+/* src/components/ShippingCalculator/ShippingCalculator.module.css */
+
+.shippingContainer {
+  margin: 1.5rem 0;
+}
+
+.shippingHeader {
+  margin-bottom: 0.75rem;
+}
+
+.shippingTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+.shippingForm {
+  display: flex;
+  width: 100%;
+}
+
+.shippingInput {
+  flex: 1;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.25rem 0 0 0.25rem;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  background-color: #f9fafb;
+  color: #111827;
+}
+
+.shippingInput:focus {
+  outline: none;
+  background-color: white;
+}
+
+.shippingButton {
+  border: none;
+  background-color: #db2777; /* Pink color */
+  color: white; /* White text */
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0 0.25rem 0.25rem 0;
+  cursor: pointer;
+}
+
+.shippingButton:hover {
+  background-color: #be185d; /* Darker pink on hover */
+}
+
+@media (min-width: 768px) {
+  .shippingContainer {
+    max-width: 24rem;
+  }
+}
