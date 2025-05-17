@@ -1,13 +1,12 @@
-/* src/components/HeroBanner/HeroBanner.css (atualizado) */
+/* src/components/HeroBanner/HeroBanner.css - Ajustes apenas para mobile */
 
-/* Estilos para os pontinhos do carrossel */
+/* Estilos base originais */
 .hero-banner-swiper .swiper-pagination {
   position: relative;
   margin-top: 16px;
   bottom: 0;
 }
 
-/* Estilo base dos pontinhos */
 .hero-banner-swiper .custom-bullet {
   width: 8px;
   height: 8px;
@@ -16,58 +15,45 @@
   margin: 0 4px;
 }
 
-/* Estilo do pontinho ativo */
 .hero-banner-swiper .custom-bullet-active {
   background-color: #db2777; /* Cor rosa (pink-600) */
   opacity: 1;
 }
 
-/* Removendo a borda que o Swiper adiciona por padrão */
 .hero-banner-swiper .swiper-pagination-bullet {
   border: none;
 }
 
-/* Ajustando o tamanho do container do Swiper */
 .hero-banner-swiper {
   margin-bottom: 20px;
 }
 
-/* Garante que o cursor seja um ponteiro ao passar o mouse pelos pontinhos */
 .hero-banner-swiper .swiper-pagination-bullet {
   cursor: pointer;
 }
 
-/* Estilos para a imagem do banner */
-.hero-banner-image {
-  max-height: 280px;
+/* Estilos específicos para mobile */
+.mobile-banner-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-banner-image-mobile {
   width: auto;
+  max-width: 80%;
+  max-height: 220px;
   object-fit: contain;
+  filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.1));
 }
 
-/* Container da imagem para garantir tamanho correto no mobile */
-.hero-banner-image-container {
-  min-height: 240px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Ajustes para desktop */
-@media (min-width: 768px) {
-  .hero-banner-image {
-    max-height: 320px;
-  }
-  
-  /* Para o layout desktop, reorganiza para lado a lado */
-  .container {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 2rem 1.5rem;
-  }
-  
-  .hero-banner-image-container {
-    order: 2;
-    min-height: auto;
-  }
+.mobile-pattern-dots {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 100px;
+  height: 100px;
+  background-image: radial-gradient(#f59e0b 2px, transparent 2px);
+  background-size: 15px 15px;
+  opacity: 0.3;
+  z-index: 1;
 }
