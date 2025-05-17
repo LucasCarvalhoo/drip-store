@@ -16,28 +16,36 @@ const HeroBannerSlide = ({
     buttonLink
 }) => (
     <div className="bg-gray-100 rounded-lg relative overflow-hidden">
-        <div className="container mx-auto px-4 py-16 flex flex-col md:flex-row items-center">
-            {/* Conteúdo de texto */}
-            <div className="md:w-1/2 z-10">
-                <span className="text-amber-500 font-medium text-sm">Melhores ofertas personalizadas</span>
-                <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mt-2 mb-4">{title}</h1>
-                <p className="text-gray-600 mb-8 max-w-md">{description}</p>
+        {/* Layout mobile-first */}
+        <div className="container mx-auto px-4 py-6 flex flex-col">
+            {/* Imagem centralizada no topo para mobile */}
+            <div className="hero-banner-image-container mt-4 mb-6 flex justify-center">
+                <img 
+                    src={imageUrl} 
+                    alt="Produto em destaque" 
+                    className="hero-banner-image"
+                />
+            </div>
+            
+            {/* Conteúdo de texto abaixo da imagem em mobile */}
+            <div className="text-center md:text-left md:w-1/2 z-10">
+                <span className="text-pink-600 font-medium text-sm">Melhores ofertas personalizadas</span>
+                <h1 className="text-3xl md:text-5xl font-bold text-gray-800 mt-2 mb-3">{title}</h1>
+                <p className="text-gray-600 mb-6 max-w-md mx-auto md:mx-0">{description}</p>
                 <a
                     href={buttonLink}
-                    className="bg-pink-600 text-white py-3 px-8 rounded-md font-medium inline-block hover:bg-pink-700 transition-colors"
+                    className="bg-pink-600 text-white py-3 px-8 rounded-md font-medium inline-block hover:bg-pink-700 transition-colors w-full md:w-auto"
                 >
                     {buttonText}
                 </a>
             </div>
 
-            {/* Imagem */}
-            <div className="md:w-1/2 mt-8 md:mt-0 flex justify-center">
-                <img src={imageUrl} alt="Produto em destaque" className="max-h-80 object-contain" />
-            </div>
-
             {/* Padrão de pontos decorativos */}
-            <div className="absolute top-8 right-8 w-24 h-24 bg-yellow-100 rounded-full opacity-50"></div>
-            <div className="absolute bottom-8 right-32 w-12 h-12 bg-yellow-100 rounded-full opacity-50"></div>
+            <div className="absolute top-8 right-0 w-24 h-24 bg-yellow-100 rounded-full opacity-30"></div>
+            <div className="absolute bottom-8 right-8 w-12 h-12 bg-yellow-100 rounded-full opacity-30"></div>
+            <div className="absolute bottom-16 right-16 w-8 h-8 bg-yellow-100 rounded-full opacity-30"></div>
+            <div className="absolute bottom-24 right-24 w-6 h-6 bg-yellow-100 rounded-full opacity-30"></div>
+            <div className="absolute top-16 right-8 w-10 h-10 bg-yellow-100 rounded-full opacity-30"></div>
         </div>
     </div>
 );

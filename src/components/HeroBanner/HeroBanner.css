@@ -1,4 +1,4 @@
-/* src/components/HeroBanner/HeroBanner.css */
+/* src/components/HeroBanner/HeroBanner.css (atualizado) */
 
 /* Estilos para os pontinhos do carrossel */
 .hero-banner-swiper .swiper-pagination {
@@ -35,4 +35,39 @@
 /* Garante que o cursor seja um ponteiro ao passar o mouse pelos pontinhos */
 .hero-banner-swiper .swiper-pagination-bullet {
   cursor: pointer;
+}
+
+/* Estilos para a imagem do banner */
+.hero-banner-image {
+  max-height: 280px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Container da imagem para garantir tamanho correto no mobile */
+.hero-banner-image-container {
+  min-height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ajustes para desktop */
+@media (min-width: 768px) {
+  .hero-banner-image {
+    max-height: 320px;
+  }
+  
+  /* Para o layout desktop, reorganiza para lado a lado */
+  .container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 2rem 1.5rem;
+  }
+  
+  .hero-banner-image-container {
+    order: 2;
+    min-height: auto;
+  }
 }
