@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { ChevronRight, X, Filter } from "lucide-react";
 import { Link } from "react-router-dom";
-import styles from "./ProductList.module.css";
+import Styles from "./ProductList.module.css";
 
 // Importação de componentes
 import Header from "../../components/layout/Header";
