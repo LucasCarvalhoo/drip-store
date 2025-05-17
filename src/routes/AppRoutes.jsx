@@ -1,11 +1,12 @@
-// src/routes/AppRoutes.jsx
+// src/routes/AppRoutes.jsx atualizado com rota de checkout
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 // Import your existing page components with correct paths
 import Home from '../pages/Home/Home.jsx'; // Note the .jsx extension
 import ProductDetail from '../pages/ProductDetail/ProductDetail.jsx';
-import Cart from '../pages/Cart/Cart.jsx'; // Added with .jsx extension
+import Cart from '../pages/Cart/Cart.jsx';
+import Checkout from '../pages/Checkout/Checkout.jsx'; // Nova importação
 
 // Simple NotFound component
 const NotFound = () => (
@@ -29,8 +30,9 @@ const AppRoutes = () => {
       
       <Route path="/produto/:id" element={<ProductDetail />} />
       
-      {/* Add Cart route */}
+      {/* Carrinho e Checkout */}
       <Route path="/carrinho" element={<Cart />} />
+      <Route path="/checkout" element={<Checkout />} />
       
       {/* Direct access to ProductDetail for development */}
       <Route path="/product-detail" element={<ProductDetail />} />
