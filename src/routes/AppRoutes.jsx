@@ -5,6 +5,7 @@ import { Routes, Route } from 'react-router-dom';
 // Import your existing page components with correct paths
 import Home from '../pages/Home/Home.jsx'; // Note the .jsx extension
 import ProductDetail from '../pages/ProductDetail/ProductDetail.jsx';
+import ProductList from '../pages/ProductList/ProductList.jsx';
 import Cart from '../pages/Cart/Cart.jsx'; // Added with .jsx extension
 
 // Simple NotFound component
@@ -25,7 +26,7 @@ const AppRoutes = () => {
       <Route path="/" element={<Home />} />
       
       {/* Temporarily comment out ProductList until it's done */}
-      {/* <Route path="/produtos" element={<ProductList />} /> */}
+      <Route path="/produtos" element={<ProductList />} />
       
       <Route path="/produto/:id" element={<ProductDetail />} />
       
