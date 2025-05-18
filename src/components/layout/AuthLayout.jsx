@@ -12,7 +12,7 @@ const AuthLayout = ({ children }) => {
         </div>
       </header>
       
-      <main className="flex-grow bg-purple-200 flex items-center justify-center px-4 py-8">
+      <main className="flex-grow bg-pink-100 flex items-center justify-center px-4 py-8">
         {children}
       </main>
       

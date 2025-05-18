@@ -20,12 +20,12 @@ const Login = () => {
         <div className={styles.loginCard}>
           <h1 className={styles.loginTitle}>Acesse sua conta</h1>
           <p className={styles.registerPrompt}>
-            Novo cliente? Então <Link to="/register" className={styles.registerLink}>registre-se aqui</Link>.
+            Novo cliente? Então registre-se <Link to="/cadastro" className={styles.registerLink}>aqui</Link>.
           </p>
           
           <form onSubmit={handleSubmit} className={styles.loginForm}>
             <div className={styles.formGroup}>
-              <label htmlFor="email" className={styles.label}>Login *</label>
+              <label htmlFor="email" className={styles.label}>Login</label>
               <input
                 id="email"
                 type="text"
@@ -38,7 +38,7 @@ const Login = () => {
             </div>
             
             <div className={styles.formGroup}>
-              <label htmlFor="password" className={styles.label}>Senha *</label>
+              <label htmlFor="password" className={styles.label}>Senha</label>
               <input
                 id="password"
                 type="password"
@@ -63,10 +63,10 @@ const Login = () => {
             <p className={styles.socialText}>Ou faça login com</p>
             <div className={styles.socialButtons}>
               <button className={styles.googleButton}>
-                <img src="/src/assets/icons/google.svg" alt="Google" />
+                <img src="/src/assets/icons/gmail.png" alt="Gmail" />
               </button>
               <button className={styles.facebookButton}>
-                <img src="/src/assets/icons/facebook.svg" alt="Facebook" />
+                <img src="/src/assets/icons/facebook.png" alt="Facebook" />
               </button>
             </div>
           </div>
@@ -74,7 +74,7 @@ const Login = () => {
         
         {/* Product image - only shown on desktop */}
         <div className={styles.productImage}>
-          <img src="/src/assets/images/login-shoe.png" alt="Tênis" />
+          <img src="../images/login-shoes.png" alt="Tênis" />
         </div>
       </div>
     </AuthLayout>
