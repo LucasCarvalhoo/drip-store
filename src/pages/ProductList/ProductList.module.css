@@ -1,17 +1,76 @@
 /* src/pages/ProductList/ProductList.module.css */
 
-.customCheckbox,
-.customRadio {
-  accent-color: #db2777; /* Cor pink-600 do Tailwind */
+.customCheckbox {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  background-color: white;
+  display: inline-block;
+  position: relative;
+  vertical-align: middle;
+  margin-right: 10px; /* Added space between checkbox and text */
 }
 
-/* Para garantir a cor correta nos navegadores que não suportam accent-color */
 .customCheckbox:checked {
   background-color: #db2777;
   border-color: #db2777;
+}
+
+.customCheckbox:checked::after {
+  content: '';
+  position: absolute;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  top: 3px; /* Adjusted to center the checkmark */
+  left: 7px; /* Adjusted to center the checkmark */
+  transform: rotate(45deg);
+}
+
+.customRadio {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #d1d5db;
+  border-radius: 50%;
+  outline: none;
+  cursor: pointer;
+  background-color: white;
+  display: inline-block;
+  position: relative;
+  vertical-align: middle;
+  margin-right: 10px; /* Added space between radio and text */
 }
 
 .customRadio:checked {
   background-color: #db2777;
   border-color: #db2777;
 }
+
+.customRadio:checked::after {
+  content: '';
+  position: absolute;
+  background-color: white;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
