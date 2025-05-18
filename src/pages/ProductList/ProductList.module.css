@@ -1,41 +1,17 @@
 /* src/pages/ProductList/ProductList.module.css */
-.filterButton {
-  transition: all 0.2s ease-in-out;
+
+.customCheckbox,
+.customRadio {
+  accent-color: #db2777; /* Cor pink-600 do Tailwind */
 }
 
-.filterButton:hover {
-  background-color: #f3f4f6;
+/* Para garantir a cor correta nos navegadores que não suportam accent-color */
+.customCheckbox:checked {
+  background-color: #db2777;
+  border-color: #db2777;
 }
 
-.productCard {
-  transition: all 0.2s ease-in-out;
-}
-
-.productCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-.discountBadge {
-  background-color: #10b981;
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 500;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-}
-
-.colorOption {
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 9999px;
-  cursor: pointer;
-  border: 1px solid #e5e7eb;
-}
-
-.colorOption.selected {
-  border: 2px solid #db2777;
+.customRadio:checked {
+  background-color: #db2777;
+  border-color: #db2777;
 }
