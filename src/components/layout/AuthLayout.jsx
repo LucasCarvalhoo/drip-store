@@ -1,5 +1,6 @@
 import React from 'react';
 import Footer from './Footer';
+import styles from './AuthLayout.module.css';
 
 const AuthLayout = ({ children }) => {
   return (
@@ -11,11 +12,11 @@ const AuthLayout = ({ children }) => {
           </a>
         </div>
       </header>
-      
-      <main className="flex-grow bg-indigo-100 flex items-center justify-center px-4 py-8">
+
+      <main className={`flex-grow flex items-center justify-center px-4 py-8 ${styles.gradientBackground}`}>
         {children}
       </main>
-      
+
       <Footer />
     </div>
   );
