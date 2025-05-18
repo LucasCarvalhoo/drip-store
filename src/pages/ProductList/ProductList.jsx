@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { ChevronRight, X, Filter, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
-import Styles from "./ProductList.module.css";
+import styles from "./ProductList.module.css";
 
 // Importação de componentes
 import Header from "../../components/layout/Header";
@@ -147,11 +147,11 @@ const ProductList = () => {
                       (brand) => (
                         <label
                           key={brand}
-                          className="flex items-center text-sm"
+                          className={`${styles.checkboxLabel} text-sm`}
                         >
                           <input
                             type="checkbox"
-                            className={`mr-2 h-4 w-4 rounded accent-pink-600 ${Styles.customCheckbox}`}
+                            className={styles.customCheckbox}
                             checked={activeFilters.brands.includes(brand)}
                             onChange={() => handleFilterChange("brands", brand)}
                           />
@@ -170,11 +170,11 @@ const ProductList = () => {
                       (category) => (
                         <label
                           key={category}
-                          className="flex items-center text-sm"
+                          className={`${styles.checkboxLabel} text-sm`}
                         >
                           <input
                             type="checkbox"
-                            className={`mr-2 h-4 w-4 rounded accent-pink-600 ${Styles.customCheckbox}`}
+                            className={styles.customCheckbox}
                             checked={activeFilters.categories.includes(
                               category
                             )}
@@ -201,12 +201,12 @@ const ProductList = () => {
                     ].map((priceRange) => (
                       <label
                         key={priceRange}
-                        className="flex items-center text-sm"
+                        className={`${styles.checkboxLabel} text-sm`}
                       >
                         <input
                           type="radio"
                           name="price"
-                          className={`mr-2 h-4 w-4 accent-pink-600 ${Styles.customRadio}`}
+                          className={styles.customRadio}
                           checked={activeFilters.price === priceRange}
                           onChange={() =>
                             handleFilterChange("price", priceRange)
@@ -223,10 +223,10 @@ const ProductList = () => {
                   <h3 className="text-sm font-medium mb-3">Gênero</h3>
                   <div className="space-y-2">
                     {["Masculino", "Feminino", "Unisex"].map((gender) => (
-                      <label key={gender} className="flex items-center text-sm">
+                      <label key={gender} className={`${styles.checkboxLabel} text-sm`}>
                         <input
                           type="checkbox"
-                          className={`mr-2 h-4 w-4 rounded accent-pink-600 ${Styles.customCheckbox}`}
+                          className={styles.customCheckbox}
                           checked={activeFilters.gender.includes(gender)}
                           onChange={() => handleFilterChange("gender", gender)}
                         />
@@ -243,12 +243,12 @@ const ProductList = () => {
                     {["Novo", "Usado"].map((condition) => (
                       <label
                         key={condition}
-                        className="flex items-center text-sm"
+                        className={`${styles.checkboxLabel} text-sm`}
                       >
                         <input
                           type="radio"
                           name="condition"
-                          className={`mr-2 h-4 w-4 accent-pink-600 ${Styles.customRadio}`}
+                          className={styles.customRadio}
                           checked={activeFilters.condition === condition}
                           onChange={() =>
                             handleFilterChange("condition", condition)
@@ -282,7 +282,7 @@ const ProductList = () => {
         </div>
       </main>
 
-      {/* Filtro mobile - agora aparece abaixo do botão como um dropdown */}
+      {/* Filtro mobile - aparece abaixo do botão como um dropdown */}
       {isFilterOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div className="absolute inset-0 bg-black bg-opacity-50" onClick={toggleFilter}></div>
@@ -302,10 +302,10 @@ const ProductList = () => {
                 <div className="space-y-2">
                   {["Adidas", "Balenciaga", "K-Swiss", "Nike", "Puma"].map(
                     (brand) => (
-                      <label key={brand} className="flex items-center text-sm">
+                      <label key={brand} className={`${styles.checkboxLabel} text-sm`}>
                         <input
                           type="checkbox"
-                          className={`mr-2 h-4 w-4 rounded accent-pink-600 ${Styles.customCheckbox}`}
+                          className={styles.customCheckbox}
                           checked={activeFilters.brands.includes(brand)}
                           onChange={() => handleFilterChange("brands", brand)}
                         />
@@ -324,11 +324,11 @@ const ProductList = () => {
                     (category) => (
                       <label
                         key={category}
-                        className="flex items-center text-sm"
+                        className={`${styles.checkboxLabel} text-sm`}
                       >
                         <input
                           type="checkbox"
-                          className={`mr-2 h-4 w-4 rounded accent-pink-600 ${Styles.customCheckbox}`}
+                          className={styles.customCheckbox}
                           checked={activeFilters.categories.includes(category)}
                           onChange={() =>
                             handleFilterChange("categories", category)
@@ -353,12 +353,12 @@ const ProductList = () => {
                   ].map((priceRange) => (
                     <label
                       key={priceRange}
-                      className="flex items-center text-sm"
+                      className={`${styles.checkboxLabel} text-sm`}
                     >
                       <input
                         type="radio"
                         name="price-mobile"
-                        className={`mr-2 h-4 w-4 accent-pink-600 ${Styles.customRadio}`}
+                        className={styles.customRadio}
                         checked={activeFilters.price === priceRange}
                         onChange={() => handleFilterChange("price", priceRange)}
                       />
@@ -373,10 +373,10 @@ const ProductList = () => {
                 <h3 className="text-sm font-medium mb-3">Gênero</h3>
                 <div className="space-y-2">
                   {["Masculino", "Feminino", "Unisex"].map((gender) => (
-                    <label key={gender} className="flex items-center text-sm">
+                    <label key={gender} className={`${styles.checkboxLabel} text-sm`}>
                       <input
                         type="checkbox"
-                        className={`mr-2 h-4 w-4 rounded accent-pink-600 ${Styles.customCheckbox}`}
+                        className={styles.customCheckbox}
                         checked={activeFilters.gender.includes(gender)}
                         onChange={() => handleFilterChange("gender", gender)}
                       />
@@ -393,12 +393,12 @@ const ProductList = () => {
                   {["Novo", "Usado"].map((condition) => (
                     <label
                       key={condition}
-                      className="flex items-center text-sm"
+                      className={`${styles.checkboxLabel} text-sm`}
                     >
                       <input
                         type="radio"
                         name="condition-mobile"
-                        className={`mr-2 h-4 w-4 accent-pink-600 ${Styles.customRadio}`}
+                        className={styles.customRadio}
                         checked={activeFilters.condition === condition}
                         onChange={() =>
                           handleFilterChange("condition", condition)
