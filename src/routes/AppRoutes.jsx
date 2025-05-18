@@ -7,6 +7,7 @@ import Checkout from "../pages/Checkout/Checkout.jsx";
 import Cart from "../pages/Cart/Cart.jsx";
 import Login from "../pages/Auth/Login.jsx";
 import OrderSuccess from '../pages/OrderSuccess/OrderSuccess.jsx';
+import Cadastro from "../pages/Auth/Register.jsx";
 
 //404
 const NotFound = () => (
@@ -37,11 +38,12 @@ const AppRoutes = () => {
       <Route path="/produto" element={<ProductDetail />} />
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/compra-realizada" element={<OrderSuccess />} />
-      {/* <Route path="/cadastro-formulario" element={< />} /> */}
       {/* <Route path="/pedidos" element={< />} /> */}
       {/* <Route path="/perfil" element={< />} /> */}
       <Route path="/login" element={<Login />} />
-      {/* <Route path="/cadastro" element={< />} /> */}
+      <Route path="/cadastro" element={<Cadastro />} />
+      {/* <Route path="/cadastro-formulario" element={< />} /> */}
+
 
       <Route path="*" element={<NotFound />} />
     </Routes>
