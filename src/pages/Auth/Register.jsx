@@ -6,11 +6,13 @@ import styles from './Register.module.css';
 
 const Register = () => {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
     // Handle registration logic here (will connect to authService later)
-    console.log('Registration attempt with:', { email });
+    console.log('Registration attempt with:', { email, password, confirmPassword });
   };
 
   return (
@@ -21,7 +23,7 @@ const Register = () => {
           <p className={styles.loginPrompt}>
             Já possui uma conta? Entre <Link to="/login" className={styles.loginLink}>aqui</Link>.
           </p>
-          
+
           <form onSubmit={handleSubmit} className={styles.registerForm}>
             <div className={styles.formGroup}>
               <label htmlFor="email" className={styles.label}>Email *</label>
@@ -35,12 +37,40 @@ const Register = () => {
                 required
               />
             </div>
-            
+
+            <div className={styles.formGroup}>
+              <label htmlFor="password" className={styles.label}>Senha *</label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Insira sua senha"
+                className={styles.input}
+                required
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="confirmPassword" className={styles.label}>Confirme sua senha *</label>
+              <input
+                id="confirmPassword"
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirme sua senha"
+                className={styles.input}
+                required
+              />
+            </div>
+
             <button type="submit" className={styles.registerButton}>
-              Criar Conta
+              <Link to="/cadastro/formulario" className={styles.registerButtonLink}>
+                Criar Conta
+              </Link>
             </button>
           </form>
-          
+
           <div className={styles.socialLogin}>
             <p className={styles.socialText}>Ou faça login com</p>
             <div className={styles.socialButtons}>
@@ -53,7 +83,7 @@ const Register = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Product image - only shown on desktop */}
         <div className={styles.productImage}>
           <img src="../images/login-shoes.png" alt="Tênis" />
