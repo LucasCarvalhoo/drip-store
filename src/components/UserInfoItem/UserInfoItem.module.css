@@ -1,0 +1,18 @@
+/* src/components/UserInfoItem/UserInfoItem.module.css */
+
+.infoItem {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.label {
+  width: 100px;
+  color: #6b7280; /* Gray-500 */
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.value {
+  font-size: 0.875rem;
+  color: #111827; /* Gray-900 */
+}
