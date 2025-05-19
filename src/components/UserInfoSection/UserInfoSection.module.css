@@ -1,0 +1,32 @@
+/* src/components/UserInfoSection/UserInfoSection.module.css */
+
+.section {
+  background-color: white;
+  border-radius: 0.25rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #111827; /* Gray-900 */
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sectionContent {
+  border-top: 1px solid #e5e7eb; /* Gray-200 */
+  padding-top: 1.5rem;
+}
