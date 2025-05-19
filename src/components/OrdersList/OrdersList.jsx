@@ -1,6 +1,6 @@
 // src/components/OrdersList/OrdersList.jsx
 import React from 'react';
-import OrderItem from '../OrderItem/OrderItem';
+import OrderItem from '../OrderItem/OrderItem.jsx';
 import styles from './OrdersList.module.css';
 
 /**
