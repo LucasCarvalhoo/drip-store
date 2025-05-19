@@ -1,0 +1,194 @@
+/* src/pages/PaymentMethods/PaymentMethods.module.css */
+
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.sidebarContainer {
+  width: 100%;
+}
+
+.contentContainer {
+  flex: 1;
+}
+
+.headerContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.pageTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827; /* Gray-900 */
+}
+
+.addButton {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background-color: #db2777; /* Pink-600 */
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 0.25rem;
+  text-decoration: none;
+  transition: background-color 0.2s;
+}
+
+.addButton:hover {
+  background-color: #be185d; /* Pink-700 */
+}
+
+.cardsSection {
+  background-color: white;
+  border-radius: 0.25rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.cardsList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cardItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #e5e7eb; /* Gray-200 */
+  border-radius: 0.25rem;
+  transition: border-color 0.2s;
+}
+
+.cardItem:hover {
+  border-color: #d1d5db; /* Gray-300 */
+}
+
+.cardDetails {
+  display: flex;
+  align-items: center;
+}
+
+.cardIcon {
+  width: 40px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 1rem;
+  flex-shrink: 0;
+}
+
+.visaIcon {
+  color: #1a1f71;
+  font-weight: bold;
+  font-size: 0.75rem;
+}
+
+.mastercardIcon {
+  color: #eb001b;
+  font-weight: bold;
+  font-size: 0.75rem;
+}
+
+.cardInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.cardNumber {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827; /* Gray-900 */
+}
+
+.cardExpiry {
+  font-size: 0.75rem;
+  color: #6b7280; /* Gray-500 */
+  margin-top: 0.25rem;
+}
+
+.defaultBadge {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: #059669; /* Green-600 */
+  background-color: #ecfdf5; /* Green-50 */
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+}
+
+.cardActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.setDefaultButton {
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  color: #6b7280; /* Gray-500 */
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.removeButton {
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  color: #ef4444; /* Red-500 */
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.emptyState {
+  text-align: center;
+  padding: 2rem 0;
+  color: #6b7280; /* Gray-500 */
+}
+
+.emptyStateSubtext {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.infoBox {
+  background-color: #f9fafb; /* Gray-50 */
+  border-radius: 0.25rem;
+  padding: 1rem;
+  border-left: 4px solid #60a5fa; /* Blue-400 */
+}
+
+.infoTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937; /* Gray-800 */
+  margin-bottom: 0.5rem;
+}
+
+.infoText {
+  font-size: 0.875rem;
+  color: #4b5563; /* Gray-600 */
+  line-height: 1.5;
+}
+
+/* Desktop layout */
+@media (min-width: 768px) {
+  .pageContainer {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .sidebarContainer {
+    width: 240px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 2rem;
+  }
+}
