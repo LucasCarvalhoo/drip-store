@@ -11,6 +11,7 @@ import Register from "../pages/Auth/Register.jsx";
 import RegisterForm from "../pages/Auth/RegisterForm.jsx";
 import Orders from "../pages/Orders/Orders.jsx";
 import UserInfo from "../pages/UserInfo/UserInfo.jsx";
+import PaymentMethods from "../pages/PaymentMethods/PaymentMethods.jsx";
 
 //404
 const NotFound = () => (
@@ -43,6 +44,7 @@ const AppRoutes = () => {
       <Route path="/compra-realizada" element={<OrderSuccess />} />
       <Route path="/meus-pedidos" element={<Orders />} />
       <Route path="/minhas-informacoes" element={<UserInfo />} />
+      <Route path="/metodos-pagamento" element={<PaymentMethods />} />
       {/* <Route path="/pedidos" element={< />} /> */}
       {/* <Route path="/perfil" element={< />} /> */}
       <Route path="/login" element={<Login />} />
