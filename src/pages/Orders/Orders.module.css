@@ -1,0 +1,30 @@
+/* src/pages/Orders/Orders.module.css */
+
+.ordersPage {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.sidebarContainer {
+  width: 100%;
+}
+
+.contentContainer {
+  flex: 1;
+}
+
+/* Desktop layout */
+@media (min-width: 768px) {
+  .ordersPage {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .sidebarContainer {
+    width: 240px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 2rem;
+  }
+}
