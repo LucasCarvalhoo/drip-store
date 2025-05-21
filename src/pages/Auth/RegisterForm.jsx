@@ -1,26 +1,65 @@
 // src/pages/Auth/RegisterForm.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from '../../components/layout/AuthLayout';
 import styles from './RegisterForm.module.css';
-import { Link } from 'react-router-dom';
+import { signUp } from '../../services/authService';
+import { useUser } from '../../contexts/UserContext';
 
 const RegisterForm = () => {
+    // Get email and password from localStorage
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+    const { setUser } = useUser();
 
     // Form state
     const [formData, setFormData] = useState({
         nome: '',
         cpf: '',
-        email: '',
         celular: '',
         endereco: '',
         bairro: '',
         cidade: '',
+        estado: 'CE', // Default state
         cep: '',
         complemento: '',
         receberOfertas: true,
-        senha: '',
-        confirmarSenha: ''
     });
+
+    // Get email and password from localStorage or sessionStorage on component mount
+    useEffect(() => {
+        // Try to get from localStorage first
+        let storedEmail = localStorage.getItem('registerEmail');
+        let storedPassword = localStorage.getItem('registerPassword');
+        
+        // If not found in localStorage, try sessionStorage
+        if (!storedEmail || !storedPassword) {
+            storedEmail = sessionStorage.getItem('registerEmail');
+            storedPassword = sessionStorage.getItem('registerPassword');
+        }
+        
+        if (!storedEmail || !storedPassword) {
+            // If no email or password in either storage, redirect to first step
+            console.log("No registration data found, redirecting to /cadastro");
+            navigate('/cadastro');
+            return;
+        }
+        
+        console.log("Found registration data:", storedEmail);
+        setEmail(storedEmail);
+        setPassword(storedPassword);
+        
+        // Clean up function to remove items when component unmounts
+        return () => {
+            localStorage.removeItem('registerEmail');
+            localStorage.removeItem('registerPassword');
+            sessionStorage.removeItem('registerEmail');
+            sessionStorage.removeItem('registerPassword');
+        };
+    }, [navigate]);
 
     // Handle input changes
     const handleChange = (e) => {
@@ -90,22 +129,79 @@ const RegisterForm = () => {
     };
 
     // Handle form submission
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-
-        // Check if passwords match
-        if (formData.senha !== formData.confirmarSenha) {
-            alert('As senhas não coincidem.');
+        
+        // Reset any previous errors
+        setError('');
+        
+        // Validate required fields
+        const requiredFields = ['nome', 'cpf', 'celular', 'endereco', 'bairro', 'cidade', 'estado', 'cep'];
+        for (const field of requiredFields) {
+            if (!formData[field].trim()) {
+                setError(`Por favor, preencha todos os campos obrigatórios.`);
+                return;
+            }
+        }
+        
+        // Validate CPF format
+        const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
+        if (!cpfRegex.test(formData.cpf)) {
+            setError('CPF inválido. Use o formato: 000.000.000-00');
             return;
         }
-
-        // Handle registration (will connect to authService later)
-        console.log('Form submitted with:', formData);
-
-        // In a real app, you would:
-        // 1. Send data to your backend/auth service
-        // 2. Navigate to a success page or login page
-        // navigate('/registration-success');
+        
+        // Validate CEP format
+        const cepRegex = /^\d{5}-\d{3}$/;
+        if (!cepRegex.test(formData.cep)) {
+            setError('CEP inválido. Use o formato: 00000-000');
+            return;
+        }
+        
+        try {
+            setLoading(true);
+            
+            // Call the signUp function from authService
+            // Ignore any AuthSessionMissingError, as we expect no session during registration
+            try {
+                const data = await signUp(email, password, formData);
+                
+                // Set the user in context
+                setUser(data.user);
+                
+                // Clear stored registration data
+                localStorage.removeItem('registerEmail');
+                localStorage.removeItem('registerPassword');
+                sessionStorage.removeItem('registerEmail');
+                sessionStorage.removeItem('registerPassword');
+                
+                // Redirect to homepage after successful registration
+                navigate('/');
+            } catch (err) {
+                // Check if it's the auth session missing error, which we can ignore during registration
+                if (err.message && err.message.includes('Auth session missing')) {
+                    console.log('Ignoring expected auth session missing error during registration');
+                    
+                    // Still redirect to homepage since we're in the registration flow
+                    // In a real app, we might want to show a success message first
+                    navigate('/');
+                } else {
+                    // It's a different error, so handle it normally
+                    throw err;
+                }
+            }
+        } catch (err) {
+            console.error('Registration error:', err);
+            
+            // Display appropriate error message
+            if (err.message && err.message.includes('already registered')) {
+                setError('Este email já está registrado. Por favor, use outro email ou faça login.');
+            } else {
+                setError('Ocorreu um erro ao criar sua conta. Por favor, tente novamente.');
+            }
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -113,6 +209,13 @@ const RegisterForm = () => {
             <div className={styles.registerFormContainer}>
                 <div className={styles.registerFormCard}>
                     <h1 className={styles.title}>Criar Conta</h1>
+
+                    {/* Display error messages if any */}
+                    {error && (
+                        <div className="bg-red-50 text-red-600 p-3 rounded-md mb-4 text-sm">
+                            {error}
+                        </div>
+                    )}
 
                     <form onSubmit={handleSubmit} className={styles.form}>
                         {/* Personal Information Section */}
@@ -133,6 +236,7 @@ const RegisterForm = () => {
                                     placeholder="Insira seu nome"
                                     className={styles.input}
                                     required
+                                    disabled={loading}
                                 />
                             </div>
 
@@ -150,6 +254,7 @@ const RegisterForm = () => {
                                     className={styles.input}
                                     maxLength="14"
                                     required
+                                    disabled={loading}
                                 />
                             </div>
 
@@ -161,11 +266,9 @@ const RegisterForm = () => {
                                     type="email"
                                     id="email"
                                     name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    placeholder="Insira seu email"
+                                    value={email}
                                     className={styles.input}
-                                    required
+                                    disabled={true}
                                 />
                             </div>
 
@@ -183,6 +286,7 @@ const RegisterForm = () => {
                                     className={styles.input}
                                     maxLength="16"
                                     required
+                                    disabled={loading}
                                 />
                             </div>
                         </div>
@@ -205,6 +309,7 @@ const RegisterForm = () => {
                                     placeholder="Insira seu endereço"
                                     className={styles.input}
                                     required
+                                    disabled={loading}
                                 />
                             </div>
 
@@ -221,6 +326,7 @@ const RegisterForm = () => {
                                     placeholder="Insira seu bairro"
                                     className={styles.input}
                                     required
+                                    disabled={loading}
                                 />
                             </div>
 
@@ -237,7 +343,52 @@ const RegisterForm = () => {
                                     placeholder="Insira sua cidade"
                                     className={styles.input}
                                     required
+                                    disabled={loading}
                                 />
+                            </div>
+
+                            <div className={styles.formGroup}>
+                                <label htmlFor="estado" className={styles.label}>
+                                    Estado <span className={styles.required}>*</span>
+                                </label>
+                                <select
+                                    id="estado"
+                                    name="estado"
+                                    value={formData.estado}
+                                    onChange={handleChange}
+                                    className={styles.input}
+                                    required
+                                    disabled={loading}
+                                >
+                                    <option value="">Selecione</option>
+                                    <option value="AC">Acre</option>
+                                    <option value="AL">Alagoas</option>
+                                    <option value="AP">Amapá</option>
+                                    <option value="AM">Amazonas</option>
+                                    <option value="BA">Bahia</option>
+                                    <option value="CE">Ceará</option>
+                                    <option value="DF">Distrito Federal</option>
+                                    <option value="ES">Espírito Santo</option>
+                                    <option value="GO">Goiás</option>
+                                    <option value="MA">Maranhão</option>
+                                    <option value="MT">Mato Grosso</option>
+                                    <option value="MS">Mato Grosso do Sul</option>
+                                    <option value="MG">Minas Gerais</option>
+                                    <option value="PA">Pará</option>
+                                    <option value="PB">Paraíba</option>
+                                    <option value="PR">Paraná</option>
+                                    <option value="PE">Pernambuco</option>
+                                    <option value="PI">Piauí</option>
+                                    <option value="RJ">Rio de Janeiro</option>
+                                    <option value="RN">Rio Grande do Norte</option>
+                                    <option value="RS">Rio Grande do Sul</option>
+                                    <option value="RO">Rondônia</option>
+                                    <option value="RR">Roraima</option>
+                                    <option value="SC">Santa Catarina</option>
+                                    <option value="SP">São Paulo</option>
+                                    <option value="SE">Sergipe</option>
+                                    <option value="TO">Tocantins</option>
+                                </select>
                             </div>
 
                             <div className={styles.formGroup}>
@@ -254,6 +405,7 @@ const RegisterForm = () => {
                                     className={styles.input}
                                     maxLength="9"
                                     required
+                                    disabled={loading}
                                 />
                             </div>
 
@@ -269,6 +421,7 @@ const RegisterForm = () => {
                                     onChange={handleChange}
                                     placeholder="Insira complemento"
                                     className={styles.input}
+                                    disabled={loading}
                                 />
                             </div>
                         </div>
@@ -283,6 +436,7 @@ const RegisterForm = () => {
                                     checked={formData.receberOfertas}
                                     onChange={handleChange}
                                     className={styles.checkbox}
+                                    disabled={loading}
                                 />
                             </div>
                             <label htmlFor="receberOfertas" className={styles.checkboxLabel}>
@@ -291,10 +445,12 @@ const RegisterForm = () => {
                         </div>
 
                         {/* Submit Button */}
-                        <button type="submit" className={styles.submitButton}>
-                            <Link to='/login' className={styles.submitButtonLink}>
-                                Criar Conta
-                            </Link>
+                        <button 
+                            type="submit" 
+                            className={styles.submitButton}
+                            disabled={loading}
+                        >
+                            {loading ? 'Criando conta...' : 'Criar Conta'}
                         </button>
                     </form>
                 </div>
