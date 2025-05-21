@@ -6,18 +6,22 @@ import { Search, ShoppingCart, Menu, X } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 
 const Header = () => {
-  // Estados para controlar os menus mobile
+  // Estados para controlar a visibilidade dos elementos interativos
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
-  // Usar o hook useLocation para obter a pathname atual
+  // Referências para elementos DOM do carrinho
+  const cartButtonRef = useRef(null); // Referência ao botão do carrinho
+  const cartRef = useRef(null); // Referência ao dropdown do carrinho
+
+  // Obter localização atual para destacar o item de menu ativo
   const location = useLocation();
   const [currentPage, setCurrentPage] = useState("");
 
-  // Atualizar currentPage quando a localização mudar
+  // Atualizar a página atual baseado na rota
   useEffect(() => {
     const path = location.pathname;
 
@@ -38,8 +42,9 @@ const Header = () => {
     } else {
       setCurrentPage("");
     }
-  }, [location.pathname]); // Este efeito roda sempre que a rota muda
+  }, [location.pathname]);
 
+  // Funções para alternar a visibilidade dos elementos da interface
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
     setIsSearchOpen(false);
@@ -54,7 +59,11 @@ const Header = () => {
     setIsFilterOpen(false);
   };
 
-  const toggleCart = () => {
+  // Função para alternar o carrinho, com tratamento especial para prevenir propagação indesejada do evento
+  const toggleCart = (e) => {
+    // Previne que o evento se propague ao documento
+    if (e) e.stopPropagation();
+    
     setIsCartOpen(!isCartOpen);
     setIsMenuOpen(false);
     setIsSearchOpen(false);
@@ -72,38 +81,38 @@ const Header = () => {
     setSearchValue(e.target.value);
   };
 
-  // Estado para React para detectar cliques fora do componente:
-  const cartRef = useRef(null);
-
-  // Adicione este useEffect depois dos outros hooks
+  // Detecta cliques fora do carrinho para fechá-lo automaticamente
   useEffect(() => {
     function handleClickOutside(event) {
+      // Fecha o carrinho se o clique for fora do dropdown E fora do botão do carrinho
       if (
-        cartRef.current &&
-        !cartRef.current.contains(event.target) &&
+        cartRef.current && 
+        !cartRef.current.contains(event.target) && 
+        cartButtonRef.current && 
+        !cartButtonRef.current.contains(event.target) && 
         isCartOpen
       ) {
         setIsCartOpen(false);
       }
     }
 
-    // Adicionar event listener quando o carrinho estiver aberto
+    // Adiciona o listener apenas quando o carrinho está aberto
     if (isCartOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
-    // Cleanup do event listener
+    // Remove o listener quando o componente desmonta ou o carrinho fecha
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isCartOpen]); // Dependência do useEffect
+  }, [isCartOpen]);
 
   return (
     <header className="w-full bg-white shadow-sm">
       <div className="container mx-auto px-4 py-2">
         {/* Parte superior do header */}
         <div className="py-4 md:py-5 flex items-center">
-          {/* Mobile layout */}
+          {/* Layout mobile */}
           <div className="md:hidden grid grid-cols-12 items-center w-full">
             {/* Área esquerda - menu sanduíche (3 colunas) */}
             <div className="col-span-3 flex justify-start">
@@ -139,6 +148,7 @@ const Header = () => {
 
               <div className="relative flex items-center">
                 <button
+                  ref={cartButtonRef}
                   className="bg-transparent border-none p-0 flex items-center justify-center relative"
                   onClick={toggleCart}
                   aria-label="Carrinho"
@@ -153,7 +163,7 @@ const Header = () => {
             </div>
           </div>
 
-          {/* Desktop layout */}
+          {/* Layout desktop */}
           <div className="hidden md:flex items-center justify-between w-full">
             {/* Lado esquerdo com logo */}
             <div className="flex items-center">
@@ -203,6 +213,7 @@ const Header = () => {
               {/* Área do carrinho */}
               <div className="relative flex items-center">
                 <button
+                  ref={cartButtonRef}
                   className="bg-transparent border-none p-0 flex items-center justify-center relative"
                   onClick={toggleCart}
                   aria-label="Carrinho"
@@ -218,7 +229,7 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Barra de pesquisa mobile */}
+        {/* Barra de pesquisa mobile - visível apenas quando isSearchOpen é true */}
         {isSearchOpen && (
           <div className="md:hidden py-3 pb-5">
             <div className="relative">
@@ -239,7 +250,7 @@ const Header = () => {
           </div>
         )}
 
-        {/* Navegação desktop */}
+        {/* Navegação desktop - links principais do site */}
         <nav className="hidden md:block">
           <div className="flex py-4 space-x-8">
             <Link
@@ -282,7 +293,7 @@ const Header = () => {
         </nav>
       </div>
 
-      {/* Menu mobile */}
+      {/* Menu mobile - visível apenas quando isMenuOpen é true */}
       {isMenuOpen && (
         <div className="md:hidden fixed inset-0 bg-white z-50">
           <div className="container mx-auto p-4">
@@ -362,7 +373,7 @@ const Header = () => {
         </div>
       )}
 
-      {/* Carrinho dropdown */}
+      {/* Carrinho dropdown - visível apenas quando isCartOpen é true */}
       {isCartOpen && (
         <div
           ref={cartRef}
@@ -394,7 +405,7 @@ const Header = () => {
                 </div>
               </div>
 
-              {/* Item de carrinho 2 (igual ao Figma) */}
+              {/* Item de carrinho 2 */}
               <div className="flex gap-3">
                 <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden">
                   <img
@@ -418,6 +429,7 @@ const Header = () => {
               </div>
             </div>
 
+            {/* Resumo e ações do carrinho */}
             <div className="mt-4 pt-3 border-t">
               <div className="flex justify-between mb-4">
                 <span className="text-sm font-medium">Valor total:</span>
@@ -441,7 +453,7 @@ const Header = () => {
         </div>
       )}
 
-      {/* Painel de Filtros Mobile */}
+      {/* Painel de Filtros Mobile - visível apenas quando isFilterOpen é true */}
       {isFilterOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end md:justify-center md:items-center">
           <div className="bg-white h-full md:h-auto md:rounded-lg w-full max-w-xs md:max-w-lg overflow-auto">
@@ -457,7 +469,7 @@ const Header = () => {
                 </button>
               </div>
 
-              {/* Filtros */}
+              {/* Seções de filtros */}
               <div className="space-y-6">
                 {/* Filtro de marca */}
                 <div>
