@@ -1,38 +1,51 @@
 // src/services/productService.js
 import { supabase } from './supabase';
 
-// Get featured products for home page
 export const getFeaturedProducts = async (limit = 8) => {
-  const { data, error } = await supabase
-    .from('produtos')
-    .select(`
-      id, 
-      nome, 
-      slug, 
-      preco_original, 
-      preco_promocional,
-      desconto_porcentagem,
-      em_promocao,
-      categoria_id (nome),
-      imagens_produto (url)
-    `)
-    .eq('destacado', true)
-    .eq('ativo', true)
-    .order('data_criacao', { ascending: false })
-    .limit(limit);
+  try {
+    const { data, error } = await supabase
+      .from('produtos')
+      .select(`
+        id, 
+        nome, 
+        slug, 
+        preco_original, 
+        preco_promocional,
+        desconto_porcentagem,
+        em_promocao,
+        categoria_id (id, nome, slug),
+        marca_id (id, nome, slug),
+        imagens_produto (id, url, principal, ordem)
+      `)
+      .eq('destacado', true)
+      .eq('ativo', true)
+      .order('quantidade_vendas', { ascending: false }) // Ordena por mais vendidos
+      .limit(limit);
 
-  if (error) throw error;
-  
-  // Transform the data to match your frontend components
-  return data.map(product => ({
-    id: product.id,
-    nome: product.nome,
-    precoOriginal: product.preco_original,
-    precoAtual: product.preco_promocional || product.preco_original,
-    desconto: product.desconto_porcentagem,
-    categoria: product.categoria_id?.nome,
-    imagemUrl: product.imagens_produto[0]?.url || '../images/products/produc-image-0.png'
-  }));
+    if (error) throw error;
+    
+    // Transformar os dados para o formato usado pelo componente ProductCard
+    return data.map(product => {
+      // Encontrar a imagem principal ou a primeira disponível
+      const imagens = product.imagens_produto || [];
+      const imagemPrincipal = imagens.find(img => img.principal) || imagens[0];
+      
+      return {
+        id: product.id,
+        nome: product.nome,
+        slug: product.slug,
+        precoOriginal: product.preco_original,
+        precoAtual: product.preco_promocional || product.preco_original,
+        desconto: product.desconto_porcentagem,
+        categoria: product.categoria_id?.nome || '',
+        marca: product.marca_id?.nome || '',
+        imagemUrl: imagemPrincipal?.url || '../images/products/produc-image-0.png'
+      };
+    });
+  } catch (error) {
+    console.error('Erro ao buscar produtos em alta:', error);
+    return []; // Retorna array vazio em caso de erro
+  }
 };
 
 // Get product categories

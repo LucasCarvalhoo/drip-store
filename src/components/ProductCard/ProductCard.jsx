@@ -3,32 +3,25 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const ProductCard = ({ produtos }) => {
-  // Se não receber produtos via props, usa os mockados internamente
-  const produtosParaExibir = produtos || [
-    {
-      id: 1,
-      nome: 'K-Swiss V8 - Masculino',
-      precoOriginal: 200,
-      precoAtual: 100,
-      desconto: 30,
-      categoria: 'Tênis',
-      imagemUrl: '../images/products/produc-image-0.png', // Ajuste o caminho conforme a localização da sua imagem
-    },
-    {
-      id: 2,
-      nome: 'K-Swiss V8 - Masculino',
-      precoOriginal: 200,
-      precoAtual: 100,
-      categoria: 'Tênis',
-      imagemUrl: '../images/products/produc-image-0.png',
-    }
-  ];
+  // Se não receber produtos via props, indica loading
+  if (!produtos || produtos.length === 0) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="p-4 rounded shadow-sm hover:shadow-md transition-shadow bg-white animate-pulse">
+          <div className="h-48 bg-gray-200 rounded mb-3"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+          <div className="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {/* Mapeamento do array de produtos para criar cada card */}
-      {produtosParaExibir.map((produto) => (
-        <div key={produto.id} className="p-4 rounded shadow-sm hover:shadow-md transition-shadow">
+      {produtos.map((produto) => (
+        <div key={produto.id} className="p-4 rounded shadow-sm hover:shadow-md transition-shadow bg-white">
           {/* Badge de desconto */}
           <div className="relative bg-white">
             {produto.desconto > 0 && (
@@ -39,7 +32,7 @@ const ProductCard = ({ produtos }) => {
             
             {/* Imagem do produto como link */}
             <Link 
-              to={`/produto/${produto.id}`} 
+              to={`/produto/${produto.slug || produto.id}`} 
               className="block cursor-pointer"
             >
               <img 
@@ -48,7 +41,7 @@ const ProductCard = ({ produtos }) => {
                 className="w-full h-48 object-contain mb-3 hover:opacity-90 transition-opacity"
                 onError={(e) => {
                   e.target.onerror = null; 
-                  e.target.src = '';
+                  e.target.src = '/src/assets/icons/icon-category-sneakers.svg';
                 }}
               />
             </Link>
@@ -60,7 +53,7 @@ const ProductCard = ({ produtos }) => {
             <p className="text-xs text-gray-500 mb-1">{produto.categoria}</p>
             
             {/* Nome do produto também como link */}
-            <Link to={`/produto/${produto.id}`} className="hover:text-pink-600 transition-colors">
+            <Link to={`/produto/${produto.slug || produto.id}`} className="hover:text-pink-600 transition-colors">
               <h3 className="text-sm text-gray-800 font-medium mb-2">{produto.nome}</h3>
             </Link>
             
@@ -69,13 +62,13 @@ const ProductCard = ({ produtos }) => {
               {/* Preço original riscado - só mostrar se for maior que o preço atual */}
               {produto.precoOriginal > produto.precoAtual && (
                 <span className="text-xs text-gray-500 line-through mr-2">
-                  R${produto.precoOriginal}
+                  R${produto.precoOriginal.toFixed(2).replace('.', ',')}
                 </span>
               )}
               
               {/* Preço atual */}
               <span className="text-base font-bold text-gray-800">
-                R${produto.precoAtual}
+                R${produto.precoAtual.toFixed(2).replace('.', ',')}
               </span>
             </div>
           </div>
