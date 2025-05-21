@@ -1,113 +1,56 @@
 // src/pages/Auth/Register.jsx
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from '../../components/layout/AuthLayout';
 import styles from './Register.module.css';
 
-/**
- * Register Component - First step of the registration process
- * Collects email and password, then stores in localStorage/sessionStorage
- * before redirecting to the registration form
- */
 const Register = () => {
-  // Form state
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  
-  // UI state
   const [error, setError] = useState('');
   const [isStoring, setIsStoring] = useState(false);
   
-  /**
-   * Directly store data and navigate without using React Router
-   * This bypasses potential issues with form submission and Router navigation
-   */
-  const storeDataAndNavigate = () => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError('');
+    
     // Basic validation
     if (!email.trim()) {
       setError('Por favor, insira um email válido.');
-      return false;
+      return;
     }
     
     if (!password.trim()) {
       setError('Por favor, insira uma senha.');
-      return false;
+      return;
     }
     
     if (password !== confirmPassword) {
       setError('As senhas não coincidem.');
-      return false;
+      return;
     }
     
     if (password.length < 8) {
       setError('A senha deve ter pelo menos 8 caracteres.');
-      return false;
+      return;
     }
     
     try {
-      console.log('Storing data in localStorage and sessionStorage');
+      setIsStoring(true);
       
-      // First clear any existing data
-      localStorage.removeItem('registerEmail');
-      localStorage.removeItem('registerPassword');
-      sessionStorage.removeItem('registerEmail');
-      sessionStorage.removeItem('registerPassword');
-      
-      // Store in localStorage
-      localStorage.setItem('registerEmail', email);
-      localStorage.setItem('registerPassword', password);
-      
-      // Also store in sessionStorage as a backup
+      // Store registration data in sessionStorage (more secure than localStorage for sensitive data)
       sessionStorage.setItem('registerEmail', email);
       sessionStorage.setItem('registerPassword', password);
       
-      // Verify data was stored (debug)
-      const localEmail = localStorage.getItem('registerEmail');
-      const sessionEmail = sessionStorage.getItem('registerEmail');
-      
-      console.log('Stored in localStorage:', localEmail);
-      console.log('Stored in sessionStorage:', sessionEmail);
-      
-      if (!localEmail && !sessionEmail) {
-        throw new Error('Failed to store data');
-      }
-      
-      return true;
+      // Use React Router for navigation
+      navigate('/cadastro/formulario');
     } catch (err) {
       console.error('Error storing registration data:', err);
-      setError('Houve um erro ao salvar seus dados. Por favor, tente novamente.');
-      return false;
-    }
-  };
-  
-  /**
-   * Handle the button click event directly (not form submission)
-   * This gives us more control over the flow
-   */
-  const handleContinueClick = () => {
-    setError('');
-    setIsStoring(true);
-    
-    // Try to store data
-    if (storeDataAndNavigate()) {
-      // Success - navigate to form page using direct browser navigation
-      console.log('Navigating to registration form...');
-      window.location.href = '/cadastro/formulario';
-    } else {
-      // Error - already displayed by storeDataAndNavigate
+      setError('Houve um erro ao processar seu cadastro. Por favor, tente novamente.');
       setIsStoring(false);
     }
-  };
-  
-  /**
-   * Handle form submission
-   * This is a fallback method in case the button click handler doesn't work
-   */
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Form submitted');
-    handleContinueClick();
   };
   
   return (
@@ -125,12 +68,6 @@ const Register = () => {
               {error}
             </div>
           )}
-
-          {/* Storage debug info */}
-          <div className="text-xs text-gray-500 mb-4">
-            localStorage: {localStorage.getItem('registerEmail') || 'empty'}<br/>
-            sessionStorage: {sessionStorage.getItem('registerEmail') || 'empty'}
-          </div>
 
           {/* Registration form */}
           <form onSubmit={handleSubmit} className={styles.registerForm}>
@@ -186,15 +123,6 @@ const Register = () => {
               {isStoring ? 'Aguarde...' : 'Continuar'}
             </button>
           </form>
-          
-          {/* Direct button (outside form) as fallback */}
-          <button 
-            onClick={handleContinueClick}
-            className="mt-4 w-full bg-gray-200 text-gray-700 py-2 px-4 rounded hover:bg-gray-300"
-            disabled={isStoring}
-          >
-            Continuar (Método alternativo)
-          </button>
 
           <div className={styles.socialLogin}>
             <p className={styles.socialText}>Ou faça login com</p>

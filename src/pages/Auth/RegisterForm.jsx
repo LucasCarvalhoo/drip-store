@@ -7,13 +7,14 @@ import { signUp } from '../../services/authService';
 import { useUser } from '../../contexts/UserContext';
 
 const RegisterForm = () => {
-    // Get email and password from localStorage
+    const navigate = useNavigate();
+    const { setUser } = useUser();
+    
+    // Get email and password from sessionStorage
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
-    const { setUser } = useUser();
 
     // Form state
     const [formData, setFormData] = useState({
@@ -29,36 +30,19 @@ const RegisterForm = () => {
         receberOfertas: true,
     });
 
-    // Get email and password from localStorage or sessionStorage on component mount
+    // Get email and password from sessionStorage on component mount
     useEffect(() => {
-        // Try to get from localStorage first
-        let storedEmail = localStorage.getItem('registerEmail');
-        let storedPassword = localStorage.getItem('registerPassword');
-        
-        // If not found in localStorage, try sessionStorage
-        if (!storedEmail || !storedPassword) {
-            storedEmail = sessionStorage.getItem('registerEmail');
-            storedPassword = sessionStorage.getItem('registerPassword');
-        }
+        const storedEmail = sessionStorage.getItem('registerEmail');
+        const storedPassword = sessionStorage.getItem('registerPassword');
         
         if (!storedEmail || !storedPassword) {
-            // If no email or password in either storage, redirect to first step
-            console.log("No registration data found, redirecting to /cadastro");
+            // If no email or password, redirect to first step
             navigate('/cadastro');
             return;
         }
         
-        console.log("Found registration data:", storedEmail);
         setEmail(storedEmail);
         setPassword(storedPassword);
-        
-        // Clean up function to remove items when component unmounts
-        return () => {
-            localStorage.removeItem('registerEmail');
-            localStorage.removeItem('registerPassword');
-            sessionStorage.removeItem('registerEmail');
-            sessionStorage.removeItem('registerPassword');
-        };
     }, [navigate]);
 
     // Handle input changes
@@ -162,34 +146,20 @@ const RegisterForm = () => {
             setLoading(true);
             
             // Call the signUp function from authService
-            // Ignore any AuthSessionMissingError, as we expect no session during registration
-            try {
-                const data = await signUp(email, password, formData);
-                
-                // Set the user in context
+            const data = await signUp(email, password, formData);
+            
+            // Set the user in context if available
+            if (data && data.user) {
                 setUser(data.user);
-                
-                // Clear stored registration data
-                localStorage.removeItem('registerEmail');
-                localStorage.removeItem('registerPassword');
-                sessionStorage.removeItem('registerEmail');
-                sessionStorage.removeItem('registerPassword');
-                
-                // Redirect to homepage after successful registration
-                navigate('/');
-            } catch (err) {
-                // Check if it's the auth session missing error, which we can ignore during registration
-                if (err.message && err.message.includes('Auth session missing')) {
-                    console.log('Ignoring expected auth session missing error during registration');
-                    
-                    // Still redirect to homepage since we're in the registration flow
-                    // In a real app, we might want to show a success message first
-                    navigate('/');
-                } else {
-                    // It's a different error, so handle it normally
-                    throw err;
-                }
             }
+            
+            // Clear stored registration data
+            sessionStorage.removeItem('registerEmail');
+            sessionStorage.removeItem('registerPassword');
+            
+            // Redirect to homepage after successful registration
+            navigate('/');
+            
         } catch (err) {
             console.error('Registration error:', err);
             
