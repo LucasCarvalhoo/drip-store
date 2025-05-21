@@ -1,0 +1,49 @@
+/* src/pages/UserInfo/UserInfo.module.css */
+
+.userInfoPage {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.sidebarContainer {
+  width: 100%;
+}
+
+.contentContainer {
+  flex: 1;
+}
+
+.pageTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827; /* Gray-900 */
+  margin-bottom: 1.5rem;
+}
+
+.editButton {
+  color: #db2777; /* Pink-600 */
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.editButton:hover {
+  color: #be185d; /* Pink-700 */
+  text-decoration: underline;
+}
+
+/* Desktop layout */
+@media (min-width: 768px) {
+  .userInfoPage {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .sidebarContainer {
+    width: 240px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 2rem;
+  }
+}

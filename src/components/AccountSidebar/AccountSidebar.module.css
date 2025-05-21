@@ -1,0 +1,43 @@
+/* src/components/AccountSidebar/AccountSidebar.module.css */
+
+.sidebar {
+  background-color: white;
+  border-radius: 0.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  min-width: 240px;
+}
+
+.navList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navItem {
+  margin-bottom: 0.5rem;
+}
+
+.navLink {
+  display: block;
+  padding: 0.75rem 0;
+  color: #6b7280; /* Gray-500 */
+  font-size: 0.875rem;
+  text-decoration: none;
+  border-bottom: 1px solid #f3f4f6; /* Gray-100 */
+  transition: color 0.2s;
+}
+
+.navLink:hover {
+  color: #111827; /* Gray-900 */
+}
+
+.active {
+  color: #db2777; /* Pink-600 */
+  font-weight: 500;
+}
+
+/* Remove bottom border from last item */
+.navItem:last-child .navLink {
+  border-bottom: none;
+}

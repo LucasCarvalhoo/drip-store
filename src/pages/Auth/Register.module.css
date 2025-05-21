@@ -1,0 +1,143 @@
+/* src/pages/Auth/Register.module.css */
+.registerContainer {
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.registerCard {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 0.25rem;
+  width: 100%;
+  max-width: 450px;
+}
+
+.registerTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.loginPrompt {
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.loginLink {
+  color: #111827;
+  text-decoration: underline;
+}
+
+.registerForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+.input {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  background-color: #f9fafb;
+}
+
+.input:focus {
+  outline: none;
+  background-color: white;
+  border-color: #d1d5db;
+}
+
+.registerButton {
+  margin-top: 1rem;
+  background-color: #db2777;
+  color: white;
+  font-weight: 500;
+  padding: 0.75rem 1rem;
+  border-radius: 0.25rem;
+  border: none;
+  cursor: pointer;
+}
+
+.registerButton:hover {
+  background-color: #be185d;
+}
+
+.socialLogin {
+  margin-top: 1.5rem;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+}
+
+.socialText {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 0.75rem;
+  margin-right: 20px;
+  align-self: center;
+}
+
+.socialButtons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.googleButton,
+.facebookButton {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-self: center;
+  justify-content: center;
+  background-color: white;
+  cursor: pointer;
+}
+
+.googleButton img,
+.facebookButton img {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.productImage {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .registerContainer {
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem;
+  }
+  
+  .productImage {
+    display: block;
+    width: 50%;
+    max-width: 550px;
+  }
+  
+  .productImage img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+}

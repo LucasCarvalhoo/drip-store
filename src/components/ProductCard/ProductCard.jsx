@@ -1,5 +1,6 @@
 // src/components/ProductCard/ProductCard.jsx
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const ProductCard = ({ produtos }) => {
   // Se não receber produtos via props, usa os mockados internamente
@@ -31,21 +32,26 @@ const ProductCard = ({ produtos }) => {
           {/* Badge de desconto */}
           <div className="relative bg-white">
             {produto.desconto > 0 && (
-              <span className="absolute top-2 left-2 bg-lime-500 text-white text-xs font-semibold px-2 py-1 rounded">
+              <span className="absolute top-2 left-2 bg-lime-500 text-white text-xs font-semibold px-2 py-1 rounded z-10">
                 {produto.desconto}% OFF
               </span>
             )}
             
-            {/* Imagem do produto */}
-            <img 
-              src={produto.imagemUrl} 
-              alt={produto.nome} 
-              className="w-full h-48 object-contain mb-3"
-              onError={(e) => {
-                e.target.onerror = null; 
-                e.target.src = '';
-              }}
-            />
+            {/* Imagem do produto como link */}
+            <Link 
+              to={`/produto/${produto.id}`} 
+              className="block cursor-pointer"
+            >
+              <img 
+                src={produto.imagemUrl} 
+                alt={produto.nome} 
+                className="w-full h-48 object-contain mb-3 hover:opacity-90 transition-opacity"
+                onError={(e) => {
+                  e.target.onerror = null; 
+                  e.target.src = '';
+                }}
+              />
+            </Link>
           </div>
           
           {/* Informações do produto */}
@@ -53,8 +59,10 @@ const ProductCard = ({ produtos }) => {
             {/* Categoria */}
             <p className="text-xs text-gray-500 mb-1">{produto.categoria}</p>
             
-            {/* Nome do produto */}
-            <h3 className="text-sm text-gray-800 font-medium mb-2">{produto.nome}</h3>
+            {/* Nome do produto também como link */}
+            <Link to={`/produto/${produto.id}`} className="hover:text-pink-600 transition-colors">
+              <h3 className="text-sm text-gray-800 font-medium mb-2">{produto.nome}</h3>
+            </Link>
             
             {/* Preços */}
             <div className="flex items-center">

@@ -185,16 +185,19 @@ const Header = () => {
             {/* Lado direito com autenticação */}
             <div className="flex items-center">
               <div className="flex items-center mr-8">
-                <button className="text-gray-700 text-sm hover:text-pink-600 transition-colors bg-transparent border-none underline mr-8">
+                <Link 
+                to= "/cadastro"
+                className="text-gray-700 text-sm hover:text-pink-600 transition-colors bg-transparent border-none underline mr-8">
                   Cadastre-se
-                </button>
+                </Link>
 
-                <button
-                  className="rounded-md font-medium transition-colors 
-                    bg-pink-600 text-white hover:bg-pink-700 py-2 px-8"
+                
+                <Link
+                  to="/login"
+                  className="rounded-md font-medium transition-colors bg-pink-600 text-white hover:bg-pink-700 py-2 px-8 inline-block text-center"
                 >
                   Entrar
-                </button>
+                </Link>
               </div>
 
               {/* Área do carrinho */}
@@ -241,41 +244,37 @@ const Header = () => {
           <div className="flex py-4 space-x-8">
             <Link
               to="/"
-              className={`text-sm transition-colors hover:text-pink-600 ${
-                currentPage === "home"
+              className={`text-sm transition-colors hover:text-pink-600 ${currentPage === "home"
                   ? "text-pink-600 border-b-2 border-pink-600 pb-1 font-medium"
                   : "text-gray-700"
-              }`}
+                }`}
             >
               Home
             </Link>
             <Link
               to="/produtos"
-              className={`text-sm transition-colors hover:text-pink-600 ${
-                currentPage === "produtos"
+              className={`text-sm transition-colors hover:text-pink-600 ${currentPage === "produtos"
                   ? "text-pink-600 border-b-2 border-pink-600 pb-1 font-medium"
                   : "text-gray-700"
-              }`}
+                }`}
             >
               Produtos
             </Link>
             <Link
               to="/categorias"
-              className={`text-sm transition-colors hover:text-pink-600 ${
-                currentPage === "categorias"
+              className={`text-sm transition-colors hover:text-pink-600 ${currentPage === "categorias"
                   ? "text-pink-600 border-b-2 border-pink-600 pb-1 font-medium"
                   : "text-gray-700"
-              }`}
+                }`}
             >
               Categorias
             </Link>
             <Link
               to="/meus-pedidos"
-              className={`text-sm transition-colors hover:text-pink-600 ${
-                currentPage === "meus-pedidos"
+              className={`text-sm transition-colors hover:text-pink-600 ${currentPage === "meus-pedidos"
                   ? "text-pink-600 border-b-2 border-pink-600 pb-1 font-medium"
                   : "text-gray-700"
-              }`}
+                }`}
             >
               Meus Pedidos
             </Link>
@@ -310,41 +309,37 @@ const Header = () => {
               <nav className="flex flex-col mb-8">
                 <Link
                   to="/"
-                  className={`py-2 text-base transition-colors hover:text-pink-600 ${
-                    currentPage === "home"
+                  className={`py-2 text-base transition-colors hover:text-pink-600 ${currentPage === "home"
                       ? "text-pink-600 font-medium"
                       : "text-gray-700"
-                  }`}
+                    }`}
                 >
                   Home
                 </Link>
                 <Link
                   to="/produtos"
-                  className={`py-2 text-base transition-colors hover:text-pink-600 ${
-                    currentPage === "produtos"
+                  className={`py-2 text-base transition-colors hover:text-pink-600 ${currentPage === "produtos"
                       ? "text-pink-600 font-medium"
                       : "text-gray-700"
-                  }`}
+                    }`}
                 >
                   Produtos
                 </Link>
                 <Link
                   to="/categorias"
-                  className={`py-2 text-base transition-colors hover:text-pink-600 ${
-                    currentPage === "categorias"
+                  className={`py-2 text-base transition-colors hover:text-pink-600 ${currentPage === "categorias"
                       ? "text-pink-600 font-medium"
                       : "text-gray-700"
-                  }`}
+                    }`}
                 >
                   Categorias
                 </Link>
                 <Link
                   to="/meus-pedidos"
-                  className={`py-2 text-base transition-colors hover:text-pink-600 ${
-                    currentPage === "meus-pedidos"
+                  className={`py-2 text-base transition-colors hover:text-pink-600 ${currentPage === "meus-pedidos"
                       ? "text-pink-600 font-medium"
                       : "text-gray-700"
-                  }`}
+                    }`}
                 >
                   Meus Pedidos
                 </Link>

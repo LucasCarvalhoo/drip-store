@@ -1,41 +1,57 @@
-// src/routes/AppRoutes.jsx
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import Home from "../pages/Home/Home.jsx";
+import ProductDetail from "../pages/ProductDetail/ProductDetail.jsx";
+import ProductList from "../pages/ProductList/ProductList.jsx";
+import Checkout from "../pages/Checkout/Checkout.jsx";
+import Cart from "../pages/Cart/Cart.jsx";
+import Login from "../pages/Auth/Login.jsx";
+import OrderSuccess from '../pages/OrderSuccess/OrderSuccess.jsx';
+import Register from "../pages/Auth/Register.jsx";
+import RegisterForm from "../pages/Auth/RegisterForm.jsx";
+import Orders from "../pages/Orders/Orders.jsx";
+import UserInfo from "../pages/UserInfo/UserInfo.jsx";
+import PaymentMethods from "../pages/PaymentMethods/PaymentMethods.jsx";
 
-// Import your existing page components with correct paths
-import Home from '../pages/Home/Home.jsx'; // Note the .jsx extension
-import ProductDetail from '../pages/ProductDetail/ProductDetail.jsx';
-import Cart from '../pages/Cart/Cart.jsx'; // Added with .jsx extension
-
-// Simple NotFound component
+//404
 const NotFound = () => (
   <div className="container mx-auto px-4 py-16 text-center text-black">
-    <h1 className="text-3xl font-bold mb-4 text-black">404 - Página não encontrada</h1>
-    <p className="mb-8">A página que você está procurando não existe ou foi movida.</p>
-    <a href="/" className="bg-pink-600 text-white px-4 py-2 rounded-md hover:bg-pink-700">
+    <h1 className="text-3xl font-bold mb-4 text-black">
+      404 - Página não encontrada
+    </h1>
+    <p className="mb-8">
+      A página que você está procurando não existe ou foi movida.
+    </p>
+    <a
+      href="/"
+      className="bg-pink-600 text-white px-4 py-2 rounded-md hover:bg-pink-700"
+    >
       Voltar para a página inicial
     </a>
   </div>
 );
 
+//Rotas
 const AppRoutes = () => {
   return (
     <Routes>
-      {/* Main pages */}
       <Route path="/" element={<Home />} />
-      
-      {/* Temporarily comment out ProductList until it's done */}
-      {/* <Route path="/produtos" element={<ProductList />} /> */}
-      
+      <Route path="/produtos" element={<ProductList />} />
       <Route path="/produto/:id" element={<ProductDetail />} />
-      
-      {/* Add Cart route */}
       <Route path="/carrinho" element={<Cart />} />
+      <Route path="/produto" element={<ProductDetail />} />
+      <Route path="/checkout" element={<Checkout />} />
+      <Route path="/compra-realizada" element={<OrderSuccess />} />
+      <Route path="/meus-pedidos" element={<Orders />} />
+      <Route path="/minhas-informacoes" element={<UserInfo />} />
+      <Route path="/metodos-pagamento" element={<PaymentMethods />} />
+      {/* <Route path="/pedidos" element={< />} /> */}
+      {/* <Route path="/perfil" element={< />} /> */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/cadastro" element={<Register />} />
+      <Route path="/cadastro/formulario" element={<RegisterForm />} />
       
-      {/* Direct access to ProductDetail for development */}
-      <Route path="/product-detail" element={<ProductDetail />} />
-      
-      {/* 404 route */}
+
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
