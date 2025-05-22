@@ -378,7 +378,7 @@ const Header = () => {
                       : "text-gray-700"
                   }`}
                 >
-                  Meus Pedidos
+                  Meu Perfil
                 </Link>
               </nav>
 
