@@ -1,6 +1,6 @@
 // src/components/layout/Header.jsx
 import { useState, useEffect, useRef } from "react";
-import { Search, ShoppingCart, Menu, X, Filter } from "lucide-react";
+import { Search, ShoppingCart, Menu, X } from "lucide-react";
 import { useLocation, Link } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext";
 
@@ -15,7 +15,7 @@ const Header = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
-  // Referências DOM
+  // Referências DOM para o carrinho
   const cartButtonRef = useRef(null);
   const cartRef = useRef(null);
 
@@ -61,6 +61,7 @@ const Header = () => {
     setIsFilterOpen(false);
   };
 
+  // Função para alternar o carrinho - versão simplificada que funciona
   const toggleCart = (e) => {
     if (e) e.stopPropagation();
     
@@ -96,11 +97,13 @@ const Header = () => {
     }
 
     if (isCartOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
+      // Usar apenas click - funciona em desktop e mobile
+      // O stopPropagation no toggleCart impede que este listener execute
+      document.addEventListener("click", handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     };
   }, [isCartOpen]);
 
@@ -119,7 +122,7 @@ const Header = () => {
         <div className="py-4 md:py-5 flex items-center">
           {/* Layout mobile */}
           <div className="md:hidden grid grid-cols-12 items-center w-full">
-            {/* Esquerda - botão menu */}
+            {/* Área esquerda - menu sanduíche (3 colunas) */}
             <div className="col-span-3 flex justify-start">
               <button
                 className="bg-transparent border-none p-0"
@@ -130,7 +133,7 @@ const Header = () => {
               </button>
             </div>
 
-            {/* Centro - logo */}
+            {/* Área central - logo centralizada (6 colunas) */}
             <div className="col-span-6 flex justify-center">
               <Link to="/" className="flex items-center">
                 <img
@@ -141,7 +144,7 @@ const Header = () => {
               </Link>
             </div>
 
-            {/* Direita - ícones de pesquisa e carrinho */}
+            {/* Área direita - ícones de pesquisa e carrinho (3 colunas) */}
             <div className="col-span-3 flex items-center justify-end space-x-5">
               <button
                 className="bg-transparent border-none p-0"
@@ -159,6 +162,7 @@ const Header = () => {
                   aria-label="Carrinho"
                 >
                   <ShoppingCart size={24} className="text-pink-600" />
+                  {/* Badge do carrinho no mobile */}
                   <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
                     2
                   </span>
@@ -169,7 +173,7 @@ const Header = () => {
 
           {/* Layout desktop */}
           <div className="hidden md:flex items-center justify-between w-full">
-            {/* Esquerda - logo */}
+            {/* Lado esquerdo com logo */}
             <div className="flex items-center">
               <Link to="/" className="flex items-center">
                 <img
@@ -180,7 +184,7 @@ const Header = () => {
               </Link>
             </div>
 
-            {/* Centro - barra de pesquisa */}
+            {/* Barra de pesquisa centralizada */}
             <div className="flex-1 max-w-2xl mx-auto px-8">
               <div className="relative">
                 <input
@@ -196,15 +200,14 @@ const Header = () => {
               </div>
             </div>
 
-            {/* Direita - autenticação ou informações do usuário */}
+            {/* Lado direito - renderização condicional baseada na autenticação */}
             <div className="flex items-center">
-              {/* Renderização condicional baseada no estado de autenticação */}
               {loading ? (
                 <div className="w-8 h-8 rounded-full border-2 border-pink-600 border-t-transparent animate-spin mr-8"></div>
               ) : user ? (
                 <div className="flex items-center mr-8">
-                  <span className="text-gray-700 font-medium">
-                    Olá {getFirstName()}
+                  <span className="text-gray-700 text-sm">
+                    Olá, <span className="font-medium">{getFirstName()}</span>
                   </span>
                 </div>
               ) : (
@@ -215,7 +218,7 @@ const Header = () => {
                   >
                     Cadastre-se
                   </Link>
-                  
+
                   <Link
                     to="/login"
                     className="rounded-md font-medium transition-colors bg-pink-600 text-white hover:bg-pink-700 py-2 px-8 inline-block text-center"
@@ -225,7 +228,7 @@ const Header = () => {
                 </div>
               )}
 
-              {/* Ícone do carrinho */}
+              {/* Área do carrinho */}
               <div className="relative flex items-center">
                 <button
                   ref={cartButtonRef}
@@ -234,6 +237,7 @@ const Header = () => {
                   aria-label="Carrinho"
                 >
                   <ShoppingCart size={24} className="text-pink-600" />
+                  {/* Badge do carrinho no desktop */}
                   <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
                     2
                   </span>
@@ -264,7 +268,7 @@ const Header = () => {
           </div>
         )}
 
-        {/* Navegação desktop */}
+        {/* Navegação desktop - links principais do site */}
         <nav className="hidden md:block">
           <div className="flex py-4 space-x-8">
             <Link
@@ -378,16 +382,21 @@ const Header = () => {
                 </Link>
               </nav>
 
-              {/* Renderização condicional para botões de autenticação no menu mobile */}
+              {/* Renderização condicional para autenticação no menu mobile */}
               <div className="mt-auto pt-4 border-t">
-                {user ? (
-                  <div className="text-center mb-4">
-                    <p className="text-gray-700 font-medium mb-4">
-                      Olá, {getFirstName()}
+                {loading ? (
+                  <div className="flex justify-center">
+                    <div className="w-6 h-6 rounded-full border-2 border-pink-600 border-t-transparent animate-spin"></div>
+                  </div>
+                ) : user ? (
+                  <div className="text-center">
+                    <p className="text-gray-700 text-sm mb-4">
+                      Olá, <span className="font-medium">{getFirstName()}</span>
                     </p>
                     <Link
-                      to="/perfil"
-                      className="bg-pink-600 text-white py-3 px-8 rounded-md font-medium inline-block hover:bg-pink-700 transition-colors w-full"
+                      to="/minhas-informacoes"
+                      className="w-full rounded-md font-medium transition-colors 
+                        bg-pink-600 text-white hover:bg-pink-700 py-3 px-4 inline-block text-center"
                     >
                       Meu Perfil
                     </Link>
@@ -397,7 +406,7 @@ const Header = () => {
                     <Link
                       to="/login"
                       className="w-full rounded-md font-medium transition-colors 
-                        bg-pink-600 text-white hover:bg-pink-700 py-3 px-8 mb-4 inline-block text-center"
+                        bg-pink-600 text-white hover:bg-pink-700 py-3 mb-4 inline-block text-center"
                     >
                       Entrar
                     </Link>
@@ -416,7 +425,7 @@ const Header = () => {
         </div>
       )}
 
-      {/* Dropdown do carrinho - visível apenas quando isCartOpen é true */}
+      {/* Carrinho dropdown - visível apenas quando isCartOpen é true */}
       {isCartOpen && (
         <div
           ref={cartRef}
@@ -425,7 +434,7 @@ const Header = () => {
           <div className="p-4">
             <h3 className="text-base font-medium mb-3">Meu Carrinho</h3>
             <div className="space-y-3 max-h-64 overflow-auto">
-              {/* Itens do carrinho */}
+              {/* Item de carrinho 1 */}
               <div className="flex gap-3 border-b pb-3">
                 <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden">
                   <img
@@ -440,7 +449,7 @@ const Header = () => {
                   </h4>
                   <p className="text-xs text-gray-500 mt-1">Masculino</p>
                   <div className="flex justify-between mt-1">
-                    <span className="text-sm text-pink-600 font-small">
+                    <span className="text-sm text-pink-600 font-medium">
                       R$ 219,00
                     </span>
                     <span className="text-xs text-gray-500">1 unid.</span>
@@ -448,12 +457,13 @@ const Header = () => {
                 </div>
               </div>
 
+              {/* Item de carrinho 2 */}
               <div className="flex gap-3">
                 <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden">
                   <img
                     src="../images/products/produc-image-7.png"
                     alt="Produto"
-                    className="object-cover w-10/12"
+                    className="object-cover w-10"
                   />
                 </div>
                 <div className="flex-grow">
@@ -462,7 +472,7 @@ const Header = () => {
                   </h4>
                   <p className="text-xs text-gray-500 mt-1">Masculino</p>
                   <div className="flex justify-between mt-1">
-                    <span className="text-sm text-pink-600 font-small">
+                    <span className="text-sm text-pink-600 font-medium">
                       R$ 219,00
                     </span>
                     <span className="text-xs text-gray-500">1 unid.</span>
@@ -495,7 +505,7 @@ const Header = () => {
         </div>
       )}
 
-      {/* Painel de Filtros - visível apenas quando isFilterOpen é true */}
+      {/* Painel de Filtros Mobile - visível apenas quando isFilterOpen é true */}
       {isFilterOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end md:justify-center md:items-center">
           <div className="bg-white h-full md:h-auto md:rounded-lg w-full max-w-xs md:max-w-lg overflow-auto">
@@ -521,7 +531,7 @@ const Header = () => {
                       <input
                         type="checkbox"
                         className="mr-2 rounded text-pink-600"
-                        checked
+                        defaultChecked
                       />
                       Adidas
                     </label>
@@ -536,7 +546,7 @@ const Header = () => {
                       <input
                         type="checkbox"
                         className="mr-2 rounded text-pink-600"
-                        checked
+                        defaultChecked
                       />
                       K-Swiss
                     </label>
@@ -565,7 +575,7 @@ const Header = () => {
                       <input
                         type="checkbox"
                         className="mr-2 rounded text-pink-600"
-                        checked
+                        defaultChecked
                       />
                       Esporte e lazer
                     </label>
@@ -601,7 +611,7 @@ const Header = () => {
                       <input
                         type="checkbox"
                         className="mr-2 rounded text-pink-600"
-                        checked
+                        defaultChecked
                       />
                       Masculino
                     </label>
@@ -609,7 +619,7 @@ const Header = () => {
                       <input
                         type="checkbox"
                         className="mr-2 rounded text-pink-600"
-                        checked
+                        defaultChecked
                       />
                       Feminino
                     </label>
@@ -632,7 +642,7 @@ const Header = () => {
                         type="radio"
                         name="condition"
                         className="mr-2 text-pink-600"
-                        checked
+                        defaultChecked
                       />
                       Novo
                     </label>
