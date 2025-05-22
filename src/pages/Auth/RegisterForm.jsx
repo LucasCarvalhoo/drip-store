@@ -9,7 +9,7 @@ import { useUser } from '../../contexts/UserContext';
 const RegisterForm = () => {
     const navigate = useNavigate();
     const { setUser } = useUser();
-    
+
     // Get email and password from sessionStorage
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -34,13 +34,13 @@ const RegisterForm = () => {
     useEffect(() => {
         const storedEmail = sessionStorage.getItem('registerEmail');
         const storedPassword = sessionStorage.getItem('registerPassword');
-        
+
         if (!storedEmail || !storedPassword) {
             // If no email or password, redirect to first step
             navigate('/cadastro');
             return;
         }
-        
+
         setEmail(storedEmail);
         setPassword(storedPassword);
     }, [navigate]);
@@ -112,63 +112,85 @@ const RegisterForm = () => {
         });
     };
 
-    // Handle form submission
+
+    const validateEmail = (email) => {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return emailRegex.test(email);
+    };
+
+    // Update the handleSubmit function to include better validation:
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+
         // Reset any previous errors
         setError('');
-        
+
+        // Validate email format first
+        if (!validateEmail(email)) {
+            setError('Por favor, insira um email válido.');
+            return;
+        }
+
         // Validate required fields
         const requiredFields = ['nome', 'cpf', 'celular', 'endereco', 'bairro', 'cidade', 'estado', 'cep'];
         for (const field of requiredFields) {
-            if (!formData[field].trim()) {
+            if (!formData[field] || !formData[field].toString().trim()) {
                 setError(`Por favor, preencha todos os campos obrigatórios.`);
                 return;
             }
         }
-        
-        // Validate CPF format
-        const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
-        if (!cpfRegex.test(formData.cpf)) {
-            setError('CPF inválido. Use o formato: 000.000.000-00');
+
+        // Validate CPF format (should have 11 digits after removing formatting)
+        const cpfNumbers = formData.cpf.replace(/\D/g, '');
+        if (cpfNumbers.length !== 11) {
+            setError('CPF deve ter 11 dígitos. Formato: 000.000.000-00');
             return;
         }
-        
-        // Validate CEP format
-        const cepRegex = /^\d{5}-\d{3}$/;
-        if (!cepRegex.test(formData.cep)) {
-            setError('CEP inválido. Use o formato: 00000-000');
+
+        // Validate phone format (should have 10 or 11 digits)
+        const phoneNumbers = formData.celular.replace(/\D/g, '');
+        if (phoneNumbers.length < 10 || phoneNumbers.length > 11) {
+            setError('Número de celular inválido.');
             return;
         }
-        
+
+        // Validate CEP format (should have 8 digits)
+        const cepNumbers = formData.cep.replace(/\D/g, '');
+        if (cepNumbers.length !== 8) {
+            setError('CEP deve ter 8 dígitos. Formato: 00000-000');
+            return;
+        }
+
         try {
             setLoading(true);
-            
+
+            console.log('Submitting registration with email:', email);
+
             // Call the signUp function from authService
             const data = await signUp(email, password, formData);
-            
+
+            console.log('Registration successful:', data);
+
             // Set the user in context if available
             if (data && data.user) {
                 setUser(data.user);
             }
-            
+
             // Clear stored registration data
             sessionStorage.removeItem('registerEmail');
             sessionStorage.removeItem('registerPassword');
-            
+
+            // Show success message
+            alert('Conta criada com sucesso! Verifique seu email para confirmar a conta.');
+
             // Redirect to homepage after successful registration
             navigate('/');
-            
+
         } catch (err) {
             console.error('Registration error:', err);
-            
-            // Display appropriate error message
-            if (err.message && err.message.includes('already registered')) {
-                setError('Este email já está registrado. Por favor, use outro email ou faça login.');
-            } else {
-                setError('Ocorreu um erro ao criar sua conta. Por favor, tente novamente.');
-            }
+
+            // Display the error message from the service
+            setError(err.message || 'Ocorreu um erro ao criar sua conta. Por favor, tente novamente.');
         } finally {
             setLoading(false);
         }
@@ -415,8 +437,8 @@ const RegisterForm = () => {
                         </div>
 
                         {/* Submit Button */}
-                        <button 
-                            type="submit" 
+                        <button
+                            type="submit"
                             className={styles.submitButton}
                             disabled={loading}
                         >

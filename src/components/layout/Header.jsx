@@ -107,12 +107,12 @@ const Header = () => {
     };
   }, [isCartOpen]);
 
-  // Obtém o primeiro nome do nome completo
   const getFirstName = () => {
+    let primeiroNome = '';
     if (profile && profile.nome_completo) {
-      return profile.nome_completo.split(' ')[0];
+      primeiroNome = profile.nome_completo.split(' ')[0]; 
     }
-    return "Usuário";
+    return primeiroNome;
   };
 
   return (
@@ -309,7 +309,7 @@ const Header = () => {
                   : "text-gray-700"
               }`}
             >
-              Meus Pedidos
+              Meu Perfil
             </Link>
           </div>
         </nav>

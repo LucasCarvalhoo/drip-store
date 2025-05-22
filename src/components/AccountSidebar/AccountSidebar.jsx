@@ -10,10 +10,6 @@ const AccountSidebar = () => {
   // Navigation items for sidebar
   const navItems = [
     { 
-      path: '/perfil', 
-      label: 'Meu Perfil' 
-    },
-    { 
       path: '/meus-pedidos', 
       label: 'Meus Pedidos' 
     },

@@ -1,17 +1,30 @@
 // src/services/supabase.js
 import { createClient } from '@supabase/supabase-js';
 
-// Obter variáveis de ambiente (em produção, estas devem estar configuradas no ambiente)
+// Get environment variables
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Verificar se as variáveis de ambiente estão definidas
-if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
-  console.warn('Supabase environment variables are not set! Using fallback values.');
-  console.warn('To properly set up your environment, create a .env.local file with:');
-  console.warn('VITE_SUPABASE_URL=https://your-project-id.supabase.co');
-  console.warn('VITE_SUPABASE_ANON_KEY=your-anon-key');
+// Check if environment variables are properly set
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Supabase environment variables are missing!');
+  console.error('Please create a .env.local file with:');
+  console.error('VITE_SUPABASE_URL=your_project_url');
+  console.error('VITE_SUPABASE_ANON_KEY=your_anon_key');
+  throw new Error('Supabase configuration is incomplete. Check your environment variables.');
 }
 
-// Criar cliente do Supabase
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Validate URL format
+if (!supabaseUrl.startsWith('https://') || !supabaseUrl.includes('.supabase.co')) {
+  console.error('Invalid Supabase URL format. Expected: https://your-project.supabase.co');
+  throw new Error('Invalid Supabase URL format');
+}
+
+// Create and export Supabase client
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
+});
