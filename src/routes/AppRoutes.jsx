@@ -11,6 +11,7 @@ import Register from "../pages/Auth/Register.jsx";
 import RegisterForm from "../pages/Auth/RegisterForm.jsx";
 import Orders from "../pages/Orders/Orders.jsx";
 import UserInfo from "../pages/UserInfo/UserInfo.jsx";
+import EditUserInfo from "../pages/EditUserInfo/EditUserInfo.jsx";
 import PaymentMethods from "../pages/PaymentMethods/PaymentMethods.jsx";
 import ProtectedRoute from "../components/auth/ProtectedRoute.jsx";
 import { useUser } from "../contexts/UserContext.jsx";
@@ -86,6 +87,7 @@ const AppRoutes = () => {
         <Route path="/compra-realizada" element={<OrderSuccess />} />
         <Route path="/meus-pedidos" element={<Orders />} />
         <Route path="/minhas-informacoes" element={<UserInfo />} />
+        <Route path="/editar-informacoes" element={<EditUserInfo />} />
         <Route path="/metodos-pagamento" element={<PaymentMethods />} />
         <Route path="/perfil" element={<UserInfo />} />
       </Route>

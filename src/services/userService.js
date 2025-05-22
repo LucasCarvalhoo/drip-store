@@ -74,14 +74,48 @@ export const removePaymentMethod = async (userId, methodId) => {
   return true;
 };
 
+// Get user profile
+export const getUserProfile = async (userId) => {
+  try {
+    const { data, error } = await supabase
+      .from('perfil_usuario')
+      .select('*')
+      .eq('id', userId)
+      .single();
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('getUserProfile error:', error);
+    return null;
+  }
+};
+
 // Update user profile
 export const updateUserProfile = async (userId, profileData) => {
-  const { data, error } = await supabase
-    .from('perfil_usuario')
-    .update(profileData)
-    .eq('id', userId)
-    .select();
+  try {
+    const { data, error } = await supabase
+      .from('perfil_usuario')
+      .update({
+        nome_completo: profileData.nome_completo,
+        cpf: profileData.cpf,
+        celular: profileData.celular,
+        endereco: profileData.endereco,
+        bairro: profileData.bairro,
+        cidade: profileData.cidade,
+        estado: profileData.estado,
+        cep: profileData.cep,
+        complemento: profileData.complemento,
+        receber_ofertas: profileData.receber_ofertas
+      })
+      .eq('id', userId)
+      .select()
+      .single();
 
-  if (error) throw error;
-  return data;
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('updateUserProfile error:', error);
+    throw new Error('Erro ao atualizar perfil do usuário.');
+  }
 };
