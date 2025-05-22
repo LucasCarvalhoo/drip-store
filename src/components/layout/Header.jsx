@@ -1,13 +1,27 @@
 // src/components/layout/Header.jsx
 import { useState, useEffect, useRef } from "react";
 import { Search, ShoppingCart, Menu, X } from "lucide-react";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext";
 
 const Header = () => {
   // Obtém o contexto do usuário
-  const { user, profile, loading } = useUser();
-  
+  const { user, profile, loading, logoutUser } = useUser();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    if (logoutUser) {
+      try {
+        await logoutUser(); // Esta chamada permanece a mesma
+        navigate("/");
+        // setIsMenuOpen(false); // Se necessário para fechar o menu
+      } catch (error) {
+        console.error("Erro ao fazer logout no Header:", error);
+        // Adicione feedback ao usuário se desejar
+      }
+    }
+  };
+
   // Estados para elementos interativos
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -64,7 +78,7 @@ const Header = () => {
   // Função para alternar o carrinho - versão simplificada que funciona
   const toggleCart = (e) => {
     if (e) e.stopPropagation();
-    
+
     setIsCartOpen(!isCartOpen);
     setIsMenuOpen(false);
     setIsSearchOpen(false);
@@ -86,10 +100,10 @@ const Header = () => {
   useEffect(() => {
     function handleClickOutside(event) {
       if (
-        cartRef.current && 
-        !cartRef.current.contains(event.target) && 
-        cartButtonRef.current && 
-        !cartButtonRef.current.contains(event.target) && 
+        cartRef.current &&
+        !cartRef.current.contains(event.target) &&
+        cartButtonRef.current &&
+        !cartButtonRef.current.contains(event.target) &&
         isCartOpen
       ) {
         setIsCartOpen(false);
@@ -108,9 +122,9 @@ const Header = () => {
   }, [isCartOpen]);
 
   const getFirstName = () => {
-    let primeiroNome = '';
+    let primeiroNome = "";
     if (profile && profile.nome_completo) {
-      primeiroNome = profile.nome_completo.split(' ')[0]; 
+      primeiroNome = profile.nome_completo.split(" ")[0];
     }
     return primeiroNome;
   };
@@ -212,7 +226,7 @@ const Header = () => {
                 </div>
               ) : (
                 <div className="flex items-center mr-8">
-                  <Link 
+                  <Link
                     to="/cadastro"
                     className="text-gray-700 text-sm hover:text-pink-600 transition-colors bg-transparent border-none underline mr-8"
                   >
@@ -393,13 +407,14 @@ const Header = () => {
                     <p className="text-gray-700 text-sm mb-4">
                       Olá, <span className="font-medium">{getFirstName()}</span>
                     </p>
-                    <Link
-                      to="/minhas-informacoes"
-                      className="w-full rounded-md font-medium transition-colors 
-                        bg-pink-600 text-white hover:bg-pink-700 py-3 px-4 inline-block text-center"
+                    <button
+                      onClick={handleLogout}
+                      className="w-full rounded-md font-medium transition-colors
+    bg-pink-600 text-white hover:bg-pink-700 py-3 px-4 inline-block text-center"
+                      type="button"
                     >
-                      Meu Perfil
-                    </Link>
+                      Sair
+                    </button>
                   </div>
                 ) : (
                   <>
@@ -411,7 +426,7 @@ const Header = () => {
                       Entrar
                     </Link>
 
-                    <Link 
+                    <Link
                       to="/cadastro"
                       className="w-full text-center text-gray-700 text-sm hover:text-pink-600 transition-colors bg-transparent border-none underline"
                     >
