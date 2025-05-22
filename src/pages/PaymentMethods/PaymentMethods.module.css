@@ -19,6 +19,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .pageTitle {
@@ -48,6 +50,7 @@
   border-radius: 0.25rem;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .cardsList {
@@ -63,55 +66,89 @@
   padding: 1rem;
   border: 1px solid #e5e7eb; /* Gray-200 */
   border-radius: 0.25rem;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .cardItem:hover {
   border-color: #d1d5db; /* Gray-300 */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .cardDetails {
   display: flex;
   align-items: center;
+  flex: 1;
 }
 
 .cardIcon {
-  width: 40px;
-  height: 25px;
+  width: 50px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-right: 1rem;
   flex-shrink: 0;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.75rem;
 }
 
 .visaIcon {
-  color: #1a1f71;
+  background: linear-gradient(to right, #1a1f71, #0f1f64);
+  color: white;
   font-weight: bold;
-  font-size: 0.75rem;
+  letter-spacing: 1px;
 }
 
 .mastercardIcon {
-  color: #eb001b;
+  background: linear-gradient(to right, #eb001b, #ff5f00);
+  color: white;
   font-weight: bold;
-  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+}
+
+.amexIcon {
+  background: linear-gradient(to right, #006fcf, #0048a3);
+  color: white;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.eloIcon {
+  background: linear-gradient(to right, #ffcc00, #ff9900);
+  color: #333;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.defaultIcon {
+  background: linear-gradient(to right, #6b7280, #4b5563);
+  color: white;
+  font-weight: bold;
 }
 
 .cardInfo {
   display: flex;
   flex-direction: column;
+  gap: 0.25rem;
 }
 
 .cardNumber {
   font-size: 0.875rem;
   font-weight: 500;
   color: #111827; /* Gray-900 */
+  font-family: 'Courier New', monospace;
 }
 
 .cardExpiry {
   font-size: 0.75rem;
   color: #6b7280; /* Gray-500 */
-  margin-top: 0.25rem;
+}
+
+.cardHolder {
+  font-size: 0.75rem;
+  color: #6b7280; /* Gray-500 */
+  text-transform: uppercase;
 }
 
 .defaultBadge {
@@ -122,11 +159,14 @@
   background-color: #ecfdf5; /* Green-50 */
   padding: 0.125rem 0.5rem;
   border-radius: 9999px;
+  border: 1px solid #10b981; /* Green-500 */
 }
 
 .cardActions {
   display: flex;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
 }
 
 .setDefaultButton {
@@ -136,6 +176,17 @@
   color: #6b7280; /* Gray-500 */
   cursor: pointer;
   text-decoration: underline;
+  padding: 0.25rem 0;
+  transition: color 0.2s;
+}
+
+.setDefaultButton:hover:not(:disabled) {
+  color: #374151; /* Gray-700 */
+}
+
+.setDefaultButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .removeButton {
@@ -145,6 +196,17 @@
   color: #ef4444; /* Red-500 */
   cursor: pointer;
   text-decoration: underline;
+  padding: 0.25rem 0;
+  transition: color 0.2s;
+}
+
+.removeButton:hover:not(:disabled) {
+  color: #dc2626; /* Red-600 */
+}
+
+.removeButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .emptyState {
@@ -156,25 +218,26 @@
 .emptyStateSubtext {
   margin-top: 0.5rem;
   font-size: 0.875rem;
+  color: #9ca3af; /* Gray-400 */
 }
 
 .infoBox {
-  background-color: #f9fafb; /* Gray-50 */
+  background-color: #f0f9ff; /* Blue-50 */
   border-radius: 0.25rem;
   padding: 1rem;
-  border-left: 4px solid #60a5fa; /* Blue-400 */
+  border-left: 4px solid #3b82f6; /* Blue-500 */
 }
 
 .infoTitle {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #1f2937; /* Gray-800 */
+  color: #1e40af; /* Blue-800 */
   margin-bottom: 0.5rem;
 }
 
 .infoText {
   font-size: 0.875rem;
-  color: #4b5563; /* Gray-600 */
+  color: #1e40af; /* Blue-800 */
   line-height: 1.5;
 }
 
@@ -190,5 +253,47 @@
     flex-shrink: 0;
     position: sticky;
     top: 2rem;
+  }
+
+  .cardActions {
+    flex-direction: row;
+    gap: 1rem;
+    align-items: center;
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 767px) {
+  .headerContainer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .addButton {
+    text-align: center;
+  }
+
+  .cardItem {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .cardActions {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .cardDetails {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .cardIcon {
+    margin-right: 0;
+    margin-bottom: 0.5rem;
+    align-self: flex-start;
   }
 }

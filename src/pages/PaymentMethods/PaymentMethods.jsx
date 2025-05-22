@@ -1,30 +1,158 @@
 // src/pages/PaymentMethods/PaymentMethods.jsx
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '../../components/layout/Layout';
 import AccountSidebar from '../../components/AccountSidebar/AccountSidebar';
+import { useUser } from '../../contexts/UserContext';
+import {
+  getUserPaymentMethods,
+  setDefaultPaymentMethod,
+  removePaymentMethod
+} from '../../services/userService';
 import styles from './PaymentMethods.module.css';
 
 const PaymentMethods = () => {
-  // Mock data for saved payment methods
-  const savedCards = [
-    {
-      id: 1,
-      type: 'credit',
-      brand: 'Visa',
-      lastDigits: '4242',
-      expiryDate: '12/25',
-      isDefault: true
-    },
-    {
-      id: 2,
-      type: 'credit',
-      brand: 'Mastercard',
-      lastDigits: '5678',
-      expiryDate: '08/26',
-      isDefault: false
+  const { user } = useUser();
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [actionLoading, setActionLoading] = useState(null); // For individual card actions
+
+  // Load payment methods
+  useEffect(() => {
+    const loadPaymentMethods = async () => {
+      if (!user) return;
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        const methods = await getUserPaymentMethods(user.id);
+        setPaymentMethods(methods);
+      } catch (err) {
+        console.error('Error loading payment methods:', err);
+        setError('Erro ao carregar métodos de pagamento. Tente novamente.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadPaymentMethods();
+  }, [user]);
+
+  // Handle setting a card as default
+  const handleSetDefault = async (methodId) => {
+    if (!user || actionLoading) return;
+
+    try {
+      setActionLoading(methodId);
+      setError(null);
+
+      await setDefaultPaymentMethod(user.id, methodId);
+
+      // Update local state
+      setPaymentMethods(prev =>
+        prev.map(method => ({
+          ...method,
+          padrao: method.id === methodId
+        }))
+      );
+
+    } catch (err) {
+      console.error('Error setting default payment method:', err);
+      setError('Erro ao definir cartão como padrão. Tente novamente.');
+    } finally {
+      setActionLoading(null);
     }
-  ];
+  };
+
+  // Handle removing a card
+  const handleRemoveCard = async (methodId) => {
+    if (!user || actionLoading) return;
+
+    // Confirm before removing
+    if (!window.confirm('Tem certeza que deseja remover este cartão?')) {
+      return;
+    }
+
+    try {
+      setActionLoading(methodId);
+      setError(null);
+
+      await removePaymentMethod(user.id, methodId);
+
+      // Update local state
+      setPaymentMethods(prev => prev.filter(method => method.id !== methodId));
+
+    } catch (err) {
+      console.error('Error removing payment method:', err);
+      setError('Erro ao remover cartão. Tente novamente.');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // Format card expiry date
+  const formatExpiryDate = (dateString) => {
+    if (!dateString) return 'N/A';
+
+    // Handle different date formats
+    if (dateString.includes('/')) {
+      return dateString; // Already formatted
+    }
+
+    // If it's in YYYY-MM format, convert to MM/YY
+    if (dateString.includes('-')) {
+      const [year, month] = dateString.split('-');
+      return `${month}/${year.slice(-2)}`;
+    }
+
+    return dateString;
+  };
+
+  // Get card brand icon/text (improved display)
+  const getCardBrandDisplay = (brand) => {
+    switch (brand?.toLowerCase()) {
+      case 'visa':
+        return { text: 'VISA', className: styles.visaIcon };
+      case 'mastercard':
+        return { text: 'MC', className: styles.mastercardIcon };
+      case 'amex':
+        return { text: 'AMEX', className: styles.amexIcon };
+      case 'elo':
+        return { text: 'ELO', className: styles.eloIcon };
+      default:
+        return { text: brand?.toUpperCase() || 'CARD', className: styles.defaultIcon };
+    }
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className={styles.pageContainer}>
+            <div className={styles.sidebarContainer}>
+              <AccountSidebar />
+            </div>
+            <div className={styles.contentContainer}>
+              <div className={styles.headerContainer}>
+                <h1 className={styles.pageTitle}>Métodos de Pagamento</h1>
+                <div className="w-8 h-8 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+              <div className={styles.cardsSection}>
+                <div className="animate-pulse space-y-4">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="bg-gray-200 h-20 rounded"></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -34,7 +162,7 @@ const PaymentMethods = () => {
           <div className={styles.sidebarContainer}>
             <AccountSidebar />
           </div>
-          
+
           {/* Payment Methods Content */}
           <div className={styles.contentContainer}>
             <div className={styles.headerContainer}>
@@ -43,55 +171,102 @@ const PaymentMethods = () => {
                 + Adicionar novo cartão
               </Link>
             </div>
-            
+
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-50 text-red-600 p-3 rounded-md mb-4 text-sm">
+                {error}
+                <button
+                  onClick={() => setError(null)}
+                  className="ml-2 text-red-800 hover:text-red-900"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
             <div className={styles.cardsSection}>
-              {savedCards.length > 0 ? (
+              {paymentMethods.length > 0 ? (
                 <div className={styles.cardsList}>
-                  {savedCards.map((card) => (
-                    <div key={card.id} className={styles.cardItem}>
-                      <div className={styles.cardDetails}>
-                        <div className={styles.cardIcon}>
-                          {card.brand === 'Visa' ? (
-                            <div className={styles.visaIcon}>VISA</div>
-                          ) : (
-                            <div className={styles.mastercardIcon}>MC</div>
-                          )}
+                  {paymentMethods.map((card) => {
+                    const brandInfo = getCardBrandDisplay(card.bandeira);
+                    const isActionLoading = actionLoading === card.id;
+
+                    return (
+                      <div key={card.id} className={styles.cardItem}>
+                        <div className={styles.cardDetails}>
+                          <div className={styles.cardIcon}>
+                            <div className={brandInfo.className}>
+                              {brandInfo.text}
+                            </div>
+                          </div>
+                          <div className={styles.cardInfo}>
+                            <p className={styles.cardNumber}>
+                              •••• •••• •••• {card.ultimos_digitos}
+                            </p>
+                            <p className={styles.cardExpiry}>
+                              Válido até {formatExpiryDate(card.data_validade)}
+                            </p>
+                            <p className={styles.cardHolder}>
+                              {card.nome_titular}
+                            </p>
+                            {card.padrao && (
+                              <span className={styles.defaultBadge}>Padrão</span>
+                            )}
+                          </div>
                         </div>
-                        <div className={styles.cardInfo}>
-                          <p className={styles.cardNumber}>
-                            •••• •••• •••• {card.lastDigits}
-                          </p>
-                          <p className={styles.cardExpiry}>
-                            Válido até {card.expiryDate}
-                          </p>
-                          {card.isDefault && (
-                            <span className={styles.defaultBadge}>Padrão</span>
+                        <div className={styles.cardActions}>
+                          {!card.padrao && (
+                            <button
+                              className={styles.setDefaultButton}
+                              onClick={() => handleSetDefault(card.id)}
+                              disabled={isActionLoading}
+                            >
+                              {isActionLoading ? 'Definindo...' : 'Definir como padrão'}
+                            </button>
                           )}
-                        </div>
-                      </div>
-                      <div className={styles.cardActions}>
-                        {!card.isDefault && (
-                          <button className={styles.setDefaultButton}>
-                            Definir como padrão
+                          <button
+                            className={styles.removeButton}
+                            onClick={() => handleRemoveCard(card.id)}
+                            disabled={isActionLoading}
+                          >
+                            {isActionLoading ? 'Removendo...' : 'Remover'}
                           </button>
-                        )}
-                        <button className={styles.removeButton}>
-                          Remover
-                        </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <div className={styles.emptyState}>
-                  <p>Você ainda não possui cartões salvos.</p>
-                  <p className={styles.emptyStateSubtext}>
-                    Adicione um cartão para finalizar suas compras mais rapidamente.
-                  </p>
+                  <div className="text-center py-12">
+                    <div className="text-6xl mb-4">💳</div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      Nenhum cartão cadastrado
+                    </h3>
+                    <p className={styles.emptyStateSubtext}>
+                      Adicione um cartão para finalizar suas compras mais rapidamente.
+                    </p>
+                    <Link
+                      to="/adicionar-cartao"
+                      className="mt-4 inline-block bg-pink-600 text-white px-4 py-2 rounded-md hover:bg-pink-700 transition-colors"
+                    >
+                      Adicionar primeiro cartão
+                    </Link>
+                  </div>
                 </div>
               )}
             </div>
-            
+
+            {/* Information Box */}
+            <div className={styles.infoBox}>
+              <h4 className={styles.infoTitle}>Informações sobre segurança</h4>
+              <p className={styles.infoText}>
+                Seus dados de pagamento são criptografados e armazenados com segurança.
+                Nunca compartilhamos suas informações financeiras com terceiros.
+                O cartão padrão será usado automaticamente nas suas próximas compras.
+              </p>
+            </div>
           </div>
         </div>
       </div>

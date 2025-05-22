@@ -13,6 +13,7 @@ import Orders from "../pages/Orders/Orders.jsx";
 import UserInfo from "../pages/UserInfo/UserInfo.jsx";
 import EditUserInfo from "../pages/EditUserInfo/EditUserInfo.jsx";
 import PaymentMethods from "../pages/PaymentMethods/PaymentMethods.jsx";
+import AddPaymentMethod from "../pages/AddPaymentMethod/AddPaymentMethod.jsx";
 import ProtectedRoute from "../components/auth/ProtectedRoute.jsx";
 import { useUser } from "../contexts/UserContext.jsx";
 
@@ -89,6 +90,7 @@ const AppRoutes = () => {
         <Route path="/minhas-informacoes" element={<UserInfo />} />
         <Route path="/editar-informacoes" element={<EditUserInfo />} />
         <Route path="/metodos-pagamento" element={<PaymentMethods />} />
+        <Route path="/adicionar-cartao" element={<AddPaymentMethod />} />
         <Route path="/perfil" element={<UserInfo />} />
       </Route>
 
