@@ -10,37 +10,63 @@ import { supabase } from './supabase';
  */
 export const signUp = async (email, password, userData) => {
   try {
+    console.log('Starting signup process for:', email);
+    console.log('User data:', { ...userData, cpf: userData.cpf ? '[HIDDEN]' : undefined });
+
+    // Validate email format before sending to Supabase
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      throw new Error('Invalid email format');
+    }
+
     // 1. Register the user with Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.signUp({
-      email,
+      email: email.trim().toLowerCase(),
       password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/login`,
+      }
     });
 
-    if (authError) throw authError;
+    if (authError) {
+      console.error('Auth signup error:', authError);
+      throw authError;
+    }
+
+    console.log('Auth signup successful:', authData);
 
     // 2. Create the user profile with additional data
     if (authData?.user) {
       try {
-        const { error: profileError } = await supabase
+        const profileData = {
+          id: authData.user.id,
+          nome_completo: userData.nome?.trim(),
+          cpf: userData.cpf?.replace(/\D/g, ''), // Remove formatting, store only numbers
+          celular: userData.celular?.replace(/\D/g, ''), // Remove formatting
+          endereco: userData.endereco?.trim(),
+          bairro: userData.bairro?.trim(),
+          cidade: userData.cidade?.trim(),
+          estado: userData.estado?.trim(),
+          cep: userData.cep?.replace(/\D/g, ''), // Remove formatting
+          complemento: userData.complemento?.trim() || null,
+          receber_ofertas: userData.receberOfertas || false
+        };
+
+        console.log('Creating profile with data:', { ...profileData, cpf: '[HIDDEN]' });
+
+        const { data: profileResult, error: profileError } = await supabase
           .from('perfil_usuario')
-          .insert({
-            id: authData.user.id,
-            nome_completo: userData.nome,
-            cpf: userData.cpf,
-            celular: userData.celular,
-            endereco: userData.endereco,
-            bairro: userData.bairro,
-            cidade: userData.cidade,
-            estado: userData.estado,
-            cep: userData.cep,
-            complemento: userData.complemento,
-            receber_ofertas: userData.receberOfertas
-          });
+          .insert(profileData)
+          .select()
+          .single();
 
         if (profileError) {
           console.error('Error creating user profile:', profileError);
-          // We might want to handle this differently, like deleting the auth user
+          // If profile creation fails, we might want to delete the auth user
           // but for now just log it and continue
+          console.warn('Profile creation failed, but authentication succeeded');
+        } else {
+          console.log('Profile created successfully:', profileResult);
         }
       } catch (profileError) {
         console.error('Exception creating user profile:', profileError);
@@ -48,14 +74,23 @@ export const signUp = async (email, password, userData) => {
       }
     }
 
-    // This is a better response structure
     return {
       user: authData?.user || null,
       session: authData?.session || null
     };
   } catch (error) {
     console.error('SignUp error:', error);
-    throw error;
+    
+    // Provide more user-friendly error messages
+    if (error.message?.includes('Invalid email')) {
+      throw new Error('Email inválido. Por favor, verifique o formato do email.');
+    } else if (error.message?.includes('Password')) {
+      throw new Error('Senha deve ter pelo menos 6 caracteres.');
+    } else if (error.message?.includes('already registered')) {
+      throw new Error('Este email já está registrado. Tente fazer login ou use outro email.');
+    } else {
+      throw new Error(error.message || 'Erro ao criar conta. Tente novamente.');
+    }
   }
 };
 
@@ -66,13 +101,18 @@ export const signUp = async (email, password, userData) => {
  * @returns {Promise<Object>} The authenticated user and session
  */
 export const signIn = async (email, password) => {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.trim().toLowerCase(),
+      password,
+    });
 
-  if (error) throw error;
-  return data;
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('SignIn error:', error);
+    throw error;
+  }
 };
 
 /**
@@ -89,10 +129,15 @@ export const signOut = async () => {
  * @returns {Promise<Object|null>} The current user or null if not logged in
  */
 export const getCurrentUser = async () => {
-  const { data, error } = await supabase.auth.getUser();
-  
-  if (error) throw error;
-  return data?.user || null;
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    
+    if (error) throw error;
+    return data?.user || null;
+  } catch (error) {
+    console.error('getCurrentUser error:', error);
+    return null;
+  }
 };
 
 /**
@@ -101,12 +146,17 @@ export const getCurrentUser = async () => {
  * @returns {Promise<Object|null>} The user profile data
  */
 export const getUserProfile = async (userId) => {
-  const { data, error } = await supabase
-    .from('perfil_usuario')
-    .select('*')
-    .eq('id', userId)
-    .single();
+  try {
+    const { data, error } = await supabase
+      .from('perfil_usuario')
+      .select('*')
+      .eq('id', userId)
+      .single();
 
-  if (error) throw error;
-  return data;
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('getUserProfile error:', error);
+    return null;
+  }
 };
