@@ -309,7 +309,7 @@ const Header = () => {
                   : "text-gray-700"
               }`}
             >
-              Meus Pedidos
+              Meus Perfil
             </Link>
           </div>
         </nav>
@@ -378,7 +378,7 @@ const Header = () => {
                       : "text-gray-700"
                   }`}
                 >
-                  Meus Pedidos
+                  Meu Perfil
                 </Link>
               </nav>
 
