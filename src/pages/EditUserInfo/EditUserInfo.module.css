@@ -1,0 +1,242 @@
+/* src/pages/EditUserInfo/EditUserInfo.module.css */
+
+.editUserInfoPage {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.sidebarContainer {
+  width: 100%;
+}
+
+.contentContainer {
+  flex: 1;
+}
+
+.pageTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827; /* Gray-900 */
+  margin-bottom: 1.5rem;
+}
+
+.formCard {
+  background-color: white;
+  border-radius: 0.25rem;
+  padding: 2rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #111827; /* Gray-900 */
+}
+
+.separator {
+  height: 1px;
+  background-color: #e5e7eb; /* Gray-200 */
+  margin-bottom: 0.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827; /* Gray-900 */
+}
+
+.input {
+  padding: 0.75rem 1rem;
+  border: 1px solid #e5e7eb; /* Gray-200 */
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  background-color: #f9fafb; /* Gray-50 */
+  color: #111827; /* Gray-900 */
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.input:focus {
+  outline: none;
+  background-color: white;
+  border-color: #db2777; /* Pink-600 */
+}
+
+.input:disabled {
+  background-color: #f3f4f6; /* Gray-100 */
+  color: #6b7280; /* Gray-500 */
+  cursor: not-allowed;
+}
+
+.required {
+  color: #ef4444; /* Red-500 */
+}
+
+.helpText {
+  font-size: 0.75rem;
+  color: #6b7280; /* Gray-500 */
+  margin-top: 0.25rem;
+}
+
+.checkboxContainer {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.checkbox {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #d1d5db; /* Gray-300 */
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  background-color: white;
+  display: inline-block;
+  position: relative;
+  vertical-align: middle;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.checkbox:checked {
+  background-color: #db2777; /* Pink-600 */
+  border-color: #db2777; /* Pink-600 */
+}
+
+.checkbox:checked::after {
+  content: '';
+  position: absolute;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  top: 2px;
+  left: 6px;
+  transform: rotate(45deg);
+}
+
+.checkbox:disabled {
+  background-color: #f3f4f6; /* Gray-100 */
+  border-color: #d1d5db; /* Gray-300 */
+  cursor: not-allowed;
+}
+
+.checkboxLabel {
+  font-size: 0.875rem;
+  color: #4b5563; /* Gray-600 */
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb; /* Gray-200 */
+}
+
+.cancelButton {
+  padding: 0.75rem 1.5rem;
+  background-color: white;
+  color: #6b7280; /* Gray-500 */
+  border: 1px solid #d1d5db; /* Gray-300 */
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background-color: #f9fafb; /* Gray-50 */
+  color: #374151; /* Gray-700 */
+}
+
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.saveButton {
+  padding: 0.75rem 1.5rem;
+  background-color: #db2777; /* Pink-600 */
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.saveButton:hover:not(:disabled) {
+  background-color: #be185d; /* Pink-700 */
+}
+
+.saveButton:disabled {
+  background-color: #9ca3af; /* Gray-400 */
+  cursor: not-allowed;
+}
+
+/* Desktop layout */
+@media (min-width: 768px) {
+  .editUserInfoPage {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .sidebarContainer {
+    width: 240px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 2rem;
+  }
+
+  .actionButtons {
+    justify-content: flex-start;
+  }
+
+  .actionButtons button {
+    min-width: 120px;
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 767px) {
+  .formCard {
+    padding: 1.5rem;
+  }
+
+  .actionButtons {
+    flex-direction: column;
+  }
+
+  .actionButtons button {
+    width: 100%;
+  }
+}
