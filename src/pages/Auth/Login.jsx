@@ -4,50 +4,48 @@ import { Link, useNavigate } from 'react-router-dom';
 import AuthLayout from '../../components/layout/AuthLayout';
 import styles from './Login.module.css';
 import { signIn } from '../../services/authService';
-import { useUser } from '../../contexts/UserContext';
+import { useUser } from '../../contexts/UserContext'; // Corrigido para o caminho correto do UserContext
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Renomeado de loading para evitar conflito
   
   const navigate = useNavigate();
-  const { setUser } = useUser();
+  // Obtenha updateUserAndFetchProfile em vez de apenas setUser
+  const { updateUserAndFetchProfile } = useUser();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Reset any previous errors
     setError('');
     
-    // Validate inputs
     if (!email.trim() || !password.trim()) {
       setError('Por favor, preencha todos os campos.');
       return;
     }
     
     try {
-      setLoading(true);
-      // Call the signIn function from authService
-      const data = await signIn(email, password);
+      setIsSubmitting(true);
+      const data = await signIn(email, password); // data aqui é { user, session }
       
-      // Set the user in context
-      setUser(data.user);
-      
-      // Redirect to homepage after successful login
-      navigate('/');
+      if (data && data.user) {
+        // Use a nova função do contexto aqui!
+        await updateUserAndFetchProfile(data.user);
+        navigate('/');
+      } else {
+        // Caso signIn retorne sem usuário (embora authService.signIn deva lançar erro antes)
+        setError('Ocorreu um erro inesperado durante o login.');
+      }
     } catch (err) {
       console.error('Login error:', err);
-      
-      // Display appropriate error message
       if (err.message === 'Invalid login credentials') {
         setError('Email ou senha incorretos. Por favor, tente novamente.');
       } else {
         setError('Ocorreu um erro ao fazer login. Por favor, tente novamente.');
       }
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -60,7 +58,6 @@ const Login = () => {
             Novo cliente? Então registre-se <Link to="/cadastro" className={styles.registerLink}>aqui</Link>.
           </p>
           
-          {/* Display error messages if any */}
           {error && (
             <div className="bg-red-50 text-red-600 p-3 rounded-md mb-4 text-sm">
               {error}
@@ -78,7 +75,7 @@ const Login = () => {
                 placeholder="Insira seu email"
                 className={styles.input}
                 required
-                disabled={loading}
+                disabled={isSubmitting}
               />
             </div>
             
@@ -92,7 +89,7 @@ const Login = () => {
                 placeholder="Insira sua senha"
                 className={styles.input}
                 required
-                disabled={loading}
+                disabled={isSubmitting}
               />
             </div>
             
@@ -103,26 +100,25 @@ const Login = () => {
             <button 
               type="submit" 
               className={styles.loginButton}
-              disabled={loading}
+              disabled={isSubmitting}
             >
-              {loading ? 'Aguarde...' : 'Acessar Conta'}
+              {isSubmitting ? 'Aguarde...' : 'Acessar Conta'}
             </button>
           </form>
           
           <div className={styles.socialLogin}>
             <p className={styles.socialText}>Ou faça login com</p>
             <div className={styles.socialButtons}>
-              <button className={styles.googleButton} disabled={loading}>
+              <button className={styles.googleButton} disabled={isSubmitting}>
                 <img src="/src/assets/icons/gmail.png" alt="Gmail" />
               </button>
-              <button className={styles.facebookButton} disabled={loading}>
+              <button className={styles.facebookButton} disabled={isSubmitting}>
                 <img src="/src/assets/icons/facebook.png" alt="Facebook" />
               </button>
             </div>
           </div>
         </div>
         
-        {/* Product image - only shown on desktop */}
         <div className={styles.productImage}>
           <img src="../images/login-shoes.png" alt="Tênis" />
         </div>
