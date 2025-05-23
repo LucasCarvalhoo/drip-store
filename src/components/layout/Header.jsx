@@ -481,9 +481,6 @@ const Header = () => {
                         <span className="text-base font-medium text-gray-800">
                           Olá, {getFirstName()}
                         </span>
-                        <span className="text-xs text-gray-500 hover:underline">
-                          Ver meu perfil
-                        </span>
                       </div>
                     </Link>
 
