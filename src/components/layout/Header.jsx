@@ -25,15 +25,15 @@ const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false); // Estado para modal de perfil desktop
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState("");
 
   // Referências DOM
   const cartButtonRef = useRef(null);
   const cartRef = useRef(null);
-  const profileButtonRef = useRef(null); // Ref para o botão de perfil desktop
-  const profileModalRef = useRef(null);  // Ref para o modal de perfil desktop
+  const profileButtonRef = useRef(null);
+  const profileModalRef = useRef(null);
 
   // --- EFEITOS ---
 
@@ -73,7 +73,6 @@ const Header = () => {
     return () => document.removeEventListener("click", handleClickOutsideCart);
   }, [isCartOpen]);
 
-  // Efeito para fechar o modal de perfil desktop ao clicar fora
   useEffect(() => {
     function handleClickOutsideProfileModal(event) {
       if (
@@ -99,17 +98,14 @@ const Header = () => {
       try {
         await logoutUser();
         navigate("/");
-        // Fechar todos os popovers/menus relevantes
         setIsMenuOpen(false);
         setIsProfileModalOpen(false);
-        // Adicione setIsCartOpen(false), etc., se necessário, ou use uma função helper
       } catch (error) {
         console.error("Erro ao fazer logout no Header:", error);
       }
     }
   };
 
-  // Função helper para fechar todos os popovers (se preferir centralizar)
   const closeAllPopovers = () => {
     setIsMenuOpen(false);
     setIsSearchOpen(false);
@@ -120,7 +116,7 @@ const Header = () => {
 
   const toggleMenu = () => {
     const currentlyOpen = isMenuOpen;
-    closeAllPopovers(); // Fecha outros antes de abrir/fechar este
+    closeAllPopovers();
     setIsMenuOpen(!currentlyOpen);
   };
 
@@ -143,7 +139,6 @@ const Header = () => {
     setIsFilterOpen(!currentlyOpen);
   };
 
-  // Função para alternar o modal de perfil desktop
   const toggleProfileModal = (e) => {
     if (e) e.stopPropagation();
     const currentlyOpen = isProfileModalOpen;
@@ -214,12 +209,10 @@ const Header = () => {
                 </div>
               </div>
             </div>
-            {/* Bloco de Autenticação/Perfil e Carrinho (Desktop) */}
             <div className="flex items-center">
               {loading ? (
                 <div className="w-8 h-8 rounded-full border-2 border-pink-600 border-t-transparent animate-spin mr-6"></div>
               ) : user ? (
-                // ** MODAL DE PERFIL DESKTOP RESTAURADO AQUI **
                 <div className="relative mr-6">
                   <button
                     ref={profileButtonRef}
@@ -233,7 +226,6 @@ const Header = () => {
                       Olá, <span className="font-medium">{getFirstName()}</span>
                     </span>
                   </button>
-                  {/* Modal do Perfil (Desktop) */}
                   {isProfileModalOpen && (
                     <div
                       ref={profileModalRef}
@@ -245,7 +237,7 @@ const Header = () => {
                           className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-600 transition-colors"
                           onClick={() => {
                             setCurrentPage("meus-pedidos");
-                            closeAllPopovers(); // Fecha todos os popovers, incluindo este
+                            closeAllPopovers();
                           }}
                         >
                           <Package size={18} className="opacity-75" />
@@ -277,7 +269,7 @@ const Header = () => {
                           <hr className="border-gray-200" />
                         </div>
                         <button
-                          onClick={handleLogout} // handleLogout já fecha os modais
+                          onClick={handleLogout}
                           className="w-full flex items-center space-x-3 text-left px-4 py-2.5 text-sm text-gray-700 hover:text-pink-600 transition-colors focus:outline-none"
                           type="button"
                         >
@@ -289,7 +281,6 @@ const Header = () => {
                   )}
                 </div>
               ) : (
-                // Usuário Não Logado (Desktop)
                 <div className="flex items-center mr-6">
                   <Link to="/cadastro" className="text-gray-700 text-sm hover:text-pink-600 transition-colors bg-transparent border-none underline mr-8">
                     Cadastre-se
@@ -299,7 +290,6 @@ const Header = () => {
                   </Link>
                 </div>
               )}
-              {/* Área do Carrinho (Desktop) */}
               <div className="relative">
                 <button ref={cartButtonRef} onClick={toggleCart} aria-label="Carrinho" className="bg-transparent border-none p-0 flex items-center justify-center relative">
                   <ShoppingCart size={24} className="text-pink-600" />
@@ -310,7 +300,6 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Barra de pesquisa mobile */}
         {isSearchOpen && (
           <div className="md:hidden py-3 pb-5">
             <div className="relative">
@@ -329,18 +318,22 @@ const Header = () => {
           </div>
         )}
 
-        {/* Navegação desktop */}
+        {/* Navegação Principal (Desktop) - "Meu Perfil" REMOVIDO */}
         <nav className="hidden md:block">
           <div className="flex py-4 space-x-8">
-            {['Home', 'Produtos', 'Categorias', 'Meu Perfil'].map((item) => {
-              const path = item === 'Home' ? '/' : (item === 'Meu Perfil' ? '/meus-pedidos' : `/${item.toLowerCase().replace(' ', '-')}`);
-              const pageName = item === 'Meu Perfil' ? 'meus-pedidos' : item.toLowerCase();
+            {['Home', 'Produtos', 'Categorias'].map((item) => { // "Meu Perfil" removido daqui
+              const path = item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`;
+              const pageName = item.toLowerCase();
               return (
                 <Link
                   key={item}
                   to={path}
                   onClick={() => setCurrentPage(pageName)}
-                  className={`text-sm transition-colors hover:text-pink-600 ${ currentPage === pageName ? "text-pink-600 border-b-2 border-pink-600 pb-1 font-medium" : "text-gray-700"}`}
+                  className={`text-sm transition-colors hover:text-pink-600 ${
+                    currentPage === pageName
+                      ? "text-pink-600 border-b-2 border-pink-600 pb-1 font-medium"
+                      : "text-gray-700"
+                  }`}
                 >
                   {item}
                 </Link>
