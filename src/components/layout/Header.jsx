@@ -2,7 +2,6 @@
 import { useState, useEffect, useRef } from "react";
 import {
   Search,
-  ShoppingCart,
   Menu,
   X,
   User,
@@ -11,6 +10,7 @@ import {
   CreditCard,
   LogOut,
 } from "lucide-react";
+import miniCartIconPath from "../../assets/icons/mini-cart.svg";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext";
 
@@ -47,8 +47,7 @@ const Header = () => {
     )
       setCurrentPage("produtos");
     else if (path.startsWith("/categorias")) setCurrentPage("categorias");
-    else if (path.startsWith("/meus-pedidos"))
-      setCurrentPage("meus-pedidos");
+    else if (path.startsWith("/meus-pedidos")) setCurrentPage("meus-pedidos");
     else if (path.startsWith("/minhas-informacoes"))
       setCurrentPage("minhas-informacoes");
     else if (path.startsWith("/metodos-pagamento"))
@@ -166,23 +165,55 @@ const Header = () => {
           {/* Layout Mobile */}
           <div className="md:hidden grid grid-cols-12 items-center w-full">
             <div className="col-span-3 flex justify-start">
-              <button onClick={toggleMenu} aria-label="Menu" className="bg-transparent border-none p-0">
+              <button
+                onClick={toggleMenu}
+                aria-label="Menu"
+                className="bg-transparent border-none p-0"
+              >
                 <Menu size={24} className="text-pink-600" />
               </button>
             </div>
             <div className="col-span-6 flex justify-center">
-              <Link to="/" className="flex items-center" onClick={() => { setCurrentPage("home"); toggleMenu(); }}>
-                <img src="/src/assets/logos/logo-header.svg" alt="Digital Store" className="h-6" />
+              <Link
+                to="/"
+                className="flex items-center"
+                onClick={() => {
+                  setCurrentPage("home");
+                  toggleMenu();
+                }}
+              >
+                <img
+                  src="/src/assets/logos/logo-header.svg"
+                  alt="Digital Store"
+                  className="h-6"
+                />
               </Link>
             </div>
             <div className="col-span-3 flex items-center justify-end space-x-5">
-              <button onClick={toggleSearch} aria-label="Pesquisar" className="bg-transparent border-none p-0">
+              <button
+                onClick={toggleSearch}
+                aria-label="Pesquisar"
+                className="bg-transparent border-none p-0"
+              >
                 <Search size={24} className="text-pink-600" />
               </button>
               <div className="relative">
-                <button ref={cartButtonRef} onClick={toggleCart} aria-label="Carrinho" className="bg-transparent border-none p-0 flex items-center justify-center relative">
-                  <ShoppingCart size={24} className="text-pink-600" />
-                  <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">2</span> {/* TODO: Badge dinâmico */}
+                <button
+                  ref={cartButtonRef}
+                  onClick={toggleCart}
+                  aria-label="Carrinho"
+                  className="bg-transparent border-none p-0 flex items-center justify-center relative"
+                >
+                  <img
+                    src={miniCartIconPath}
+                    alt="Carrinho"
+                    className="w-6 h-6"
+                  />{" "}
+                  {/* Ícone local usado aqui */}
+                  <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                    2
+                  </span>{" "}
+                  {/* TODO: Badge dinâmico */}
                 </button>
               </div>
             </div>
@@ -191,8 +222,16 @@ const Header = () => {
           {/* Layout Desktop */}
           <div className="hidden md:flex items-center justify-between w-full">
             <div className="flex items-center">
-              <Link to="/" className="flex items-center" onClick={() => setCurrentPage("home")}>
-                <img src="/src/assets/logos/logo-header.svg" alt="Digital Store" className="h-9" />
+              <Link
+                to="/"
+                className="flex items-center"
+                onClick={() => setCurrentPage("home")}
+              >
+                <img
+                  src="/src/assets/logos/logo-header.svg"
+                  alt="Digital Store"
+                  className="h-9"
+                />
               </Link>
             </div>
             <div className="flex-1 max-w-2xl mx-auto px-8">
@@ -273,8 +312,10 @@ const Header = () => {
                           className="w-full flex items-center space-x-3 text-left px-4 py-2.5 text-sm text-gray-700 hover:text-pink-600 transition-colors focus:outline-none"
                           type="button"
                         >
-                          <LogOut size={18} className="opacity-75"/>
-                          <span className="underline hover:no-underline">Sair</span>
+                          <LogOut size={18} className="opacity-75" />
+                          <span className="underline hover:no-underline">
+                            Sair
+                          </span>
                         </button>
                       </nav>
                     </div>
@@ -282,18 +323,37 @@ const Header = () => {
                 </div>
               ) : (
                 <div className="flex items-center mr-6">
-                  <Link to="/cadastro" className="text-gray-700 text-sm hover:text-pink-600 transition-colors bg-transparent border-none underline mr-8">
+                  <Link
+                    to="/cadastro"
+                    className="text-gray-700 text-sm hover:text-pink-600 transition-colors bg-transparent border-none underline mr-8"
+                  >
                     Cadastre-se
                   </Link>
-                  <Link to="/login" className="rounded-md font-medium transition-colors bg-pink-600 text-white hover:bg-pink-700 py-2 px-8 inline-block text-center text-sm">
+                  <Link
+                    to="/login"
+                    className="rounded-md font-medium transition-colors bg-pink-600 text-white hover:bg-pink-700 py-2 px-8 inline-block text-center text-sm"
+                  >
                     Entrar
                   </Link>
                 </div>
               )}
               <div className="relative">
-                <button ref={cartButtonRef} onClick={toggleCart} aria-label="Carrinho" className="bg-transparent border-none p-0 flex items-center justify-center relative">
-                  <ShoppingCart size={24} className="text-pink-600" />
-                  <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">2</span> {/* TODO: Badge dinâmico */}
+                <button
+                  ref={cartButtonRef}
+                  onClick={toggleCart}
+                  aria-label="Carrinho"
+                  className="bg-transparent border-none p-0 flex items-center justify-center relative"
+                >
+                  <img
+                    src={miniCartIconPath}
+                    alt="Carrinho"
+                    className="w-6 h-6"
+                  />{" "}
+                  {/* Ícone local usado aqui */}
+                  <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
+                    2
+                  </span>{" "}
+                  {/* TODO: Badge dinâmico */}
                 </button>
               </div>
             </div>
@@ -312,17 +372,21 @@ const Header = () => {
                 autoFocus
               />
               <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                <button className="bg-transparent border-none p-1"><Search className="text-gray-400" size={20} /></button>
+                <button className="bg-transparent border-none p-1">
+                  <Search className="text-gray-400" size={20} />
+                </button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Navegação Principal (Desktop) - "Meu Perfil" REMOVIDO */}
         <nav className="hidden md:block">
           <div className="flex py-4 space-x-8">
-            {['Home', 'Produtos', 'Categorias'].map((item) => { // "Meu Perfil" removido daqui
-              const path = item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`;
+            {["Home", "Produtos", "Categorias"].map((item) => {
+              const path =
+                item === "Home"
+                  ? "/"
+                  : `/${item.toLowerCase().replace(" ", "-")}`;
               const pageName = item.toLowerCase();
               return (
                 <Link
@@ -343,30 +407,49 @@ const Header = () => {
         </nav>
       </div>
 
-      {/* Menu Mobile */}
       {isMenuOpen && (
         <div className="md:hidden fixed inset-0 bg-white z-50 overflow-y-auto">
           <div className="container mx-auto p-4">
             <div className="flex justify-between items-center mb-6">
               <Link to="/" className="flex items-center" onClick={toggleMenu}>
-                <img src="/src/assets/logos/logo-header.svg" alt="Digital Store" className="h-6" />
+                <img
+                  src="/src/assets/logos/logo-header.svg"
+                  alt="Digital Store"
+                  className="h-6"
+                />
               </Link>
-              <button onClick={toggleMenu} aria-label="Fechar Menu" className="bg-transparent border-none p-0">
+              <button
+                onClick={toggleMenu}
+                aria-label="Fechar Menu"
+                className="bg-transparent border-none p-0"
+              >
                 <X size={24} className="text-gray-500" />
               </button>
             </div>
             <div className="pt-4">
-              <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider px-2 mb-2">Navegar</p>
+              <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider px-2 mb-2">
+                Navegar
+              </p>
               <nav className="flex flex-col mb-6">
-                {['Home', 'Produtos', 'Categorias'].map((item) => {
-                  const path = item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`;
+                {["Home", "Produtos", "Categorias"].map((item) => {
+                  const path =
+                    item === "Home"
+                      ? "/"
+                      : `/${item.toLowerCase().replace(" ", "-")}`;
                   const pageName = item.toLowerCase();
                   return (
                     <Link
                       key={item}
                       to={path}
-                      onClick={() => { setCurrentPage(pageName); toggleMenu(); }}
-                      className={`flex items-center space-x-3 px-2 py-2.5 text-base transition-colors hover:bg-pink-50 hover:text-pink-600 rounded-md ${currentPage === pageName ? "text-pink-600 font-medium bg-pink-50" : "text-gray-700"}`}
+                      onClick={() => {
+                        setCurrentPage(pageName);
+                        toggleMenu();
+                      }}
+                      className={`flex items-center space-x-3 px-2 py-2.5 text-base transition-colors hover:bg-pink-50 hover:text-pink-600 rounded-md ${
+                        currentPage === pageName
+                          ? "text-pink-600 font-medium bg-pink-50"
+                          : "text-gray-700"
+                      }`}
                     >
                       <span>{item}</span>
                     </Link>
@@ -384,10 +467,16 @@ const Header = () => {
                   <div className="text-left">
                     <Link
                       to="/minhas-informacoes"
-                      onClick={() => { setCurrentPage("minhas-informacoes"); toggleMenu(); }}
+                      onClick={() => {
+                        setCurrentPage("minhas-informacoes");
+                        toggleMenu();
+                      }}
                       className="flex items-center space-x-3 mb-4 p-2 rounded-md hover:bg-gray-100 transition-colors"
                     >
-                      <User size={28} className="text-pink-600 flex-shrink-0 border border-pink-100 rounded-full p-1" />
+                      <User
+                        size={28}
+                        className="text-pink-600 flex-shrink-0 border border-pink-100 rounded-full p-1"
+                      />
                       <div className="flex flex-col">
                         <span className="text-base font-medium text-gray-800">
                           Olá, {getFirstName()}
@@ -398,12 +487,17 @@ const Header = () => {
                       </div>
                     </Link>
 
-                    <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider px-2 mb-2">Minha Conta</p>
+                    <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider px-2 mb-2">
+                      Minha Conta
+                    </p>
                     <nav className="flex flex-col space-y-1 mb-6">
                       <Link
                         to="/meus-pedidos"
                         className="flex items-center space-x-3 px-2 py-3 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-md transition-colors"
-                        onClick={() => { setCurrentPage("meus-pedidos"); toggleMenu(); }}
+                        onClick={() => {
+                          setCurrentPage("meus-pedidos");
+                          toggleMenu();
+                        }}
                       >
                         <Package size={20} className="opacity-75" />
                         <span>Meus pedidos</span>
@@ -411,7 +505,10 @@ const Header = () => {
                       <Link
                         to="/minhas-informacoes"
                         className="flex items-center space-x-3 px-2 py-3 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-md transition-colors"
-                        onClick={() => { setCurrentPage("minhas-informacoes"); toggleMenu(); }}
+                        onClick={() => {
+                          setCurrentPage("minhas-informacoes");
+                          toggleMenu();
+                        }}
                       >
                         <Info size={20} className="opacity-75" />
                         <span>Minhas informações</span>
@@ -419,7 +516,10 @@ const Header = () => {
                       <Link
                         to="/metodos-pagamento"
                         className="flex items-center space-x-3 px-2 py-3 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-md transition-colors"
-                        onClick={() => { setCurrentPage("metodos-pagamento"); toggleMenu(); }}
+                        onClick={() => {
+                          setCurrentPage("metodos-pagamento");
+                          toggleMenu();
+                        }}
                       >
                         <CreditCard size={20} className="opacity-75" />
                         <span>Métodos de Pagamento</span>
@@ -459,34 +559,54 @@ const Header = () => {
         </div>
       )}
 
-      {/* Dropdown do Carrinho */}
       {isCartOpen && (
-        <div ref={cartRef} className="absolute right-4 md:right-8 top-14 md:top-16 bg-white rounded-lg shadow-lg z-50 w-72 md:w-80">
+        <div
+          ref={cartRef}
+          className="absolute right-4 md:right-8 top-14 md:top-16 bg-white rounded-lg shadow-lg z-50 w-72 md:w-80"
+        >
           <div className="p-4">
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">Meu Carrinho</h3>
+            <h3 className="text-lg font-semibold mb-4 text-gray-800">
+              Meu Carrinho
+            </h3>
             <div className="space-y-4 max-h-72 overflow-y-auto pr-1">
               <div className="flex items-center gap-3 border-b border-gray-200 pb-3">
                 <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden p-1">
-                  <img src="../images/products/produc-image-7.png" alt="Produto no carrinho" className="object-contain max-h-full max-w-full" />
+                  <img
+                    src="../images/products/produc-image-7.png"
+                    alt="Produto no carrinho"
+                    className="object-contain max-h-full max-w-full"
+                  />
                 </div>
                 <div className="flex-grow">
-                  <h4 className="text-sm font-medium text-gray-800 line-clamp-2">Tênis Nike Revolution 6 Next Nature Masculino</h4>
+                  <h4 className="text-sm font-medium text-gray-800 line-clamp-2">
+                    Tênis Nike Revolution 6 Next Nature Masculino
+                  </h4>
                   <p className="text-xs text-gray-500 mt-0.5">Masculino</p>
                   <div className="flex justify-between items-center mt-1.5">
-                    <span className="text-sm text-pink-600 font-semibold">R$ 219,00</span>
+                    <span className="text-sm text-pink-600 font-semibold">
+                      R$ 219,00
+                    </span>
                     <span className="text-xs text-gray-500">1 unid.</span>
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden p-1">
-                  <img src="../images/products/produc-image-7.png" alt="Produto no carrinho" className="object-contain max-h-full max-w-full" />
+                  <img
+                    src="../images/products/produc-image-7.png"
+                    alt="Produto no carrinho"
+                    className="object-contain max-h-full max-w-full"
+                  />
                 </div>
                 <div className="flex-grow">
-                  <h4 className="text-sm font-medium text-gray-800 line-clamp-2">Tênis Nike Revolution 6 Next Nature Masculino</h4>
+                  <h4 className="text-sm font-medium text-gray-800 line-clamp-2">
+                    Tênis Nike Revolution 6 Next Nature Masculino
+                  </h4>
                   <p className="text-xs text-gray-500 mt-0.5">Masculino</p>
                   <div className="flex justify-between items-center mt-1.5">
-                    <span className="text-sm text-pink-600 font-semibold">R$ 219,00</span>
+                    <span className="text-sm text-pink-600 font-semibold">
+                      R$ 219,00
+                    </span>
                     <span className="text-xs text-gray-500">1 unid.</span>
                   </div>
                 </div>
@@ -494,11 +614,22 @@ const Header = () => {
             </div>
             <div className="mt-5 pt-4 border-t border-gray-200">
               <div className="flex justify-between mb-4">
-                <span className="text-sm font-medium text-gray-800">Valor total:</span>
-                <span className="text-base font-semibold text-pink-600">R$ 438,00</span>
+                <span className="text-sm font-medium text-gray-800">
+                  Valor total:
+                </span>
+                <span className="text-base font-semibold text-pink-600">
+                  R$ 438,00
+                </span>
               </div>
               <div className="flex flex-col space-y-2.5">
-                <Link to="/carrinho" onClick={() => { setCurrentPage('carrinho'); closeAllPopovers(); }} className="w-full bg-pink-600 text-white py-2.5 px-4 rounded-md hover:bg-pink-700 transition-colors text-sm font-medium text-center">
+                <Link
+                  to="/carrinho"
+                  onClick={() => {
+                    setCurrentPage("carrinho");
+                    closeAllPopovers();
+                  }}
+                  className="w-full bg-pink-600 text-white py-2.5 px-4 rounded-md hover:bg-pink-700 transition-colors text-sm font-medium text-center"
+                >
                   Ver Carrinho
                 </Link>
                 <button className="w-full py-2 text-sm text-gray-600 hover:text-pink-600 active:text-pink-600 transition-colors underline">
@@ -510,21 +641,35 @@ const Header = () => {
         </div>
       )}
 
-      {/* Painel de Filtros Mobile */}
       {isFilterOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end md:hidden">
           <div className="bg-white h-full w-full max-w-xs overflow-y-auto">
             <div className="p-4">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="font-medium text-lg text-gray-800">Filtrar por</h3>
-                <button onClick={toggleFilter} className="bg-transparent border-none p-0" aria-label="Fechar Filtros">
+                <h3 className="font-medium text-lg text-gray-800">
+                  Filtrar por
+                </h3>
+                <button
+                  onClick={toggleFilter}
+                  className="bg-transparent border-none p-0"
+                  aria-label="Fechar Filtros"
+                >
                   <X size={24} className="text-gray-500" />
                 </button>
               </div>
               <div className="space-y-6">
-                <div><h4 className="text-sm font-medium mb-2">Marca</h4> {/* ... Opções de filtro ... */}</div>
-                <div><h4 className="text-sm font-medium mb-2">Categoria</h4> {/* ... Opções de filtro ... */}</div>
-                <div><h4 className="text-sm font-medium mb-2">Gênero</h4> {/* ... Opções de filtro ... */}</div>
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Marca</h4>{" "}
+                  {/* ... Opções de filtro ... */}
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Categoria</h4>{" "}
+                  {/* ... Opções de filtro ... */}
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium mb-2">Gênero</h4>{" "}
+                  {/* ... Opções de filtro ... */}
+                </div>
               </div>
             </div>
           </div>
