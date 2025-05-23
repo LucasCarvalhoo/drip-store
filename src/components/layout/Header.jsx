@@ -1,61 +1,79 @@
 // src/components/layout/Header.jsx
 import { useState, useEffect, useRef } from "react";
-import { Search, ShoppingCart, Menu, X, User } from "lucide-react"; // Ícone User adicionado
+import {
+  Search,
+  ShoppingCart,
+  Menu,
+  X,
+  User,
+  Package,
+  Info,
+  CreditCard,
+  LogOut,
+} from "lucide-react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext";
 
 const Header = () => {
   // Hooks de Contexto e Navegação
-  const { user, profile, loading, logoutUser } = useUser(); //
-  const navigate = useNavigate(); //
-  const location = useLocation(); //
+  const { user, profile, loading, logoutUser } = useUser();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // Estados da UI
-  const [isMenuOpen, setIsMenuOpen] = useState(false); //
-  const [isSearchOpen, setIsSearchOpen] = useState(false); //
-  const [isCartOpen, setIsCartOpen] = useState(false); //
-  const [isFilterOpen, setIsFilterOpen] = useState(false); //
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false); // Novo estado para modal do perfil
-  const [searchValue, setSearchValue] = useState(""); //
-  const [currentPage, setCurrentPage] = useState(""); //
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false); // Estado para modal de perfil desktop
+  const [searchValue, setSearchValue] = useState("");
+  const [currentPage, setCurrentPage] = useState("");
 
   // Referências DOM
-  const cartButtonRef = useRef(null); //
-  const cartRef = useRef(null); //
-  const profileButtonRef = useRef(null); // Nova ref para o botão de perfil
-  const profileModalRef = useRef(null); // Nova ref para o modal de perfil
+  const cartButtonRef = useRef(null);
+  const cartRef = useRef(null);
+  const profileButtonRef = useRef(null); // Ref para o botão de perfil desktop
+  const profileModalRef = useRef(null);  // Ref para o modal de perfil desktop
 
   // --- EFEITOS ---
 
-  // Atualiza a página atual (para estilização de links ativos) com base na rota
   useEffect(() => {
-    const path = location.pathname; //
-    if (path === "/") setCurrentPage("home"); //
-    else if (path.startsWith("/produto") || path === "/product-detail" || path.startsWith("/produtos")) setCurrentPage("produtos"); //
-    else if (path.startsWith("/categorias")) setCurrentPage("categorias"); //
-    else if (path.startsWith("/meus-pedidos")) setCurrentPage("meus-pedidos"); //
-    else if (path === "/carrinho") setCurrentPage("carrinho"); //
-    else setCurrentPage(""); //
+    const path = location.pathname;
+    if (path === "/") setCurrentPage("home");
+    else if (
+      path.startsWith("/produto") ||
+      path === "/product-detail" ||
+      path.startsWith("/produtos")
+    )
+      setCurrentPage("produtos");
+    else if (path.startsWith("/categorias")) setCurrentPage("categorias");
+    else if (path.startsWith("/meus-pedidos"))
+      setCurrentPage("meus-pedidos");
+    else if (path.startsWith("/minhas-informacoes"))
+      setCurrentPage("minhas-informacoes");
+    else if (path.startsWith("/metodos-pagamento"))
+      setCurrentPage("metodos-pagamento");
+    else if (path === "/carrinho") setCurrentPage("carrinho");
+    else setCurrentPage("");
   }, [location.pathname]);
 
-  // Fecha o carrinho ao clicar fora
   useEffect(() => {
     function handleClickOutsideCart(event) {
       if (
         isCartOpen &&
         cartRef.current &&
-        !cartRef.current.contains(event.target) && //
+        !cartRef.current.contains(event.target) &&
         cartButtonRef.current &&
-        !cartButtonRef.current.contains(event.target) //
+        !cartButtonRef.current.contains(event.target)
       ) {
-        setIsCartOpen(false); //
+        setIsCartOpen(false);
       }
     }
-    if (isCartOpen) document.addEventListener("click", handleClickOutsideCart); //
-    return () => document.removeEventListener("click", handleClickOutsideCart); //
+    if (isCartOpen) document.addEventListener("click", handleClickOutsideCart);
+    return () => document.removeEventListener("click", handleClickOutsideCart);
   }, [isCartOpen]);
 
-  // Fecha o modal de perfil ao clicar fora
+  // Efeito para fechar o modal de perfil desktop ao clicar fora
   useEffect(() => {
     function handleClickOutsideProfileModal(event) {
       if (
@@ -68,27 +86,30 @@ const Header = () => {
         setIsProfileModalOpen(false);
       }
     }
-    if (isProfileModalOpen) document.addEventListener("click", handleClickOutsideProfileModal);
-    return () => document.removeEventListener("click", handleClickOutsideProfileModal);
+    if (isProfileModalOpen)
+      document.addEventListener("click", handleClickOutsideProfileModal);
+    return () =>
+      document.removeEventListener("click", handleClickOutsideProfileModal);
   }, [isProfileModalOpen]);
 
   // --- MANIPULADORES DE EVENTOS E FUNÇÕES AUXILIARES ---
 
-  // Função de Logout
   const handleLogout = async () => {
-    if (logoutUser) { //
+    if (logoutUser) {
       try {
-        await logoutUser(); //
-        navigate("/"); //
-        setIsProfileModalOpen(false); // Garante que o modal feche
-        setIsMenuOpen(false); // Fecha menu mobile se estiver aberto
+        await logoutUser();
+        navigate("/");
+        // Fechar todos os popovers/menus relevantes
+        setIsMenuOpen(false);
+        setIsProfileModalOpen(false);
+        // Adicione setIsCartOpen(false), etc., se necessário, ou use uma função helper
       } catch (error) {
-        console.error("Erro ao fazer logout no Header:", error); //
+        console.error("Erro ao fazer logout no Header:", error);
       }
     }
   };
 
-  // Alterna visibilidade dos menus e modais, garantindo que apenas um esteja aberto
+  // Função helper para fechar todos os popovers (se preferir centralizar)
   const closeAllPopovers = () => {
     setIsMenuOpen(false);
     setIsSearchOpen(false);
@@ -99,7 +120,7 @@ const Header = () => {
 
   const toggleMenu = () => {
     const currentlyOpen = isMenuOpen;
-    closeAllPopovers();
+    closeAllPopovers(); // Fecha outros antes de abrir/fechar este
     setIsMenuOpen(!currentlyOpen);
   };
 
@@ -110,10 +131,10 @@ const Header = () => {
   };
 
   const toggleCart = (e) => {
-    if (e) e.stopPropagation(); //
+    if (e) e.stopPropagation();
     const currentlyOpen = isCartOpen;
     closeAllPopovers();
-    setIsCartOpen(!currentlyOpen); //
+    setIsCartOpen(!currentlyOpen);
   };
 
   const toggleFilter = () => {
@@ -122,6 +143,7 @@ const Header = () => {
     setIsFilterOpen(!currentlyOpen);
   };
 
+  // Função para alternar o modal de perfil desktop
   const toggleProfileModal = (e) => {
     if (e) e.stopPropagation();
     const currentlyOpen = isProfileModalOpen;
@@ -130,35 +152,35 @@ const Header = () => {
   };
 
   const handleSearchChange = (e) => {
-    setSearchValue(e.target.value); //
+    setSearchValue(e.target.value);
   };
 
-  // Obtém o primeiro nome do perfil do usuário
   const getFirstName = () => {
-    if (profile && profile.nome_completo) { //
-      return profile.nome_completo.split(" ")[0]; //
+    if (profile && profile.nome_completo) {
+      return profile.nome_completo.split(" ")[0];
     }
-    return ""; //
+    return "";
   };
 
+  // --- RENDERIZAÇÃO DO COMPONENTE ---
   return (
-    <header className="w-full bg-white shadow-sm sticky top-0 z-40"> {/* Adicionado sticky e z-index */}
+    <header className="w-full bg-white shadow-sm sticky top-0 z-40">
       <div className="container mx-auto px-4 py-2">
-        {/* Parte superior do header (Logo, Busca, Auth, Carrinho) */}
+        {/* Parte superior do header */}
         <div className="py-4 md:py-5 flex items-center">
-          {/* Layout Mobile: Ícones e Logo */}
+          {/* Layout Mobile */}
           <div className="md:hidden grid grid-cols-12 items-center w-full">
-            <div className="col-span-3 flex justify-start"> {/* Menu Hamburguer */}
+            <div className="col-span-3 flex justify-start">
               <button onClick={toggleMenu} aria-label="Menu" className="bg-transparent border-none p-0">
                 <Menu size={24} className="text-pink-600" />
               </button>
             </div>
-            <div className="col-span-6 flex justify-center"> {/* Logo */}
-              <Link to="/" className="flex items-center" onClick={() => setCurrentPage("home")}>
+            <div className="col-span-6 flex justify-center">
+              <Link to="/" className="flex items-center" onClick={() => { setCurrentPage("home"); toggleMenu(); }}>
                 <img src="/src/assets/logos/logo-header.svg" alt="Digital Store" className="h-6" />
               </Link>
             </div>
-            <div className="col-span-3 flex items-center justify-end space-x-5"> {/* Pesquisa e Carrinho */}
+            <div className="col-span-3 flex items-center justify-end space-x-5">
               <button onClick={toggleSearch} aria-label="Pesquisar" className="bg-transparent border-none p-0">
                 <Search size={24} className="text-pink-600" />
               </button>
@@ -171,14 +193,14 @@ const Header = () => {
             </div>
           </div>
 
-          {/* Layout Desktop: Logo, Busca, Auth, Carrinho */}
+          {/* Layout Desktop */}
           <div className="hidden md:flex items-center justify-between w-full">
-            <div className="flex items-center"> {/* Logo */}
+            <div className="flex items-center">
               <Link to="/" className="flex items-center" onClick={() => setCurrentPage("home")}>
                 <img src="/src/assets/logos/logo-header.svg" alt="Digital Store" className="h-9" />
               </Link>
             </div>
-            <div className="flex-1 max-w-2xl mx-auto px-8"> {/* Barra de Pesquisa */}
+            <div className="flex-1 max-w-2xl mx-auto px-8">
               <div className="relative">
                 <input
                   type="text"
@@ -192,12 +214,12 @@ const Header = () => {
                 </div>
               </div>
             </div>
-            {/* Bloco de Autenticação/Perfil e Carrinho */}
+            {/* Bloco de Autenticação/Perfil e Carrinho (Desktop) */}
             <div className="flex items-center">
               {loading ? (
-                <div className="w-8 h-8 rounded-full border-2 border-pink-600 border-t-transparent animate-spin mr-6"></div> //
+                <div className="w-8 h-8 rounded-full border-2 border-pink-600 border-t-transparent animate-spin mr-6"></div>
               ) : user ? (
-                // Usuário Logado: Botão de Perfil com Modal
+                // ** MODAL DE PERFIL DESKTOP RESTAURADO AQUI **
                 <div className="relative mr-6">
                   <button
                     ref={profileButtonRef}
@@ -208,67 +230,71 @@ const Header = () => {
                   >
                     <User size={22} className="text-pink-600" />
                     <span className="text-sm">
-                      Olá, <span className="font-medium">{getFirstName()}</span> {/* */}
+                      Olá, <span className="font-medium">{getFirstName()}</span>
                     </span>
                   </button>
-                  {/* Modal do Perfil */}
+                  {/* Modal do Perfil (Desktop) */}
                   {isProfileModalOpen && (
                     <div
                       ref={profileModalRef}
-                      className="absolute right-0 top-full mt-2 w-56 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-100"
+                      className="absolute right-0 top-full mt-2 w-60 bg-white rounded-md shadow-lg py-2 z-50 border border-gray-100"
                     >
                       <nav className="flex flex-col">
                         <Link
                           to="/meus-pedidos"
-                          className="px-4 py-2.5 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-600 transition-colors"
+                          className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-600 transition-colors"
                           onClick={() => {
-                            setCurrentPage("meus-pedidos"); //
-                            setIsProfileModalOpen(false);
+                            setCurrentPage("meus-pedidos");
+                            closeAllPopovers(); // Fecha todos os popovers, incluindo este
                           }}
                         >
-                          Meus pedidos
+                          <Package size={18} className="opacity-75" />
+                          <span>Meus pedidos</span>
                         </Link>
                         <Link
-                          to="/minhas-informacoes" // Rota para "Minhas informações"
-                          className="px-4 py-2.5 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-600 transition-colors"
+                          to="/minhas-informacoes"
+                          className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-600 transition-colors"
                           onClick={() => {
-                            setCurrentPage("minhas-informacoes"); //
-                            setIsProfileModalOpen(false);
+                            setCurrentPage("minhas-informacoes");
+                            closeAllPopovers();
                           }}
                         >
-                          Minhas informações
+                          <Info size={18} className="opacity-75" />
+                          <span>Minhas informações</span>
                         </Link>
                         <Link
-                          to="/metodos-pagamento" // Rota para "Métodos de Pagamento"
-                          className="px-4 py-2.5 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-600 transition-colors"
+                          to="/metodos-pagamento"
+                          className="flex items-center space-x-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-600 transition-colors"
                           onClick={() => {
-                            setCurrentPage("metodos-pagamento"); //
-                            setIsProfileModalOpen(false);
+                            setCurrentPage("metodos-pagamento");
+                            closeAllPopovers();
                           }}
                         >
-                          Métodos de Pagamento
+                          <CreditCard size={18} className="opacity-75" />
+                          <span>Métodos de Pagamento</span>
                         </Link>
-                        <div className="px-2 my-1"> {/* Divisor */}
+                        <div className="px-2 my-1">
                           <hr className="border-gray-200" />
                         </div>
                         <button
-                          onClick={handleLogout} // Reutiliza handleLogout
-                          className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:text-pink-600 transition-colors underline hover:no-underline focus:outline-none"
+                          onClick={handleLogout} // handleLogout já fecha os modais
+                          className="w-full flex items-center space-x-3 text-left px-4 py-2.5 text-sm text-gray-700 hover:text-pink-600 transition-colors focus:outline-none"
                           type="button"
                         >
-                          Sair
+                          <LogOut size={18} className="opacity-75"/>
+                          <span className="underline hover:no-underline">Sair</span>
                         </button>
                       </nav>
                     </div>
                   )}
                 </div>
               ) : (
-                // Usuário Não Logado: Links de Cadastro e Login
+                // Usuário Não Logado (Desktop)
                 <div className="flex items-center mr-6">
-                  <Link to="/cadastro" className="text-gray-700 text-sm hover:text-pink-600 transition-colors bg-transparent border-none underline mr-8"> {/* */}
+                  <Link to="/cadastro" className="text-gray-700 text-sm hover:text-pink-600 transition-colors bg-transparent border-none underline mr-8">
                     Cadastre-se
                   </Link>
-                  <Link to="/login" className="rounded-md font-medium transition-colors bg-pink-600 text-white hover:bg-pink-700 py-2 px-8 inline-block text-center text-sm"> {/* */}
+                  <Link to="/login" className="rounded-md font-medium transition-colors bg-pink-600 text-white hover:bg-pink-700 py-2 px-8 inline-block text-center text-sm">
                     Entrar
                   </Link>
                 </div>
@@ -284,8 +310,8 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Barra de Pesquisa Mobile (condicional) */}
-        {isSearchOpen && ( //
+        {/* Barra de pesquisa mobile */}
+        {isSearchOpen && (
           <div className="md:hidden py-3 pb-5">
             <div className="relative">
               <input
@@ -297,31 +323,24 @@ const Header = () => {
                 autoFocus
               />
               <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                <button className="bg-transparent border-none p-1">
-                  <Search className="text-gray-400" size={20} />
-                </button>
+                <button className="bg-transparent border-none p-1"><Search className="text-gray-400" size={20} /></button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Navegação Principal (Desktop) */}
+        {/* Navegação desktop */}
         <nav className="hidden md:block">
           <div className="flex py-4 space-x-8">
             {['Home', 'Produtos', 'Categorias', 'Meu Perfil'].map((item) => {
-              const path = item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`; //
-              // Ajuste para "Meu Perfil" que na verdade é "meus-pedidos" no estado currentPage
-              const pageName = item === 'Meu Perfil' ? 'meus-pedidos' : item.toLowerCase(); //
+              const path = item === 'Home' ? '/' : (item === 'Meu Perfil' ? '/meus-pedidos' : `/${item.toLowerCase().replace(' ', '-')}`);
+              const pageName = item === 'Meu Perfil' ? 'meus-pedidos' : item.toLowerCase();
               return (
                 <Link
                   key={item}
                   to={path}
                   onClick={() => setCurrentPage(pageName)}
-                  className={`text-sm transition-colors hover:text-pink-600 ${
-                    currentPage === pageName
-                      ? "text-pink-600 border-b-2 border-pink-600 pb-1 font-medium" //
-                      : "text-gray-700" //
-                  }`}
+                  className={`text-sm transition-colors hover:text-pink-600 ${ currentPage === pageName ? "text-pink-600 border-b-2 border-pink-600 pb-1 font-medium" : "text-gray-700"}`}
                 >
                   {item}
                 </Link>
@@ -331,11 +350,11 @@ const Header = () => {
         </nav>
       </div>
 
-      {/* Menu Mobile (condicional) */}
-      {isMenuOpen && ( //
-        <div className="md:hidden fixed inset-0 bg-white z-50 overflow-y-auto"> {/* Adicionado overflow */}
+      {/* Menu Mobile */}
+      {isMenuOpen && (
+        <div className="md:hidden fixed inset-0 bg-white z-50 overflow-y-auto">
           <div className="container mx-auto p-4">
-            <div className="flex justify-between items-center mb-6"> {/* Cabeçalho do Menu Mobile */}
+            <div className="flex justify-between items-center mb-6">
               <Link to="/" className="flex items-center" onClick={toggleMenu}>
                 <img src="/src/assets/logos/logo-header.svg" alt="Digital Store" className="h-6" />
               </Link>
@@ -343,46 +362,103 @@ const Header = () => {
                 <X size={24} className="text-gray-500" />
               </button>
             </div>
-            <div className="pt-4"> {/* Conteúdo do Menu Mobile */}
-              <p className="text-gray-700 font-semibold mb-2">Páginas</p>
-              <nav className="flex flex-col mb-8">
-                {['Home', 'Produtos', 'Categorias', 'Meu Perfil'].map((item) => {
-                  const path = item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`; //
-                  const pageName = item === 'Meu Perfil' ? 'meus-pedidos' : item.toLowerCase(); //
+            <div className="pt-4">
+              <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider px-2 mb-2">Navegar</p>
+              <nav className="flex flex-col mb-6">
+                {['Home', 'Produtos', 'Categorias'].map((item) => {
+                  const path = item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`;
+                  const pageName = item.toLowerCase();
                   return (
                     <Link
                       key={item}
                       to={path}
                       onClick={() => { setCurrentPage(pageName); toggleMenu(); }}
-                      className={`py-2 text-base transition-colors hover:text-pink-600 ${
-                        currentPage === pageName ? "text-pink-600 font-medium" : "text-gray-700" //
-                      }`}
+                      className={`flex items-center space-x-3 px-2 py-2.5 text-base transition-colors hover:bg-pink-50 hover:text-pink-600 rounded-md ${currentPage === pageName ? "text-pink-600 font-medium bg-pink-50" : "text-gray-700"}`}
                     >
-                      {item}
+                      <span>{item}</span>
                     </Link>
                   );
                 })}
               </nav>
-              {/* Autenticação no Menu Mobile */}
-              <div className="mt-auto pt-4 border-t">
+
+              <hr className="my-4 border-gray-200" />
+              <div className="px-2">
                 {loading ? (
-                  <div className="flex justify-center"><div className="w-6 h-6 rounded-full border-2 border-pink-600 border-t-transparent animate-spin"></div></div> //
+                  <div className="flex justify-center py-6">
+                    <div className="w-6 h-6 rounded-full border-2 border-pink-600 border-t-transparent animate-spin"></div>
+                  </div>
                 ) : user ? (
-                  <div className="text-center">
-                    <p className="text-gray-700 text-sm mb-4">Olá, <span className="font-medium">{getFirstName()}</span></p> {/* */}
-                    <button onClick={handleLogout} className="w-full rounded-md font-medium transition-colors bg-pink-600 text-white hover:bg-pink-700 py-3 px-4 inline-block text-center" type="button"> {/* */}
-                      Sair
+                  <div className="text-left">
+                    <Link
+                      to="/minhas-informacoes"
+                      onClick={() => { setCurrentPage("minhas-informacoes"); toggleMenu(); }}
+                      className="flex items-center space-x-3 mb-4 p-2 rounded-md hover:bg-gray-100 transition-colors"
+                    >
+                      <User size={28} className="text-pink-600 flex-shrink-0 border border-pink-100 rounded-full p-1" />
+                      <div className="flex flex-col">
+                        <span className="text-base font-medium text-gray-800">
+                          Olá, {getFirstName()}
+                        </span>
+                        <span className="text-xs text-gray-500 hover:underline">
+                          Ver meu perfil
+                        </span>
+                      </div>
+                    </Link>
+
+                    <p className="text-gray-500 text-xs font-semibold uppercase tracking-wider px-2 mb-2">Minha Conta</p>
+                    <nav className="flex flex-col space-y-1 mb-6">
+                      <Link
+                        to="/meus-pedidos"
+                        className="flex items-center space-x-3 px-2 py-3 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-md transition-colors"
+                        onClick={() => { setCurrentPage("meus-pedidos"); toggleMenu(); }}
+                      >
+                        <Package size={20} className="opacity-75" />
+                        <span>Meus pedidos</span>
+                      </Link>
+                      <Link
+                        to="/minhas-informacoes"
+                        className="flex items-center space-x-3 px-2 py-3 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-md transition-colors"
+                        onClick={() => { setCurrentPage("minhas-informacoes"); toggleMenu(); }}
+                      >
+                        <Info size={20} className="opacity-75" />
+                        <span>Minhas informações</span>
+                      </Link>
+                      <Link
+                        to="/metodos-pagamento"
+                        className="flex items-center space-x-3 px-2 py-3 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-600 rounded-md transition-colors"
+                        onClick={() => { setCurrentPage("metodos-pagamento"); toggleMenu(); }}
+                      >
+                        <CreditCard size={20} className="opacity-75" />
+                        <span>Métodos de Pagamento</span>
+                      </Link>
+                    </nav>
+                    <hr className="my-3 border-gray-200" />
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center justify-center space-x-2.5 rounded-md font-medium transition-colors bg-pink-600 text-white hover:bg-pink-700 py-3 px-4 text-sm"
+                      type="button"
+                    >
+                      <LogOut size={18} />
+                      <span>Sair</span>
                     </button>
                   </div>
                 ) : (
-                  <>
-                    <Link to="/login" onClick={toggleMenu} className="w-full rounded-md font-medium transition-colors bg-pink-600 text-white hover:bg-pink-700 py-3 mb-4 inline-block text-center"> {/* */}
+                  <div className="flex flex-col space-y-3">
+                    <Link
+                      to="/login"
+                      onClick={toggleMenu}
+                      className="w-full block text-center rounded-md font-medium transition-colors bg-pink-600 text-white hover:bg-pink-700 py-3 text-sm"
+                    >
                       Entrar
                     </Link>
-                    <Link to="/cadastro" onClick={toggleMenu} className="w-full text-center text-gray-700 text-sm hover:text-pink-600 transition-colors bg-transparent border-none underline"> {/* */}
-                      Cadastre-se
+                    <Link
+                      to="/cadastro"
+                      onClick={toggleMenu}
+                      className="w-full block text-center text-sm text-gray-700 hover:text-pink-600 transition-colors underline py-2"
+                    >
+                      Não tem uma conta? Cadastre-se
                     </Link>
-                  </>
+                  </div>
                 )}
               </div>
             </div>
@@ -390,52 +466,49 @@ const Header = () => {
         </div>
       )}
 
-      {/* Dropdown do Carrinho (condicional) */}
-      {isCartOpen && ( //
+      {/* Dropdown do Carrinho */}
+      {isCartOpen && (
         <div ref={cartRef} className="absolute right-4 md:right-8 top-14 md:top-16 bg-white rounded-lg shadow-lg z-50 w-72 md:w-80">
-          {/* Conteúdo do carrinho - mantido como no original */}
           <div className="p-4">
-            <h3 className="text-base font-medium mb-3">Meu Carrinho</h3>
-            <div className="space-y-3 max-h-64 overflow-auto">
-              {/* Item de carrinho 1 */}
-              <div className="flex gap-3 border-b pb-3">
-                <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden">
-                  <img src="../images/products/produc-image-7.png" alt="Produto" className="object-cover w-10" /> {/* */}
+            <h3 className="text-lg font-semibold mb-4 text-gray-800">Meu Carrinho</h3>
+            <div className="space-y-4 max-h-72 overflow-y-auto pr-1">
+              <div className="flex items-center gap-3 border-b border-gray-200 pb-3">
+                <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden p-1">
+                  <img src="../images/products/produc-image-7.png" alt="Produto no carrinho" className="object-contain max-h-full max-w-full" />
                 </div>
                 <div className="flex-grow">
-                  <h4 className="text-sm font-medium text-gray-800">Tênis Nike Revolution 6 Next Nature Masculino</h4> {/* */}
-                  <p className="text-xs text-gray-500 mt-1">Masculino</p> {/* */}
-                  <div className="flex justify-between mt-1">
-                    <span className="text-sm text-pink-600 font-medium">R$ 219,00</span> {/* */}
-                    <span className="text-xs text-gray-500">1 unid.</span> {/* */}
+                  <h4 className="text-sm font-medium text-gray-800 line-clamp-2">Tênis Nike Revolution 6 Next Nature Masculino</h4>
+                  <p className="text-xs text-gray-500 mt-0.5">Masculino</p>
+                  <div className="flex justify-between items-center mt-1.5">
+                    <span className="text-sm text-pink-600 font-semibold">R$ 219,00</span>
+                    <span className="text-xs text-gray-500">1 unid.</span>
                   </div>
                 </div>
               </div>
-              {/* Item de carrinho 2 */}
-              <div className="flex gap-3">
-                <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden">
-                  <img src="../images/products/produc-image-7.png" alt="Produto" className="object-cover w-10" /> {/* */}
+              <div className="flex items-center gap-3">
+                <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden p-1">
+                  <img src="../images/products/produc-image-7.png" alt="Produto no carrinho" className="object-contain max-h-full max-w-full" />
                 </div>
                 <div className="flex-grow">
-                  <h4 className="text-sm font-medium text-gray-800">Tênis Nike Revolution 6 Next Nature Masculino</h4> {/* */}
-                  <p className="text-xs text-gray-500 mt-1">Masculino</p> {/* */}
-                  <div className="flex justify-between mt-1">
-                    <span className="text-sm text-pink-600 font-medium">R$ 219,00</span> {/* */}
-                    <span className="text-xs text-gray-500">1 unid.</span> {/* */}
+                  <h4 className="text-sm font-medium text-gray-800 line-clamp-2">Tênis Nike Revolution 6 Next Nature Masculino</h4>
+                  <p className="text-xs text-gray-500 mt-0.5">Masculino</p>
+                  <div className="flex justify-between items-center mt-1.5">
+                    <span className="text-sm text-pink-600 font-semibold">R$ 219,00</span>
+                    <span className="text-xs text-gray-500">1 unid.</span>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="mt-4 pt-3 border-t"> {/* Resumo e ações */}
+            <div className="mt-5 pt-4 border-t border-gray-200">
               <div className="flex justify-between mb-4">
-                <span className="text-sm font-medium">Valor total:</span> {/* */}
-                <span className="text-sm font-medium text-pink-600">R$ 438,00</span> {/* */}
+                <span className="text-sm font-medium text-gray-800">Valor total:</span>
+                <span className="text-base font-semibold text-pink-600">R$ 438,00</span>
               </div>
-              <div className="flex flex-col space-y-2">
-                <Link to="/carrinho" onClick={() => { setCurrentPage('carrinho'); setIsCartOpen(false);}} className="w-full bg-pink-600 text-white py-2 px-4 rounded-md hover:bg-pink-700 transition-colors text-sm font-medium text-center"> {/* */}
+              <div className="flex flex-col space-y-2.5">
+                <Link to="/carrinho" onClick={() => { setCurrentPage('carrinho'); closeAllPopovers(); }} className="w-full bg-pink-600 text-white py-2.5 px-4 rounded-md hover:bg-pink-700 transition-colors text-sm font-medium text-center">
                   Ver Carrinho
                 </Link>
-                <button className="w-full py-2 text-sm bg-transparent text-gray-700 hover:text-pink-600 active:text-pink-600 transition-colors underline"> {/* */}
+                <button className="w-full py-2 text-sm text-gray-600 hover:text-pink-600 active:text-pink-600 transition-colors underline">
                   Esvaziar
                 </button>
               </div>
@@ -444,21 +517,22 @@ const Header = () => {
         </div>
       )}
 
-      {/* Painel de Filtros Mobile (condicional) - mantido como no original */}
-      {isFilterOpen && ( //
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end md:justify-center md:items-center">
-          {/* Conteúdo dos filtros */}
-          {/* ... (código dos filtros omitido por brevidade, mas deve ser mantido como no original) ... */}
-           <div className="bg-white h-full md:h-auto md:rounded-lg w-full max-w-xs md:max-w-lg overflow-auto">
-            <div className="p-4 md:p-6">
+      {/* Painel de Filtros Mobile */}
+      {isFilterOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-end md:hidden">
+          <div className="bg-white h-full w-full max-w-xs overflow-y-auto">
+            <div className="p-4">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="font-medium text-lg">Filtrar por</h3> {/* */}
-                <button onClick={toggleFilter} className="bg-transparent border-none p-0" aria-label="Fechar">
+                <h3 className="font-medium text-lg text-gray-800">Filtrar por</h3>
+                <button onClick={toggleFilter} className="bg-transparent border-none p-0" aria-label="Fechar Filtros">
                   <X size={24} className="text-gray-500" />
                 </button>
               </div>
-              {/* Seções de filtros aqui (Marca, Categoria, Gênero, Estado) - mantidas do original */}
-              {/* ... */}
+              <div className="space-y-6">
+                <div><h4 className="text-sm font-medium mb-2">Marca</h4> {/* ... Opções de filtro ... */}</div>
+                <div><h4 className="text-sm font-medium mb-2">Categoria</h4> {/* ... Opções de filtro ... */}</div>
+                <div><h4 className="text-sm font-medium mb-2">Gênero</h4> {/* ... Opções de filtro ... */}</div>
+              </div>
             </div>
           </div>
         </div>
