@@ -232,11 +232,21 @@ const Header = () => {
                           to="/minhas-informacoes" // Rota para "Minhas informações"
                           className="px-4 py-2.5 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-600 transition-colors"
                           onClick={() => {
-                            // Não definindo currentPage aqui, a menos que /minha-conta seja um item de navegação principal
+                            setCurrentPage("minhas-informacoes"); //
                             setIsProfileModalOpen(false);
                           }}
                         >
                           Minhas informações
+                        </Link>
+                        <Link
+                          to="/metodos-pagamento" // Rota para "Métodos de Pagamento"
+                          className="px-4 py-2.5 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-600 transition-colors"
+                          onClick={() => {
+                            setCurrentPage("metodos-pagamento"); //
+                            setIsProfileModalOpen(false);
+                          }}
+                        >
+                          Métodos de Pagamento
                         </Link>
                         <div className="px-2 my-1"> {/* Divisor */}
                           <hr className="border-gray-200" />
@@ -334,7 +344,7 @@ const Header = () => {
               </button>
             </div>
             <div className="pt-4"> {/* Conteúdo do Menu Mobile */}
-              <p className="text-pink-600 font-medium mb-2">Páginas</p>
+              <p className="text-gray-700 font-semibold mb-2">Páginas</p>
               <nav className="flex flex-col mb-8">
                 {['Home', 'Produtos', 'Categorias', 'Meu Perfil'].map((item) => {
                   const path = item === 'Home' ? '/' : `/${item.toLowerCase().replace(' ', '-')}`; //
