@@ -13,10 +13,12 @@ import {
 import miniCartIconPath from "../../assets/icons/mini-cart.svg";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import { useUser } from "../../contexts/UserContext";
+import { useCart } from "../../contexts/CartContext";
 
 const Header = () => {
   // Hooks de Contexto e Navegação
   const { user, profile, loading, logoutUser } = useUser();
+  const { cartCount, cartItems, cartSubtotal } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -211,8 +213,8 @@ const Header = () => {
                   />{" "}
                   {/* Ícone local usado aqui */}
                   <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
-                    2
-                  </span>{" "}
+                    {cartCount}
+                  </span>
                   {/* TODO: Badge dinâmico */}
                 </button>
               </div>
@@ -351,8 +353,8 @@ const Header = () => {
                   />{" "}
                   {/* Ícone local usado aqui */}
                   <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
-                    2
-                  </span>{" "}
+                    {cartCount}
+                  </span>
                   {/* TODO: Badge dinâmico */}
                 </button>
               </div>
@@ -393,11 +395,10 @@ const Header = () => {
                   key={item}
                   to={path}
                   onClick={() => setCurrentPage(pageName)}
-                  className={`text-sm transition-colors hover:text-pink-600 ${
-                    currentPage === pageName
-                      ? "text-pink-600 border-b-2 border-pink-600 pb-1 font-medium"
-                      : "text-gray-700"
-                  }`}
+                  className={`text-sm transition-colors hover:text-pink-600 ${currentPage === pageName
+                    ? "text-pink-600 border-b-2 border-pink-600 pb-1 font-medium"
+                    : "text-gray-700"
+                    }`}
                 >
                   {item}
                 </Link>
@@ -445,11 +446,10 @@ const Header = () => {
                         setCurrentPage(pageName);
                         toggleMenu();
                       }}
-                      className={`flex items-center space-x-3 px-2 py-2.5 text-base transition-colors hover:bg-pink-50 hover:text-pink-600 rounded-md ${
-                        currentPage === pageName
-                          ? "text-pink-600 font-medium bg-pink-50"
-                          : "text-gray-700"
-                      }`}
+                      className={`flex items-center space-x-3 px-2 py-2.5 text-base transition-colors hover:bg-pink-50 hover:text-pink-600 rounded-md ${currentPage === pageName
+                        ? "text-pink-600 font-medium bg-pink-50"
+                        : "text-gray-700"
+                        }`}
                     >
                       <span>{item}</span>
                     </Link>
@@ -566,48 +566,36 @@ const Header = () => {
               Meu Carrinho
             </h3>
             <div className="space-y-4 max-h-72 overflow-y-auto pr-1">
-              <div className="flex items-center gap-3 border-b border-gray-200 pb-3">
-                <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden p-1">
-                  <img
-                    src="../images/products/produc-image-7.png"
-                    alt="Produto no carrinho"
-                    className="object-contain max-h-full max-w-full"
-                  />
-                </div>
-                <div className="flex-grow">
-                  <h4 className="text-sm font-medium text-gray-800 line-clamp-2">
-                    Tênis Nike Revolution 6 Next Nature Masculino
-                  </h4>
-                  <p className="text-xs text-gray-500 mt-0.5">Masculino</p>
-                  <div className="flex justify-between items-center mt-1.5">
-                    <span className="text-sm text-pink-600 font-semibold">
-                      R$ 219,00
-                    </span>
-                    <span className="text-xs text-gray-500">1 unid.</span>
+              {cartItems.length > 0 ? (
+                cartItems.slice(0, 3).map((item, index) => (
+                  <div key={item.id} className={`flex items-center gap-3 ${index < cartItems.length - 1 ? 'border-b border-gray-200 pb-3' : ''}`}>
+                    <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden p-1">
+                      <img
+                        src={item.produto.imagemUrl}
+                        alt={item.produto.nome}
+                        className="object-contain max-h-full max-w-full"
+                      />
+                    </div>
+                    <div className="flex-grow">
+                      <h4 className="text-sm font-medium text-gray-800 line-clamp-2">
+                        {item.produto.nome}
+                      </h4>
+                      {item.cor && <p className="text-xs text-gray-500 mt-0.5">Cor: {item.cor}</p>}
+                      {item.tamanho && <p className="text-xs text-gray-500">Tamanho: {item.tamanho}</p>}
+                      <div className="flex justify-between items-center mt-1.5">
+                        <span className="text-sm text-pink-600 font-semibold">
+                          R$ {item.produto.precoAtual.toFixed(2).replace('.', ',')}
+                        </span>
+                        <span className="text-xs text-gray-500">{item.quantidade} unid.</span>
+                      </div>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="text-center py-4 text-gray-500 text-sm">
+                  Seu carrinho está vazio
                 </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden p-1">
-                  <img
-                    src="../images/products/produc-image-7.png"
-                    alt="Produto no carrinho"
-                    className="object-contain max-h-full max-w-full"
-                  />
-                </div>
-                <div className="flex-grow">
-                  <h4 className="text-sm font-medium text-gray-800 line-clamp-2">
-                    Tênis Nike Revolution 6 Next Nature Masculino
-                  </h4>
-                  <p className="text-xs text-gray-500 mt-0.5">Masculino</p>
-                  <div className="flex justify-between items-center mt-1.5">
-                    <span className="text-sm text-pink-600 font-semibold">
-                      R$ 219,00
-                    </span>
-                    <span className="text-xs text-gray-500">1 unid.</span>
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
             <div className="mt-5 pt-4 border-t border-gray-200">
               <div className="flex justify-between mb-4">
@@ -615,7 +603,7 @@ const Header = () => {
                   Valor total:
                 </span>
                 <span className="text-base font-semibold text-pink-600">
-                  R$ 438,00
+                  R$ {cartSubtotal.toFixed(2).replace('.', ',')}
                 </span>
               </div>
               <div className="flex flex-col space-y-2.5">

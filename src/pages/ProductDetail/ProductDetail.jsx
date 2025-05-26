@@ -10,11 +10,13 @@ import SizeSelector from '../../components/SizeSelector/SizeSelector';
 import ColorSelector from '../../components/ColorSelector/ColorSelector';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import { getProductBySlug, getRelatedProducts } from '../../services/productService';
+import { useUser } from '../../contexts/UserContext';
 import styles from './ProductDetail.module.css';
 
 const ProductDetail = () => {
   const { id: productSlug } = useParams(); // Get slug from URL
   const navigate = useNavigate();
+  const { user } = useUser(); // Add user context
   
   // State management
   const [product, setProduct] = useState(null);
@@ -103,31 +105,35 @@ const ProductDetail = () => {
   };
 
   // Handler for adding to cart
-  const handleAddToCart = () => {
-    // Only require size selection for products that have sizes
-    if (product.sizes && product.sizes.length > 0 && !selectedSize) {
-      alert('Por favor, selecione um tamanho.');
-      return;
-    }
-    
-    // Only require color selection for products that have colors
-    if (product.colors && product.colors.length > 0 && !selectedColor) {
-      alert('Por favor, selecione uma cor.');
-      return;
-    }
+  const handleAddToCart = async () => {
+    // Size and color are just for show - don't validate them
+    console.log('Selected size:', selectedSize, 'Selected color:', selectedColor);
 
-    const cartItem = {
-      product: product.name,
-      productId: product.id,
-      price: product.currentPrice,
-      ...(selectedSize && { size: selectedSize }),
-      ...(selectedColor && { color: selectedColor })
-    };
-
-    console.log('Adding to cart:', cartItem);
-    
-    // TODO: Integrate with cartService when Cart.jsx is integrated
-    alert(`Produto adicionado ao carrinho!\n\nProduto: ${product.name}${selectedSize ? `\nTamanho: ${selectedSize}` : ''}${selectedColor ? `\nCor: ${selectedColor}` : ''}\nPreço: R$ ${product.currentPrice.toFixed(2).replace('.', ',')}`);
+    try {
+      // Import cart service functions
+      const { getCart, addToCartSimple } = await import('../../services/cartService');
+      
+      // Get or create cart
+      const cartId = await getCart(user?.id);
+      
+      console.log('Adding to cart:', {
+        cartId,
+        productId: product.id
+      });
+      
+      // Add to cart using simple method (ignore size/color)
+      await addToCartSimple(cartId, product.id, 1);
+      
+      // Show success message
+      alert(`✅ Produto adicionado ao carrinho!\n\nProduto: ${product.name}\nPreço: R$ ${product.currentPrice.toFixed(2).replace('.', ',')}`);
+      
+      // Trigger cart update in header
+      window.dispatchEvent(new CustomEvent('cartUpdated'));
+      
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      alert('Erro ao adicionar produto ao carrinho. Tente novamente.');
+    }
   };
 
   // Loading state
