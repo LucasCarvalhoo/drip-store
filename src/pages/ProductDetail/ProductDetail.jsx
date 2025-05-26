@@ -1,6 +1,7 @@
 // pages/ProductDetail/ProductDetail.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { CheckCircle, X, ShoppingCart } from 'lucide-react';
 import Layout from '../../components/layout/Layout';
 import Breadcrumb from '../../components/Breadcrumb/Breadcrumb';
 import ProductGallery from '../../components/ProductGallery/ProductGallery';
@@ -13,10 +14,89 @@ import { getProductBySlug, getRelatedProducts } from '../../services/productServ
 import { useUser } from '../../contexts/UserContext';
 import styles from './ProductDetail.module.css';
 
+// Toast Component
+const Toast = ({ message, type = 'success', isVisible, onClose, duration = 4000 }) => {
+  useEffect(() => {
+    if (isVisible) {
+      const timer = setTimeout(() => {
+        onClose();
+      }, duration);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isVisible, duration, onClose]);
+
+  if (!isVisible) return null;
+
+  const getIcon = () => {
+    switch (type) {
+      case 'success':
+        return <CheckCircle className="w-5 h-5 text-green-500" />;
+      case 'cart':
+        return <ShoppingCart className="w-5 h-5 text-blue-500" />;
+      case 'error':
+        return <X className="w-5 h-5 text-red-500" />;
+      default:
+        return <CheckCircle className="w-5 h-5 text-green-500" />;
+    }
+  };
+
+  const getStyles = () => {
+    switch (type) {
+      case 'success':
+        return 'bg-white border-l-4 border-green-500 shadow-lg';
+      case 'cart':
+        return 'bg-white border-l-4 border-blue-500 shadow-lg';
+      case 'error':
+        return 'bg-white border-l-4 border-red-500 shadow-lg';
+      default:
+        return 'bg-white border-l-4 border-green-500 shadow-lg';
+    }
+  };
+
+  const toastStyles = {
+    position: 'fixed',
+    top: '20px',
+    right: '20px',
+    zIndex: 1000,
+    maxWidth: '400px',
+    width: '100%',
+    transform: isVisible ? 'translateX(0)' : 'translateX(100%)',
+    transition: 'transform 0.3s ease-in-out',
+    borderRadius: '8px',
+    overflow: 'hidden'
+  };
+
+  return (
+    <div style={toastStyles}>
+      <div className={getStyles()}>
+        <div className="flex items-center p-4">
+          <div className="flex-shrink-0">
+            {getIcon()}
+          </div>
+          <div className="ml-3 flex-1">
+            <p className="text-sm text-gray-900">
+              {message}
+            </p>
+          </div>
+          <div className="flex-shrink-0">
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ProductDetail = () => {
   const { id: productSlug } = useParams(); // Get slug from URL
   const navigate = useNavigate();
-  const { user } = useUser(); // Add user context
+  const { user } = useUser();
 
   // State management
   const [product, setProduct] = useState(null);
@@ -25,6 +105,16 @@ const ProductDetail = () => {
   const [error, setError] = useState(null);
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
+  
+  // Toast state
+  const [toast, setToast] = useState({
+    isVisible: false,
+    message: '',
+    type: 'success'
+  });
+
+  // Button state for loading/success feedback
+  const [buttonState, setButtonState] = useState('default'); // 'default', 'loading', 'success'
 
   // Load product data
   useEffect(() => {
@@ -104,12 +194,29 @@ const ProductDetail = () => {
     ];
   };
 
-  // Handler for adding to cart
+  // Handle toast close
+  const handleCloseToast = () => {
+    setToast(prev => ({ ...prev, isVisible: false }));
+  };
+
+  // Show toast notification
+  const showToast = (message, type = 'success') => {
+    setToast({
+      isVisible: true,
+      message,
+      type
+    });
+  };
+
+  // Handler for adding to cart with improved UX
   const handleAddToCart = async () => {
     // Size and color are just for show - don't validate them
     console.log('Selected size:', selectedSize, 'Selected color:', selectedColor);
 
     try {
+      // Set loading state
+      setButtonState('loading');
+
       // Import cart service functions
       const { getCart, addToCartSimple } = await import('../../services/cartService');
 
@@ -124,15 +231,63 @@ const ProductDetail = () => {
       // Add to cart using simple method (ignore size/color)
       await addToCartSimple(cartId, product.id, 1);
 
-      // Show success message
-      alert(`✅ Produto adicionado ao carrinho!\n\nProduto: ${product.name}\nPreço: R$ ${product.currentPrice.toFixed(2).replace('.', ',')}`);
+      // Set success state
+      setButtonState('success');
+
+      // Show success toast
+      showToast(`${product.name} foi adicionado ao carrinho!`, 'cart');
 
       // Trigger cart update in header
       window.dispatchEvent(new CustomEvent('cartUpdated'));
 
+      // Reset button state after 2 seconds
+      setTimeout(() => {
+        setButtonState('default');
+      }, 2000);
+
     } catch (error) {
       console.error('Error adding to cart:', error);
-      alert('Erro ao adicionar produto ao carrinho. Tente novamente.');
+      
+      // Reset button state
+      setButtonState('default');
+      
+      // Show error toast
+      showToast('Erro ao adicionar produto ao carrinho. Tente novamente.', 'error');
+    }
+  };
+
+  // Button content based on state
+  const getButtonContent = () => {
+    switch (buttonState) {
+      case 'loading':
+        return (
+          <>
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+            ADICIONANDO...
+          </>
+        );
+      case 'success':
+        return (
+          <>
+            <CheckCircle className="w-4 h-4 mr-2" />
+            ADICIONADO!
+          </>
+        );
+      default:
+        return 'COMPRAR';
+    }
+  };
+
+  // Button styles based on state
+  const getButtonStyles = () => {
+    const baseStyles = styles.buyButton;
+    switch (buttonState) {
+      case 'success':
+        return `${baseStyles} !bg-green-600 hover:!bg-green-700`;
+      case 'loading':
+        return `${baseStyles} !bg-gray-400 cursor-not-allowed`;
+      default:
+        return baseStyles;
     }
   };
 
@@ -224,6 +379,14 @@ const ProductDetail = () => {
 
   return (
     <Layout>
+      {/* Toast Notification */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={handleCloseToast}
+      />
+
       {/* Breadcrumb */}
       <div className={styles.breadcrumbContainer}>
         <div className="container mx-auto px-4">
@@ -293,12 +456,13 @@ const ProductDetail = () => {
               />
             )}
 
-            {/* Add to Cart Button */}
+            {/* Add to Cart Button with enhanced UX */}
             <button
-              className={styles.buyButton}
+              className={`${getButtonStyles()} flex items-center justify-center transition-all duration-300`}
               onClick={handleAddToCart}
+              disabled={buttonState === 'loading'}
             >
-              COMPRAR
+              {getButtonContent()}
             </button>
           </div>
         </div>
