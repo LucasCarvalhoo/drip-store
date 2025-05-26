@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CheckCircle, X, ShoppingCart, AlertTriangle, Trash2 } from 'lucide-react';
 import Layout from '../../components/layout/Layout';
 import CartItem from '../../components/CartItem/CartItem';
 import CartSummary from '../../components/CartSummary/CartSummary';
@@ -19,6 +20,142 @@ import { getFeaturedProducts } from '../../services/productService';
 import { validateCoupon } from '../../services/couponService';
 import { getShippingCost } from '../../services/shippingService';
 import styles from './Cart.module.css';
+
+// Toast Component
+const Toast = ({ message, type = 'success', isVisible, onClose, duration = 4000 }) => {
+  useEffect(() => {
+    if (isVisible) {
+      const timer = setTimeout(() => {
+        onClose();
+      }, duration);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isVisible, duration, onClose]);
+
+  if (!isVisible) return null;
+
+  const getIcon = () => {
+    switch (type) {
+      case 'success':
+        return <CheckCircle className="w-5 h-5 text-green-500" />;
+      case 'error':
+        return <X className="w-5 h-5 text-red-500" />;
+      case 'info':
+        return <ShoppingCart className="w-5 h-5 text-blue-500" />;
+      default:
+        return <CheckCircle className="w-5 h-5 text-green-500" />;
+    }
+  };
+
+  const getStyles = () => {
+    switch (type) {
+      case 'success':
+        return 'bg-white border-l-4 border-green-500 shadow-lg';
+      case 'error':
+        return 'bg-white border-l-4 border-red-500 shadow-lg';
+      case 'info':
+        return 'bg-white border-l-4 border-blue-500 shadow-lg';
+      default:
+        return 'bg-white border-l-4 border-green-500 shadow-lg';
+    }
+  };
+
+  const toastStyles = {
+    position: 'fixed',
+    top: '20px',
+    right: '20px',
+    zIndex: 1000,
+    maxWidth: '400px',
+    width: '100%',
+    transform: isVisible ? 'translateX(0)' : 'translateX(100%)',
+    transition: 'transform 0.3s ease-in-out',
+    borderRadius: '8px',
+    overflow: 'hidden'
+  };
+
+  return (
+    <div style={toastStyles}>
+      <div className={getStyles()}>
+        <div className="flex items-center p-4">
+          <div className="flex-shrink-0">
+            {getIcon()}
+          </div>
+          <div className="ml-3 flex-1">
+            <p className="text-sm text-gray-900">
+              {message}
+            </p>
+          </div>
+          <div className="flex-shrink-0">
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Confirmation Modal Component
+const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, confirmText = "Confirmar", type = "danger" }) => {
+  if (!isOpen) return null;
+
+  const getIcon = () => {
+    switch (type) {
+      case 'danger':
+        return <AlertTriangle className="w-12 h-12 text-red-500" />;
+      case 'warning':
+        return <AlertTriangle className="w-12 h-12 text-yellow-500" />;
+      default:
+        return <AlertTriangle className="w-12 h-12 text-red-500" />;
+    }
+  };
+
+  const getConfirmButtonStyles = () => {
+    switch (type) {
+      case 'danger':
+        return 'bg-red-600 hover:bg-red-700 text-white';
+      case 'warning':
+        return 'bg-yellow-600 hover:bg-yellow-700 text-white';
+      default:
+        return 'bg-red-600 hover:bg-red-700 text-white';
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 animate-in zoom-in-95 duration-200">
+        <div className="flex flex-col items-center text-center">
+          {getIcon()}
+          <h3 className="text-lg font-semibold text-gray-900 mt-4 mb-2">
+            {title}
+          </h3>
+          <p className="text-sm text-gray-600 mb-6">
+            {message}
+          </p>
+          <div className="flex space-x-3 w-full">
+            <button
+              onClick={onClose}
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={onConfirm}
+              className={`flex-1 px-4 py-2 rounded-md transition-colors ${getConfirmButtonStyles()}`}
+            >
+              {confirmText}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -40,6 +177,22 @@ const Cart = () => {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [shippingInfo, setShippingInfo] = useState(null);
 
+  // Toast state
+  const [toast, setToast] = useState({
+    isVisible: false,
+    message: '',
+    type: 'success'
+  });
+
+  // Confirmation modal state
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: null,
+    type: 'danger'
+  });
+
   // Load cart data on component mount
   useEffect(() => {
     loadCartData();
@@ -49,6 +202,47 @@ const Cart = () => {
   useEffect(() => {
     calculateSubtotal();
   }, [cartItems]);
+
+  // Toast helper functions
+  const showToast = (message, type = 'success') => {
+    setToast({
+      isVisible: true,
+      message,
+      type
+    });
+  };
+
+  const handleCloseToast = () => {
+    setToast(prev => ({ ...prev, isVisible: false }));
+  };
+
+  // Confirmation modal helper functions
+  const showConfirmation = (title, message, onConfirm, type = 'danger') => {
+    setConfirmModal({
+      isOpen: true,
+      title,
+      message,
+      onConfirm,
+      type
+    });
+  };
+
+  const handleCloseConfirmation = () => {
+    setConfirmModal({
+      isOpen: false,
+      title: '',
+      message: '',
+      onConfirm: null,
+      type: 'danger'
+    });
+  };
+
+  const handleConfirmAction = () => {
+    if (confirmModal.onConfirm) {
+      confirmModal.onConfirm();
+    }
+    handleCloseConfirmation();
+  };
 
   // Load cart data
   const loadCartData = async () => {
@@ -82,6 +276,7 @@ const Cart = () => {
       console.error('Error loading cart:', err);
       setError('Erro ao carregar carrinho. Tente recarregar a página.');
       setCartItems([]);
+      showToast('Erro ao carregar carrinho. Tente recarregar a página.', 'error');
     } finally {
       setLoading(false);
     }
@@ -117,48 +312,52 @@ const Cart = () => {
       // Refresh cart context
       refreshCart();
 
+      showToast('Quantidade atualizada com sucesso!', 'success');
+
     } catch (err) {
       console.error('Error updating quantity:', err);
       setError('Erro ao atualizar quantidade. Tente novamente.');
+      showToast('Erro ao atualizar quantidade. Tente novamente.', 'error');
     } finally {
       setActionLoading(null);
     }
   };
 
-  // Handle item removal
+  // Handle item removal with confirmation
   const handleRemoveItem = async (itemId) => {
     if (actionLoading === itemId) return;
 
-    // Confirm removal
     const itemToRemove = cartItems.find(item => item.id === itemId);
-    const confirmMessage = `Remover "${itemToRemove?.produto?.nome}" do carrinho?`;
     
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
+    showConfirmation(
+      'Remover item',
+      `Tem certeza que deseja remover "${itemToRemove?.produto?.nome}" do carrinho?`,
+      async () => {
+        try {
+          setActionLoading(itemId);
+          setError(null);
 
-    try {
-      setActionLoading(itemId);
-      setError(null);
+          // Remove from database
+          await removeCartItem(itemId);
 
-      // Remove from database
-      await removeCartItem(itemId);
+          // Update local state
+          setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
 
-      // Update local state
-      setCartItems(prevItems => prevItems.filter(item => item.id !== itemId));
+          // Refresh cart context
+          refreshCart();
 
-      // Refresh cart context
-      refreshCart();
+          showToast('Item removido do carrinho', 'success');
 
-      // Show success message
-      console.log('Item removed successfully');
-
-    } catch (err) {
-      console.error('Error removing item:', err);
-      setError('Erro ao remover item. Tente novamente.');
-    } finally {
-      setActionLoading(null);
-    }
+        } catch (err) {
+          console.error('Error removing item:', err);
+          setError('Erro ao remover item. Tente novamente.');
+          showToast('Erro ao remover item. Tente novamente.', 'error');
+        } finally {
+          setActionLoading(null);
+        }
+      },
+      'danger'
+    );
   };
 
   // Handle discount code application
@@ -168,6 +367,8 @@ const Cart = () => {
     if (discountData.code && discountData.discount > 0) {
       setAppliedCoupon(discountData.couponData);
       setDiscount(discountData.discount);
+      
+      showToast(`Cupom "${discountData.code}" aplicado com sucesso!`, 'success');
       
       // If free shipping coupon is applied
       if (discountData.freeShipping && shippingInfo) {
@@ -183,6 +384,8 @@ const Cart = () => {
       // Remove discount
       setAppliedCoupon(null);
       setDiscount(0);
+      
+      showToast('Cupom removido', 'info');
       
       // Recalculate shipping if coupon provided free shipping
       if (shippingInfo && shippingInfo.isFree && subtotal < 200) {
@@ -228,25 +431,36 @@ const Cart = () => {
       
       setShippingInfo(finalShippingInfo);
       setShipping(finalShippingCost);
+
+      const message = finalShippingInfo.isFree 
+        ? 'Frete grátis aplicado!' 
+        : `Frete calculado: R$ ${finalShippingCost.toFixed(2).replace('.', ',')}`;
+      
+      showToast(message, 'success');
       
     } catch (error) {
       console.error('Error in handleCalculateShipping:', error);
       setError('Erro ao calcular frete.');
+      showToast('Erro ao calcular frete.', 'error');
     }
   };
 
   // Handle checkout
   const handleCheckout = () => {
     if (cartItems.length === 0) {
-      alert('Seu carrinho está vazio. Adicione produtos antes de finalizar a compra.');
+      showToast('Seu carrinho está vazio. Adicione produtos antes de finalizar a compra.', 'error');
       return;
     }
 
     if (!user) {
-      const shouldLogin = window.confirm('Você precisa fazer login para finalizar a compra. Deseja fazer login agora?');
-      if (shouldLogin) {
-        navigate('/login');
-      }
+      showConfirmation(
+        'Login Necessário',
+        'Você precisa fazer login para finalizar a compra. Deseja fazer login agora?',
+        () => {
+          navigate('/login');
+        },
+        'warning'
+      );
       return;
     }
 
@@ -262,47 +476,49 @@ const Cart = () => {
     };
 
     console.log('Proceeding to checkout with data:', checkoutData);
-    navigate('/checkout', { state: { checkoutData } });
+    showToast('Redirecionando para o checkout...', 'info');
+    
+    setTimeout(() => {
+      navigate('/checkout', { state: { checkoutData } });
+    }, 1000);
   };
 
-  // Handle clear cart
   const handleClearCart = async () => {
     if (!cartId || cartItems.length === 0) return;
 
-    const confirmMessage = `Remover todos os ${cartItems.length} itens do carrinho?`;
-    if (!window.confirm(confirmMessage)) {
-      return;
-    }
+    showConfirmation(
+      'Esvaziar Carrinho',
+      `Tem certeza que deseja remover todos os ${cartItems.length} itens do carrinho? Esta ação não pode ser desfeita.`,
+      async () => {
+        try {
+          setLoading(true);
+          setError(null);
 
-    try {
-      setLoading(true);
-      setError(null);
+          await clearCart(cartId);
+          
+          setCartItems([]);
+          setSubtotal(0);
+          setDiscount(0);
+          setShipping(0);
+          setAppliedCoupon(null);
+          setShippingInfo(null);
 
-      await clearCart(cartId);
-      
-      // Reset all state
-      setCartItems([]);
-      setSubtotal(0);
-      setDiscount(0);
-      setShipping(0);
-      setAppliedCoupon(null);
-      setShippingInfo(null);
+          refreshCart();
 
-      // Refresh cart context
-      refreshCart();
+          showToast('Carrinho esvaziado com sucesso', 'success');
 
-    } catch (err) {
-      console.error('Error clearing cart:', err);
-      setError('Erro ao esvaziar carrinho. Tente novamente.');
-    } finally {
-      setLoading(false);
-    }
+        } catch (err) {
+          console.error('Error clearing cart:', err);
+          setError('Erro ao esvaziar carrinho. Tente novamente.');
+          showToast('Erro ao esvaziar carrinho. Tente novamente.', 'error');
+        } finally {
+          setLoading(false);
+        }
+      },
+      'danger'
+    );
   };
 
-  // Calculate total
-  const total = Math.max(0, subtotal + shipping - discount);
-
-  // Loading state
   if (loading) {
     return (
       <Layout>
@@ -336,6 +552,24 @@ const Cart = () => {
 
   return (
     <Layout>
+      {/* Toast Notification */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={handleCloseToast}
+      />
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={confirmModal.isOpen}
+        onClose={handleCloseConfirmation}
+        onConfirm={handleConfirmAction}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        type={confirmModal.type}
+      />
+
       <div className="container mx-auto px-4 py-8">
         {cartItems.length === 0 ? (
           // Empty cart state
@@ -386,9 +620,10 @@ const Cart = () => {
               {cartItems.length > 0 && (
                 <button
                   onClick={handleClearCart}
-                  className="text-sm text-red-600 hover:text-red-800 underline transition-colors"
+                  className="text-sm text-red-600 hover:text-red-800 underline transition-colors flex items-center gap-1"
                   disabled={loading}
                 >
+                  <Trash2 className="w-4 h-4" />
                   Esvaziar carrinho
                 </button>
               )}
