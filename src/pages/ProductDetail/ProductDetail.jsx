@@ -10,11 +10,13 @@ import SizeSelector from '../../components/SizeSelector/SizeSelector';
 import ColorSelector from '../../components/ColorSelector/ColorSelector';
 import ProductCard from '../../components/ProductCard/ProductCard';
 import { getProductBySlug, getRelatedProducts } from '../../services/productService';
+import { useUser } from '../../contexts/UserContext';
 import styles from './ProductDetail.module.css';
 
 const ProductDetail = () => {
   const { id: productSlug } = useParams(); // Get slug from URL
   const navigate = useNavigate();
+  const { user } = useUser(); // Add user context
   
   // State management
   const [product, setProduct] = useState(null);
@@ -103,7 +105,7 @@ const ProductDetail = () => {
   };
 
   // Handler for adding to cart
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     // Only require size selection for products that have sizes
     if (product.sizes && product.sizes.length > 0 && !selectedSize) {
       alert('Por favor, selecione um tamanho.');
@@ -116,18 +118,36 @@ const ProductDetail = () => {
       return;
     }
 
-    const cartItem = {
-      product: product.name,
-      productId: product.id,
-      price: product.currentPrice,
-      ...(selectedSize && { size: selectedSize }),
-      ...(selectedColor && { color: selectedColor })
-    };
-
-    console.log('Adding to cart:', cartItem);
-    
-    // TODO: Integrate with cartService when Cart.jsx is integrated
-    alert(`Produto adicionado ao carrinho!\n\nProduto: ${product.name}${selectedSize ? `\nTamanho: ${selectedSize}` : ''}${selectedColor ? `\nCor: ${selectedColor}` : ''}\nPreço: R$ ${product.currentPrice.toFixed(2).replace('.', ',')}`);
+    try {
+      setLoading(true);
+      
+      // Import cart service functions
+      const { getCart, addToCart } = await import('../../services/cartService');
+      
+      // Get or create cart
+      const cartId = await getCart(user?.id);
+      
+      // For now, we'll use a default variation ID since the product might not have real variations
+      // In a real implementation, you'd match selectedSize and selectedColor to actual variation IDs
+      const defaultVariationId = product.variations && product.variations.length > 0 
+        ? product.variations[0].id 
+        : null;
+      
+      // Add to cart
+      await addToCart(cartId, product.id, defaultVariationId, 1);
+      
+      // Show success message
+      alert(`✅ Produto adicionado ao carrinho!\n\nProduto: ${product.name}${selectedSize ? `\nTamanho: ${selectedSize}` : ''}${selectedColor ? `\nCor: ${selectedColor}` : ''}\nPreço: R$ ${product.currentPrice.toFixed(2).replace('.', ',')}`);
+      
+      // Trigger cart update in header (we'll add this context later)
+      window.dispatchEvent(new CustomEvent('cartUpdated'));
+      
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      alert('Erro ao adicionar produto ao carrinho. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Loading state
