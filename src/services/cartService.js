@@ -82,11 +82,6 @@ export const getCartItems = async (cartId) => {
         preco_promocional,
         slug,
         imagens_produto (url)
-      ),
-      variacao_id (
-        id,
-        cor_id (nome, codigo_hex),
-        tamanho_id (valor)
       )
     `)
     .eq('carrinho_id', cartId);
@@ -106,8 +101,9 @@ export const getCartItems = async (cartId) => {
       precoAtual: item.produto_id.preco_promocional || item.produto_id.preco_original,
       imagemUrl: item.produto_id.imagens_produto[0]?.url || '../images/products/produc-image-0.png'
     },
-    cor: item.variacao_id?.cor_id?.nome || '',
-    tamanho: item.variacao_id?.tamanho_id?.valor || ''
+    // No size/color data since they're just UI elements
+    cor: '',
+    tamanho: ''
   }));
 };
 
@@ -219,4 +215,58 @@ export const clearCart = async (cartId) => {
     
   if (error) throw error;
   return true;
+};
+
+// Add item to cart without variations (simple version)
+export const addToCartSimple = async (cartId, productId, quantity = 1) => {
+  try {
+    // Get current product price
+    const { data: product } = await supabase
+      .from('produtos')
+      .select('preco_promocional, preco_original, nome')
+      .eq('id', productId)
+      .single();
+      
+    if (!product) throw new Error('Product not found');
+    
+    const priceToUse = product.preco_promocional || product.preco_original;
+    
+    // Check if item already exists in cart
+    const { data: existingItem } = await supabase
+      .from('itens_carrinho')
+      .select('id, quantidade')
+      .eq('carrinho_id', cartId)
+      .eq('produto_id', productId)
+      .maybeSingle();
+    
+    if (existingItem) {
+      // Update quantity of existing item
+      const { data, error } = await supabase
+        .from('itens_carrinho')
+        .update({ quantidade: existingItem.quantidade + quantity })
+        .eq('id', existingItem.id)
+        .select();
+        
+      if (error) throw error;
+      return data;
+    }
+    
+    // Add new item to cart (ignore variations completely)
+    const { data, error } = await supabase
+      .from('itens_carrinho')
+      .insert({
+        carrinho_id: cartId,
+        produto_id: productId,
+        quantidade: quantity,
+        preco_unitario: priceToUse
+        // Don't include variacao_id at all
+      })
+      .select();
+      
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error in addToCartSimple:', error);
+    throw error;
+  }
 };
