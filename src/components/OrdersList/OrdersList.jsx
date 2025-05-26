@@ -1,4 +1,3 @@
-// src/components/OrdersList/OrdersList.jsx - VERSÃO ATUALIZADA
 import React from 'react';
 import OrderItem from '../OrderItem/OrderItem.jsx';
 import styles from './OrdersList.module.css';

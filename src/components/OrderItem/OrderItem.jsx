@@ -1,4 +1,3 @@
-// src/components/OrderItem/OrderItem.jsx - VERSÃO ATUALIZADA
 import React from 'react';
 import StatusBadge from '../StatusBadge/StatusBadge';
 import styles from './OrderItem.module.css';
