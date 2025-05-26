@@ -17,7 +17,6 @@ import {
   clearCart
 } from '../../services/cartService';
 import { getFeaturedProducts } from '../../services/productService';
-import { validateCoupon } from '../../services/couponService';
 import { getShippingCost } from '../../services/shippingService';
 import styles from './Cart.module.css';
 
@@ -368,8 +367,6 @@ const Cart = () => {
       setAppliedCoupon(discountData.couponData);
       setDiscount(discountData.discount);
       
-      showToast(`Cupom "${discountData.code}" aplicado com sucesso!`, 'success');
-      
       // If free shipping coupon is applied
       if (discountData.freeShipping && shippingInfo) {
         setShipping(0);
@@ -384,8 +381,6 @@ const Cart = () => {
       // Remove discount
       setAppliedCoupon(null);
       setDiscount(0);
-      
-      showToast('Cupom removido', 'info');
       
       // Recalculate shipping if coupon provided free shipping
       if (shippingInfo && shippingInfo.isFree && subtotal < 200) {
@@ -431,12 +426,6 @@ const Cart = () => {
       
       setShippingInfo(finalShippingInfo);
       setShipping(finalShippingCost);
-
-      const message = finalShippingInfo.isFree 
-        ? 'Frete grátis aplicado!' 
-        : `Frete calculado: R$ ${finalShippingCost.toFixed(2).replace('.', ',')}`;
-      
-      showToast(message, 'success');
       
     } catch (error) {
       console.error('Error in handleCalculateShipping:', error);
@@ -483,6 +472,7 @@ const Cart = () => {
     }, 1000);
   };
 
+  // Handle clear cart with confirmation
   const handleClearCart = async () => {
     if (!cartId || cartItems.length === 0) return;
 
@@ -496,6 +486,7 @@ const Cart = () => {
 
           await clearCart(cartId);
           
+          // Reset all state
           setCartItems([]);
           setSubtotal(0);
           setDiscount(0);
@@ -503,6 +494,7 @@ const Cart = () => {
           setAppliedCoupon(null);
           setShippingInfo(null);
 
+          // Refresh cart context
           refreshCart();
 
           showToast('Carrinho esvaziado com sucesso', 'success');
@@ -519,6 +511,7 @@ const Cart = () => {
     );
   };
 
+  // Loading state
   if (loading) {
     return (
       <Layout>
@@ -683,6 +676,7 @@ const Cart = () => {
                     <DiscountCode 
                       onApplyDiscount={handleApplyDiscount}
                       cartTotal={subtotal}
+                      onMessage={showToast}
                     />
                   </div>
                   <div className={styles.shippingSection}>
@@ -690,6 +684,7 @@ const Cart = () => {
                       onCalculateShipping={handleCalculateShipping}
                       cartTotal={subtotal}
                       freeShippingApplied={appliedCoupon?.freeShipping || false}
+                      onMessage={showToast}
                     />
                   </div>
                 </div>

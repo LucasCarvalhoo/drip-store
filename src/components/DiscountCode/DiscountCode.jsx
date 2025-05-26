@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { validateCoupon } from '../../services/couponService';
 import styles from './DiscountCode.module.css';
 
-const DiscountCode = ({ onApplyDiscount, cartTotal }) => {
+const DiscountCode = ({ onApplyDiscount, cartTotal, onMessage }) => {
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [appliedCoupon, setAppliedCoupon] = useState(null);
@@ -13,6 +13,9 @@ const DiscountCode = ({ onApplyDiscount, cartTotal }) => {
     
     if (!code.trim()) {
       setError('Digite um código de desconto.');
+      if (onMessage) {
+        onMessage('Digite um código de desconto.', 'error');
+      }
       return;
     }
 
@@ -36,14 +39,26 @@ const DiscountCode = ({ onApplyDiscount, cartTotal }) => {
           });
         }
         
+        // Show success message via parent instead of alert
+        if (onMessage) {
+          onMessage(`Cupom "${result.coupon.code}" aplicado com sucesso!`, 'success');
+        }
+        
       } else {
         setError(result.error);
         setAppliedCoupon(null);
+        if (onMessage) {
+          onMessage(result.error, 'error');
+        }
       }
     } catch (err) {
       console.error('Error applying discount:', err);
-      setError('Erro ao aplicar cupom. Tente novamente.');
+      const errorMsg = 'Erro ao aplicar cupom. Tente novamente.';
+      setError(errorMsg);
       setAppliedCoupon(null);
+      if (onMessage) {
+        onMessage(errorMsg, 'error');
+      }
     } finally {
       setLoading(false);
     }
@@ -62,6 +77,11 @@ const DiscountCode = ({ onApplyDiscount, cartTotal }) => {
         freeShipping: false,
         couponData: null
       });
+    }
+
+    // Show removal message via parent
+    if (onMessage) {
+      onMessage('Cupom removido', 'info');
     }
   };
 

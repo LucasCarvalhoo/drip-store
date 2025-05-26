@@ -1,4 +1,3 @@
-// CEP validation
 const validateCEP = (cep) => {
   const cleanCEP = cep.replace(/\D/g, '');
   return cleanCEP.length === 8;
@@ -8,11 +7,11 @@ const validateCEP = (cep) => {
 export const calculateShipping = async (cep, cartTotal, hasFreeShipping = false) => {
   try {
     console.log('Calculating shipping for CEP:', cep, 'Cart total:', cartTotal);
-    
+
     if (!validateCEP(cep)) {
       throw new Error('CEP inválido. Digite um CEP válido com 8 dígitos.');
     }
-    
+
     // If free shipping coupon is applied
     if (hasFreeShipping) {
       return {
@@ -27,7 +26,7 @@ export const calculateShipping = async (cep, cartTotal, hasFreeShipping = false)
         ]
       };
     }
-    
+
     // Free shipping for orders over R$ 200
     if (cartTotal >= 200) {
       return {
@@ -42,12 +41,12 @@ export const calculateShipping = async (cep, cartTotal, hasFreeShipping = false)
         ]
       };
     }
-    
+
     // Simulate different shipping costs based on CEP regions
     const cepNumber = parseInt(cep.replace(/\D/g, ''));
     let basePrice = 15.90;
     let deliveryTime = '3-5 dias úteis';
-    
+
     // Simulate regional pricing
     if (cepNumber >= 60000000 && cepNumber <= 63999999) {
       // Ceará (local)
@@ -70,7 +69,7 @@ export const calculateShipping = async (cep, cartTotal, hasFreeShipping = false)
       basePrice = 19.90;
       deliveryTime = '4-6 dias úteis';
     }
-    
+
     return {
       success: true,
       options: [
@@ -88,7 +87,7 @@ export const calculateShipping = async (cep, cartTotal, hasFreeShipping = false)
         }
       ]
     };
-    
+
   } catch (error) {
     console.error('Error calculating shipping:', error);
     return {
@@ -98,14 +97,13 @@ export const calculateShipping = async (cep, cartTotal, hasFreeShipping = false)
   }
 };
 
-// Get shipping cost by CEP (simplified)
 export const getShippingCost = async (cep, cartTotal = 0, freeShippingApplied = false) => {
   const result = await calculateShipping(cep, cartTotal, freeShippingApplied);
-  
+
   if (!result.success) {
     throw new Error(result.error);
   }
-  
+
   // Return the standard shipping option
   const standardOption = result.options[0];
   return {

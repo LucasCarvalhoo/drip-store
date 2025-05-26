@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { getShippingCost } from '../../services/shippingService';
 import styles from './ShippingCalculator.module.css';
 
-const ShippingCalculator = ({ onCalculateShipping, cartTotal, freeShippingApplied = false }) => {
+const ShippingCalculator = ({ onCalculateShipping, cartTotal, freeShippingApplied = false, onMessage }) => {
   const [zipCode, setZipCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [shippingResult, setShippingResult] = useState(null);
@@ -13,12 +13,18 @@ const ShippingCalculator = ({ onCalculateShipping, cartTotal, freeShippingApplie
     
     if (!zipCode.trim()) {
       setError('Digite um CEP válido.');
+      if (onMessage) {
+        onMessage('Digite um CEP válido.', 'error');
+      }
       return;
     }
 
     const cleanZipCode = zipCode.replace(/\D/g, '');
     if (cleanZipCode.length !== 8) {
       setError('CEP deve ter 8 dígitos.');
+      if (onMessage) {
+        onMessage('CEP deve ter 8 dígitos.', 'error');
+      }
       return;
     }
 
@@ -30,7 +36,6 @@ const ShippingCalculator = ({ onCalculateShipping, cartTotal, freeShippingApplie
       
       setShippingResult(result);
       
-      // Notify parent component
       if (onCalculateShipping) {
         onCalculateShipping({
           zipCode: cleanZipCode,
@@ -41,17 +46,22 @@ const ShippingCalculator = ({ onCalculateShipping, cartTotal, freeShippingApplie
         });
       }
 
-      // Show success message
-      const message = result.isFree 
-        ? `✅ Frete grátis!\n${result.description}\nEntrega: ${result.deliveryTime}`
-        : `✅ Frete calculado!\nValor: R$ ${result.cost.toFixed(2).replace('.', ',')}\nEntrega: ${result.deliveryTime}`;
-      
-      alert(message);
+      if (onMessage) {
+        const message = result.isFree 
+          ? `Frete grátis! ${result.description} - Entrega: ${result.deliveryTime}`
+          : `Frete calculado: R$ ${result.cost.toFixed(2).replace('.', ',')} - Entrega: ${result.deliveryTime}`;
+        
+        onMessage(message, 'success');
+      }
 
     } catch (err) {
       console.error('Error calculating shipping:', err);
       setError(err.message || 'Erro ao calcular frete.');
       setShippingResult(null);
+      
+      if (onMessage) {
+        onMessage(err.message || 'Erro ao calcular frete.', 'error');
+      }
     } finally {
       setLoading(false);
     }
@@ -67,7 +77,6 @@ const ShippingCalculator = ({ onCalculateShipping, cartTotal, freeShippingApplie
     const formatted = formatZipCode(e.target.value);
     setZipCode(formatted);
     
-    // Clear previous results when typing
     if (shippingResult) {
       setShippingResult(null);
     }
@@ -102,7 +111,6 @@ const ShippingCalculator = ({ onCalculateShipping, cartTotal, freeShippingApplie
         </button>
       </form>
 
-      {/* Shipping Result Display */}
       {shippingResult && (
         <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
           <div className="text-sm">
@@ -119,21 +127,18 @@ const ShippingCalculator = ({ onCalculateShipping, cartTotal, freeShippingApplie
         </div>
       )}
 
-      {/* Error Display */}
       {error && (
         <div className="mt-2 text-sm text-red-600">
           {error}
         </div>
       )}
 
-      {/* Free Shipping Notice */}
       {!freeShippingApplied && cartTotal >= 200 && (
         <div className="mt-2 text-xs text-green-600">
           🎉 Você tem frete grátis! (Compras acima de R$ 200,00)
         </div>
       )}
 
-      {/* Almost Free Shipping Notice */}
       {!freeShippingApplied && cartTotal > 0 && cartTotal < 200 && (
         <div className="mt-2 text-xs text-amber-600">
           💡 Faltam R$ {(200 - cartTotal).toFixed(2).replace('.', ',')} para frete grátis!
