@@ -1,4 +1,4 @@
-// src/contexts/CartContext.jsx
+// src/contexts/CartContext.jsx - SIMPLIFIED WORKING VERSION
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { useUser } from './UserContext';
 import { getCart, getCartItems, getCartSummary } from '../services/cartService';
@@ -13,22 +13,26 @@ export const CartProvider = ({ children }) => {
   const [cartId, setCartId] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Load cart data
+  // Simple function to load cart data - no useCallback to avoid dependency issues
   const loadCart = async () => {
     try {
       setLoading(true);
+      console.log('Loading cart data...');
       
       // Get or create cart
       const currentCartId = await getCart(user?.id);
+      console.log('Cart ID:', currentCartId);
       setCartId(currentCartId);
 
       if (currentCartId) {
         // Load cart items
         const items = await getCartItems(currentCartId);
+        console.log('Cart items loaded:', items);
         setCartItems(items);
 
         // Get cart summary
         const summary = await getCartSummary(currentCartId);
+        console.log('Cart summary:', summary);
         setCartCount(summary.totalItems);
         setCartSubtotal(summary.subtotal);
       } else {
@@ -48,22 +52,23 @@ export const CartProvider = ({ children }) => {
     }
   };
 
-  // Load cart when user changes or component mounts
+  // Load cart when user changes - simple dependency array
   useEffect(() => {
     loadCart();
-  }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user?.id]); // Only depend on user ID, not the whole user object
 
   // Listen for cart updates from other components
   useEffect(() => {
     const handleCartUpdate = () => {
+      console.log('CartContext: Cart update event received');
       loadCart();
     };
 
     window.addEventListener('cartUpdated', handleCartUpdate);
     return () => window.removeEventListener('cartUpdated', handleCartUpdate);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array - only set up listener once
 
-  // Refresh cart data
+  // Refresh cart data - simple function
   const refreshCart = () => {
     loadCart();
   };

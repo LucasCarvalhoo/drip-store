@@ -17,7 +17,7 @@ const ProductDetail = () => {
   const { id: productSlug } = useParams(); // Get slug from URL
   const navigate = useNavigate();
   const { user } = useUser(); // Add user context
-  
+
   // State management
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
@@ -41,7 +41,7 @@ const ProductDetail = () => {
 
         // Load main product data
         const productData = await getProductBySlug(productSlug);
-        
+
         if (!productData) {
           setError('Produto não encontrado.');
           setLoading(false);
@@ -94,7 +94,7 @@ const ProductDetail = () => {
   // Generate breadcrumb based on product data
   const getBreadcrumbItems = () => {
     if (!product) return [];
-    
+
     return [
       { label: 'Home', path: '/' },
       { label: 'Produtos', path: '/produtos' },
@@ -112,24 +112,24 @@ const ProductDetail = () => {
     try {
       // Import cart service functions
       const { getCart, addToCartSimple } = await import('../../services/cartService');
-      
+
       // Get or create cart
       const cartId = await getCart(user?.id);
-      
+
       console.log('Adding to cart:', {
         cartId,
         productId: product.id
       });
-      
+
       // Add to cart using simple method (ignore size/color)
       await addToCartSimple(cartId, product.id, 1);
-      
+
       // Show success message
       alert(`✅ Produto adicionado ao carrinho!\n\nProduto: ${product.name}\nPreço: R$ ${product.currentPrice.toFixed(2).replace('.', ',')}`);
-      
+
       // Trigger cart update in header
       window.dispatchEvent(new CustomEvent('cartUpdated'));
-      
+
     } catch (error) {
       console.error('Error adding to cart:', error);
       alert('Erro ao adicionar produto ao carrinho. Tente novamente.');
@@ -186,7 +186,7 @@ const ProductDetail = () => {
             <div className="text-6xl mb-4">😔</div>
             <h1 className="text-2xl font-bold text-gray-900 mb-4">{error}</h1>
             <p className="text-gray-600 mb-6">
-              {error.includes('não encontrado') 
+              {error.includes('não encontrado')
                 ? 'O produto que você está procurando não existe ou foi removido.'
                 : 'Houve um problema ao carregar o produto.'
               }
@@ -255,16 +255,16 @@ const ProductDetail = () => {
 
             {/* Product Rating */}
             {product.rating && (
-              <ProductRating 
-                rating={product.rating} 
-                reviewCount={product.reviewCount} 
+              <ProductRating
+                rating={product.rating}
+                reviewCount={product.reviewCount}
               />
             )}
 
             {/* Product Price */}
-            <ProductPrice 
-              currentPrice={product.currentPrice} 
-              originalPrice={product.originalPrice} 
+            <ProductPrice
+              currentPrice={product.currentPrice}
+              originalPrice={product.originalPrice}
             />
 
             {/* Product Description */}
@@ -277,24 +277,24 @@ const ProductDetail = () => {
 
             {/* Size Selector - Always show for relevant categories */}
             {product.sizes && product.sizes.length > 0 && (
-              <SizeSelector 
-                sizes={product.sizes} 
-                selectedSize={selectedSize} 
-                onSizeSelect={setSelectedSize} 
+              <SizeSelector
+                sizes={product.sizes}
+                selectedSize={selectedSize}
+                onSizeSelect={setSelectedSize}
               />
             )}
 
             {/* Color Selector - Always show if colors are available */}
             {product.colors && product.colors.length > 0 && (
-              <ColorSelector 
-                colors={product.colors} 
-                selectedColor={selectedColor} 
-                onColorSelect={setSelectedColor} 
+              <ColorSelector
+                colors={product.colors}
+                selectedColor={selectedColor}
+                onColorSelect={setSelectedColor}
               />
             )}
 
             {/* Add to Cart Button */}
-            <button 
+            <button
               className={styles.buyButton}
               onClick={handleAddToCart}
             >
@@ -309,7 +309,7 @@ const ProductDetail = () => {
         <div className="container mx-auto px-4 mb-12">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-bold text-gray-800">Produtos Relacionados</h2>
-            <button 
+            <button
               onClick={() => navigate('/produtos')}
               className="text-pink-600 text-sm flex items-center hover:underline"
             >
