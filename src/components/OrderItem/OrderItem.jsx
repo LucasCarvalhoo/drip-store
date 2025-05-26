@@ -1,30 +1,40 @@
-// src/components/OrderItem/OrderItem.jsx
+// src/components/OrderItem/OrderItem.jsx - VERSÃO ATUALIZADA
 import React from 'react';
 import StatusBadge from '../StatusBadge/StatusBadge';
 import styles from './OrderItem.module.css';
 
 /**
  * OrderItem Component - Displays a single order with product details and status
- * 
- * @param {Object} props
- * @param {string} props.orderId - The order identification number
- * @param {string} props.productName - The name of the product
- * @param {string} props.productImage - URL to the product image
- * @param {string} props.status - Status of the order ('transit', 'completed', 'canceled')
- * @returns {JSX.Element} A component displaying order details
  */
-const OrderItem = ({ orderId, productName, productImage, status }) => {
+const OrderItem = ({ orderId, productName, productImage, status, statusText }) => {
   // Function to determine which status badge to display
   const renderStatusBadge = () => {
+    // Use the actual status text instead of just the type
+    const displayText = statusText || getStatusText(status);
+    
     switch (status) {
       case 'transit':
-        return <StatusBadge.Transit />;
+        return <StatusBadge status={displayText} type="transit" />;
       case 'completed':
-        return <StatusBadge.Completed />;
+        return <StatusBadge status={displayText} type="completed" />;
       case 'canceled':
-        return <StatusBadge.Canceled />;
+        return <StatusBadge status={displayText} type="canceled" />;
       default:
-        return <StatusBadge status="Desconhecido" type="default" />;
+        return <StatusBadge status={displayText} type="default" />;
+    }
+  };
+
+  // Fallback status text mapping
+  const getStatusText = (statusType) => {
+    switch (statusType) {
+      case 'transit':
+        return 'Em Trânsito';
+      case 'completed':
+        return 'Finalizado';
+      case 'canceled':
+        return 'Cancelado';
+      default:
+        return 'Em Processamento';
     }
   };
 
@@ -44,7 +54,7 @@ const OrderItem = ({ orderId, productName, productImage, status }) => {
             alt={productName} 
             onError={(e) => {
               e.target.onerror = null;
-              e.target.src = "/src/assets/icons/icon-category-sneakers.svg"; // Fallback image
+              e.target.src = "/src/assets/icons/icon-category-sneakers.svg";
             }}
           />
         </div>
