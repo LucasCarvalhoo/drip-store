@@ -1,4 +1,4 @@
-// src/components/layout/Header.jsx
+// src/components/layout/Header.jsx - FIXED VERSION
 import { useState, useEffect, useRef } from "react";
 import {
   Search,
@@ -18,7 +18,8 @@ import { useCart } from "../../contexts/CartContext";
 const Header = () => {
   // Hooks de Contexto e Navegação
   const { user, profile, loading, logoutUser } = useUser();
-  const { cartCount, cartItems, cartSubtotal } = useCart();
+  // FIX: Get all cart data from context including cartItems
+  const { cartCount, cartItems, cartSubtotal, refreshCart } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -57,6 +58,17 @@ const Header = () => {
     else if (path === "/carrinho") setCurrentPage("carrinho");
     else setCurrentPage("");
   }, [location.pathname]);
+
+  // FIX: Listen for cart updates and refresh cart data
+  useEffect(() => {
+    const handleCartUpdate = () => {
+      console.log('Cart update event received in Header');
+      refreshCart();
+    };
+
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    return () => window.removeEventListener('cartUpdated', handleCartUpdate);
+  }, [refreshCart]);
 
   useEffect(() => {
     function handleClickOutsideCart(event) {
@@ -158,6 +170,19 @@ const Header = () => {
     return "";
   };
 
+  // FIX: Add function to handle cart clearing
+  const handleClearCart = async () => {
+    try {
+      const { clearCart, getCart } = await import('../../services/cartService');
+      const cartId = await getCart(user?.id);
+      await clearCart(cartId);
+      refreshCart();
+      setIsCartOpen(false);
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+    }
+  };
+
   // --- RENDERIZAÇÃO DO COMPONENTE ---
   return (
     <header className="w-full bg-white shadow-sm sticky top-0 z-40">
@@ -210,12 +235,10 @@ const Header = () => {
                     src={miniCartIconPath}
                     alt="Carrinho"
                     className="w-6 h-6"
-                  />{" "}
-                  {/* Ícone local usado aqui */}
+                  />
                   <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
                     {cartCount}
                   </span>
-                  {/* TODO: Badge dinâmico */}
                 </button>
               </div>
             </div>
@@ -350,12 +373,10 @@ const Header = () => {
                     src={miniCartIconPath}
                     alt="Carrinho"
                     className="w-6 h-6"
-                  />{" "}
-                  {/* Ícone local usado aqui */}
+                  />
                   <span className="absolute -top-2 -right-2 bg-pink-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
                     {cartCount}
                   </span>
-                  {/* TODO: Badge dinâmico */}
                 </button>
               </div>
             </div>
@@ -556,6 +577,7 @@ const Header = () => {
         </div>
       )}
 
+      {/* FIX: Updated cart popup to show actual cart items */}
       {isCartOpen && (
         <div
           ref={cartRef}
@@ -566,7 +588,7 @@ const Header = () => {
               Meu Carrinho
             </h3>
             <div className="space-y-4 max-h-72 overflow-y-auto pr-1">
-              {cartItems.length > 0 ? (
+              {cartItems && cartItems.length > 0 ? (
                 cartItems.slice(0, 3).map((item, index) => (
                   <div key={item.id} className={`flex items-center gap-3 ${index < cartItems.length - 1 ? 'border-b border-gray-200 pb-3' : ''}`}>
                     <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center overflow-hidden p-1">
@@ -574,6 +596,10 @@ const Header = () => {
                         src={item.produto.imagemUrl}
                         alt={item.produto.nome}
                         className="object-contain max-h-full max-w-full"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = '../images/products/produc-image-0.png';
+                        }}
                       />
                     </div>
                     <div className="flex-grow">
@@ -617,7 +643,10 @@ const Header = () => {
                 >
                   Ver Carrinho
                 </Link>
-                <button className="w-full py-2 text-sm text-gray-600 hover:text-pink-600 active:text-pink-600 transition-colors underline">
+                <button 
+                  onClick={handleClearCart}
+                  className="w-full py-2 text-sm text-gray-600 hover:text-pink-600 active:text-pink-600 transition-colors underline"
+                >
                   Esvaziar
                 </button>
               </div>
@@ -644,16 +673,13 @@ const Header = () => {
               </div>
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-sm font-medium mb-2">Marca</h4>{" "}
-                  {/* ... Opções de filtro ... */}
+                  <h4 className="text-sm font-medium mb-2">Marca</h4>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium mb-2">Categoria</h4>{" "}
-                  {/* ... Opções de filtro ... */}
+                  <h4 className="text-sm font-medium mb-2">Categoria</h4>
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium mb-2">Gênero</h4>{" "}
-                  {/* ... Opções de filtro ... */}
+                  <h4 className="text-sm font-medium mb-2">Gênero</h4>
                 </div>
               </div>
             </div>
