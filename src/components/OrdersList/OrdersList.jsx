@@ -1,24 +1,28 @@
-// src/components/OrdersList/OrdersList.jsx
+// src/components/OrdersList/OrdersList.jsx - VERSÃO ATUALIZADA
 import React from 'react';
 import OrderItem from '../OrderItem/OrderItem.jsx';
 import styles from './OrdersList.module.css';
 
 /**
  * OrdersList Component - Displays a list of orders
- * 
- * @param {Object} props
- * @param {Array} props.orders - Array of order objects
- * @returns {JSX.Element} A list of order items
  */
 const OrdersList = ({ orders = [] }) => {
   // If no orders are provided or the array is empty
   if (!orders || orders.length === 0) {
     return (
       <div className={styles.emptyState}>
-        <p>Você ainda não realizou nenhum pedido.</p>
-        <a href="/produtos" className={styles.shopButton}>
-          Ir às compras
-        </a>
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">📦</div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            Nenhum pedido encontrado
+          </h3>
+          <p className={styles.emptyStateSubtext}>
+            Você ainda não realizou nenhum pedido.
+          </p>
+          <a href="/produtos" className={styles.shopButton}>
+            Ir às compras
+          </a>
+        </div>
       </div>
     );
   }
@@ -40,6 +44,7 @@ const OrdersList = ({ orders = [] }) => {
             productName={order.productName}
             productImage={order.productImage}
             status={order.status}
+            statusText={order.statusText} // Pass the real status text
           />
         ))}
       </div>
