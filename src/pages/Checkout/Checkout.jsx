@@ -1,6 +1,7 @@
-// src/pages/Checkout/Checkout.jsx - VERSÃO ATUALIZADA COM INTEGRAÇÃO COMPLETA
+// src/pages/Checkout/Checkout.jsx - VERSÃO ATUALIZADA SEM ALERTS
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CheckCircle, X, ShoppingCart, Info } from 'lucide-react';
 import Layout from '../../components/layout/Layout';
 import { useUser } from '../../contexts/UserContext';
 import { useCart } from '../../contexts/CartContext';
@@ -10,10 +11,89 @@ import { validateCoupon, applyCoupon } from '../../services/couponService';
 import { getShippingCost } from '../../services/shippingService';
 import styles from './Checkout.module.css';
 
+// Toast Component
+const Toast = ({ message, type = 'success', isVisible, onClose, duration = 4000 }) => {
+  useEffect(() => {
+    if (isVisible) {
+      const timer = setTimeout(() => {
+        onClose();
+      }, duration);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isVisible, duration, onClose]);
+
+  if (!isVisible) return null;
+
+  const getIcon = () => {
+    switch (type) {
+      case 'success':
+        return <CheckCircle className="w-5 h-5 text-green-500" />;
+      case 'error':
+        return <X className="w-5 h-5 text-red-500" />;
+      case 'info':
+        return <Info className="w-5 h-5 text-blue-500" />;
+      default:
+        return <CheckCircle className="w-5 h-5 text-green-500" />;
+    }
+  };
+
+  const getStyles = () => {
+    switch (type) {
+      case 'success':
+        return 'bg-white border-l-4 border-green-500 shadow-lg';
+      case 'error':
+        return 'bg-white border-l-4 border-red-500 shadow-lg';
+      case 'info':
+        return 'bg-white border-l-4 border-blue-500 shadow-lg';
+      default:
+        return 'bg-white border-l-4 border-green-500 shadow-lg';
+    }
+  };
+
+  const toastStyles = {
+    position: 'fixed',
+    top: '20px',
+    right: '20px',
+    zIndex: 1000,
+    maxWidth: '400px',
+    width: '100%',
+    transform: isVisible ? 'translateX(0)' : 'translateX(100%)',
+    transition: 'transform 0.3s ease-in-out',
+    borderRadius: '8px',
+    overflow: 'hidden'
+  };
+
+  return (
+    <div style={toastStyles}>
+      <div className={getStyles()}>
+        <div className="flex items-center p-4">
+          <div className="flex-shrink-0">
+            {getIcon()}
+          </div>
+          <div className="ml-3 flex-1">
+            <p className="text-sm text-gray-900">
+              {message}
+            </p>
+          </div>
+          <div className="flex-shrink-0">
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Checkout = () => {
   const navigate = useNavigate();
   const { user, profile } = useUser();
-  const { cartItems, cartSubtotal, cartId } = useCart();
+  const { cartItems, cartSubtotal } = useCart();
 
   // Form states
   const [formData, setFormData] = useState({
@@ -47,6 +127,26 @@ const Checkout = () => {
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [shippingCalculated, setShippingCalculated] = useState(false);
+
+  // Toast state
+  const [toast, setToast] = useState({
+    isVisible: false,
+    message: '',
+    type: 'success'
+  });
+
+  // Toast helpers
+  const showToast = (message, type = 'success') => {
+    setToast({
+      isVisible: true,
+      message,
+      type
+    });
+  };
+
+  const handleCloseToast = () => {
+    setToast(prev => ({ ...prev, isVisible: false }));
+  };
 
   // Load user data and cart
   useEffect(() => {
@@ -120,10 +220,10 @@ const Checkout = () => {
     }));
   };
 
-  // Handle coupon application
+  // Handle coupon application - NO MORE ALERTS
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
-      alert('Digite um código de cupom.');
+      showToast('Digite um código de cupom.', 'error');
       return;
     }
 
@@ -133,7 +233,7 @@ const Checkout = () => {
       if (result.isValid) {
         setAppliedCoupon(result.coupon);
         setDiscount(result.coupon.discountValue);
-        alert(result.message);
+        showToast(`Cupom "${result.coupon.code}" aplicado com sucesso!`, 'success');
         
         // Recalculate shipping if free shipping coupon
         if (result.coupon.freeShipping && formData.zipcode) {
@@ -141,18 +241,18 @@ const Checkout = () => {
           setShipping(shippingResult.cost);
         }
       } else {
-        alert(result.error);
+        showToast(result.error, 'error');
       }
     } catch (error) {
       console.error('Error applying coupon:', error);
-      alert('Erro ao aplicar cupom. Tente novamente.');
+      showToast('Erro ao aplicar cupom. Tente novamente.', 'error');
     }
   };
 
-  // Handle shipping calculation
+  // Handle shipping calculation - NO MORE ALERTS
   const handleShippingCalculation = async (zipCode) => {
     if (!zipCode || zipCode.replace(/\D/g, '').length !== 8) {
-      alert('Digite um CEP válido.');
+      showToast('Digite um CEP válido.', 'error');
       return;
     }
 
@@ -167,10 +267,10 @@ const Checkout = () => {
         ? `Frete grátis! Entrega em ${result.deliveryTime}`
         : `Frete: R$ ${result.cost.toFixed(2).replace('.', ',')} - Entrega em ${result.deliveryTime}`;
       
-      alert(message);
+      showToast(message, 'success');
     } catch (error) {
       console.error('Error calculating shipping:', error);
-      alert(error.message || 'Erro ao calcular frete.');
+      showToast(error.message || 'Erro ao calcular frete.', 'error');
     }
   };
 
@@ -227,7 +327,7 @@ const Checkout = () => {
     }
   };
 
-  // Handle form submission
+  // Handle form submission - NO MORE ALERTS
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -274,23 +374,23 @@ const Checkout = () => {
         await applyCoupon(appliedCoupon.id);
       }
 
-      // Clear cart (optional - might want to keep until payment confirmed)
-      // await clearCart(cartId);
-
-      // Show success and redirect
-      alert(`✅ Pedido realizado com sucesso!\n\nNúmero do pedido: ${order.codigo}\nTotal: R$ ${total.toFixed(2).replace('.', ',')}`);
+      // Show success toast instead of alert
+      showToast(`✅ Pedido realizado com sucesso! Número: ${order.codigo}`, 'success');
       
-      // Navigate to success page
-      navigate('/compra-realizada', { 
-        state: { 
-          orderCode: order.codigo,
-          orderData: orderData
-        }
-      });
+      // Navigate to success page after a brief delay
+      setTimeout(() => {
+        navigate('/compra-realizada', { 
+          state: { 
+            orderCode: order.codigo,
+            orderData: orderData
+          }
+        });
+      }, 2000);
 
     } catch (err) {
       console.error('Error creating order:', err);
       setError(err.message || 'Erro ao processar pedido. Tente novamente.');
+      showToast(err.message || 'Erro ao processar pedido. Tente novamente.', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -330,6 +430,14 @@ const Checkout = () => {
 
   return (
     <Layout>
+      {/* Toast Notification */}
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        isVisible={toast.isVisible}
+        onClose={handleCloseToast}
+      />
+
       <div className="bg-gray-50 py-8 px-4">
         <div className="container mx-auto">
           <h1 className={styles.pageTitle}>Finalizar Compra</h1>
@@ -644,7 +752,7 @@ const Checkout = () => {
 
                 {/* Cart Items */}
                 <div className="space-y-3">
-                  {cartItems.slice(0, 3).map((item, index) => (
+                  {cartItems.slice(0, 3).map((item) => (
                     <div key={item.id} className="flex items-center space-x-3">
                       <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
                         <img
