@@ -2,8 +2,14 @@
 import React, { useState } from 'react';
 import './CategoryNavigation.css';
 
+// Importe diretamente do src (Vite processa automaticamente)
+import iconTshirt from '../../assets/icons/icon-category-tshirt.svg';
+import iconPants from '../../assets/icons/icon-category-pants.svg';
+import iconCap from '../../assets/icons/icon-category-cap.svg';
+import iconHeadphones from '../../assets/icons/icon-category-headphones.svg';
+import iconSneakers from '../../assets/icons/icon-category-sneakers.svg';
+
 const CategoryIcon = ({ name, normalIcon, hoverIcon, link = "#" }) => {
-  // Estado para controlar o hover
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -18,11 +24,16 @@ const CategoryIcon = ({ name, normalIcon, hoverIcon, link = "#" }) => {
           isHovered ? 'shadow-md' : ''
         } flex items-center justify-center mb-3 transition-all`}
       >
-        {/* Mostra o ícone normal ou o ícone hover com base no estado */}
         <img
-          src={isHovered ? hoverIcon : normalIcon}
+          src={isHovered && hoverIcon ? hoverIcon : normalIcon}
           alt={name}
           className="w-10 h-10"
+          onError={(e) => {
+            console.error(`Erro ao carregar ícone: ${e.target.src}`);
+            e.target.onerror = null;
+            // Fallback para um ícone genérico
+            e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iOCIgZmlsbD0iI0Y5RkFGQiIvPgo8cGF0aCBkPSJNMjAgMTBWMzBNMTAgMjBIMzAiIHN0cm9rZT0iIzZCNzI4MCIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KPC9zdmc+';
+          }}
         />
       </div>
       <span
@@ -37,46 +48,45 @@ const CategoryIcon = ({ name, normalIcon, hoverIcon, link = "#" }) => {
 };
 
 const CategoryNavigation = ({ categories = [] }) => {
-  // Categorias padrão caso não sejam fornecidas
+  // Categorias padrão com ícones importados corretamente
   const defaultCategories = [
     {
       id: 1,
       name: "Camisetas",
-      normalIcon: "../src/assets/icons/icon-category-tshirt.svg",
-      hoverIcon: "../src/assets/icons/icon-category-tshirt-hover.svg", // SVG já colorido em rosa
+      normalIcon: iconTshirt,
+      hoverIcon: iconTshirt, // Use o mesmo ícone se não tiver versão hover
       link: "/categorias/camisetas"
     },
     {
       id: 2,
       name: "Calças",
-      normalIcon: "../src/assets/icons/icon-category-pants.svg",
-      hoverIcon: "../src/assets/icons/icon-category-pants-hover.svg", // SVG já colorido em rosa
+      normalIcon: iconPants,
+      hoverIcon: iconPants,
       link: "/categorias/calcas"
     },
     {
       id: 3,
       name: "Bonés",
-      normalIcon: "../src/assets/icons/icon-category-cap.svg",
-      hoverIcon: "../src/assets/icons/icon-category-cap-hover.svg", // SVG já colorido em rosa
+      normalIcon: iconCap,
+      hoverIcon: iconCap,
       link: "/categorias/bones"
     },
     {
       id: 4,
       name: "Headphones",
-      normalIcon: "../src/assets/icons/icon-category-headphones.svg",
-      hoverIcon: "../src/assets/icons/icon-category-headphones-hover.svg", // SVG já colorido em rosa
+      normalIcon: iconHeadphones,
+      hoverIcon: iconHeadphones,
       link: "/categorias/headphones"
     },
     {
       id: 5,
       name: "Tênis",
-      normalIcon: "../src/assets/icons/icon-category-sneakers.svg",
-      hoverIcon: "../src/assets/icons/icon-category-sneakers-hover.svg", // SVG já colorido em rosa
+      normalIcon: iconSneakers,
+      hoverIcon: iconSneakers,
       link: "/categorias/tenis"
     }
   ];
 
-  // Usa as categorias fornecidas ou as padrão
   const categoriesToRender = categories.length > 0 ? categories : defaultCategories;
 
   return (
