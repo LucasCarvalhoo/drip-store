@@ -1,6 +1,3 @@
-/* src/components/HeroBanner/HeroBanner.css - Ajustes apenas para mobile */
-
-/* Estilos base originais */
 .hero-banner-swiper .swiper-pagination {
   position: relative;
   margin-top: 16px;
@@ -13,23 +10,22 @@
   background-color: #d1d5db; /* Cor cinza (gray-300) */
   opacity: 1;
   margin: 0 4px;
+  transition: all 0.3s ease;
 }
 
 .hero-banner-swiper .custom-bullet-active {
   background-color: #db2777; /* Cor rosa (pink-600) */
   opacity: 1;
+  transform: scale(1.2);
 }
 
 .hero-banner-swiper .swiper-pagination-bullet {
   border: none;
+  cursor: pointer;
 }
 
 .hero-banner-swiper {
   margin-bottom: 20px;
-}
-
-.hero-banner-swiper .swiper-pagination-bullet {
-  cursor: pointer;
 }
 
 /* Estilos específicos para mobile */
@@ -44,6 +40,11 @@
   max-height: 220px;
   object-fit: contain;
   filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.1));
+  transition: transform 0.3s ease;
+}
+
+.hero-banner-image-mobile:hover {
+  transform: scale(1.05);
 }
 
 .mobile-pattern-dots {
@@ -56,4 +57,123 @@
   background-size: 15px 15px;
   opacity: 0.3;
   z-index: 1;
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Animações melhoradas */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(239, 68, 68, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.8), 0 0 30px rgba(239, 68, 68, 0.6);
+  }
+}
+
+/* Badge de desconto animado */
+.hero-banner-swiper .animate-pulse {
+  animation: pulse-glow 2s infinite;
+}
+
+/* Melhoramentos no desktop */
+@media (min-width: 768px) {
+  .hero-banner-swiper .swiper-slide img {
+    transition: transform 0.5s ease;
+  }
+  
+  .hero-banner-swiper .swiper-slide:hover img {
+    transform: scale(1.03);
+  }
+}
+
+/* Responsividade aprimorada */
+@media (max-width: 640px) {
+  .hero-banner-image-mobile {
+    max-height: 180px;
+    max-width: 90%;
+  }
+  
+  .mobile-pattern-dots {
+    width: 80px;
+    height: 80px;
+    background-size: 12px 12px;
+  }
+}
+
+/* Estados de carregamento */
+.hero-banner-loading {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Melhoramentos nos botões */
+.hero-banner-swiper a {
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0);
+}
+
+.hero-banner-swiper a::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.hero-banner-swiper a:hover::before {
+  left: 100%;
+}
+
+/* Indicadores de navegação melhorados */
+.hero-banner-swiper .swiper-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.hero-banner-swiper .custom-bullet:hover {
+  background-color: #be185d;
+  transform: scale(1.1);
+}
+
+/* Acessibilidade */
+.hero-banner-swiper .swiper-slide:focus {
+  outline: 2px solid #db2777;
+  outline-offset: 2px;
+}
+
+/* Otimização para motion-reduce */
+@media (prefers-reduced-motion: reduce) {
+  .hero-banner-image-mobile,
+  .hero-banner-swiper .swiper-slide img,
+  .mobile-pattern-dots,
+  .custom-bullet {
+    transition: none;
+    animation: none;
+  }
 }
