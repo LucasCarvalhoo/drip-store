@@ -4,10 +4,15 @@ import './CategoryNavigation.css';
 
 // Importe diretamente do src (Vite processa automaticamente)
 import iconTshirt from '../../assets/icons/icon-category-tshirt.svg';
+import iconTshirtHover from '../../assets/icons/icon-category-tshirt-hover.svg';
 import iconPants from '../../assets/icons/icon-category-pants.svg';
+import iconPantsHover from '../../assets/icons/icon-category-pants-hover.svg';
 import iconCap from '../../assets/icons/icon-category-cap.svg';
+import iconCapHover from '../../assets/icons/icon-category-cap-hover.svg';
 import iconHeadphones from '../../assets/icons/icon-category-headphones.svg';
+import iconHeadphonesHover from '../../assets/icons/icon-category-headphones-hover.svg';
 import iconSneakers from '../../assets/icons/icon-category-sneakers.svg';
+import iconSneakersHover from '../../assets/icons/icon-category-sneakers-hover.svg';
 
 const CategoryIcon = ({ name, normalIcon, hoverIcon, link = "#" }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -54,35 +59,35 @@ const CategoryNavigation = ({ categories = [] }) => {
       id: 1,
       name: "Camisetas",
       normalIcon: iconTshirt,
-      hoverIcon: iconTshirt, // Use o mesmo ícone se não tiver versão hover
+      hoverIcon: iconTshirtHover, // Use o mesmo ícone se não tiver versão hover
       link: "/categorias/camisetas"
     },
     {
       id: 2,
       name: "Calças",
       normalIcon: iconPants,
-      hoverIcon: iconPants,
+      hoverIcon: iconPantsHover,
       link: "/categorias/calcas"
     },
     {
       id: 3,
       name: "Bonés",
       normalIcon: iconCap,
-      hoverIcon: iconCap,
+      hoverIcon: iconCapHover,
       link: "/categorias/bones"
     },
     {
       id: 4,
       name: "Headphones",
       normalIcon: iconHeadphones,
-      hoverIcon: iconHeadphones,
+      hoverIcon: iconHeadphonesHover,
       link: "/categorias/headphones"
     },
     {
       id: 5,
       name: "Tênis",
       normalIcon: iconSneakers,
-      hoverIcon: iconSneakers,
+      hoverIcon: iconSneakersHover,
       link: "/categorias/tenis"
     }
   ];
