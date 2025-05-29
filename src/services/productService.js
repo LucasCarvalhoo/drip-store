@@ -1,4 +1,4 @@
-// src/services/productService.js
+// src/services/productService.js - Versão completa com função para HeroBanner
 import { supabase } from './supabase';
 
 // Helper function to determine appropriate sizes based on category
@@ -35,6 +35,90 @@ const getColorsForProduct = () => {
     '#FF0000', // Vermelho
     '#0000FF' // Azul
   ];
+};
+
+// NOVA FUNÇÃO: Get products for hero banner
+export const getHeroBannerProducts = async (limit = 8) => {
+  try {
+    console.log('Buscando produtos para hero banner...');
+    
+    const { data, error } = await supabase
+      .from('produtos')
+      .select(`
+        id, 
+        nome, 
+        slug, 
+        preco_original, 
+        preco_promocional,
+        desconto_porcentagem,
+        categoria_id (nome),
+        marca_id (nome),
+        imagens_produto (url, principal, ordem)
+      `)
+      .eq('destacado', true)
+      .eq('ativo', true)
+      .order('quantidade_vendas', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('Erro ao buscar produtos para banner:', error);
+      return [];
+    }
+    
+    console.log('Produtos encontrados para banner:', data.length);
+    
+    // Transform products into banner slides
+    return data.map((product, index) => {
+      const imagens = product.imagens_produto || [];
+      const imagemPrincipal = imagens.find(img => img.principal) || imagens[0];
+      
+      // Criar títulos mais atraentes para o banner
+      const brandName = product.marca_id?.nome || '';
+      const categoryName = product.categoria_id?.nome || '';
+      
+      let bannerTitle = product.nome;
+      if (brandName) {
+        bannerTitle = `${brandName} ${categoryName}`;
+      }
+      
+      // Descrições mais atrativas baseadas na categoria
+      let bannerDescription = '';
+      if (categoryName?.toLowerCase().includes('tênis')) {
+        bannerDescription = 'Conforto e estilo para seus pés. Tecnologia de ponta e design moderno em cada passo.';
+      } else if (categoryName?.toLowerCase().includes('camiseta')) {
+        bannerDescription = 'Vista-se com atitude! Camisetas premium com qualidade superior e estilo único.';
+      } else if (categoryName?.toLowerCase().includes('headphone')) {
+        bannerDescription = 'Som de alta qualidade e design premium. Sua experiência musical nunca mais será a mesma.';
+      } else {
+        bannerDescription = `Produtos de alta qualidade em ${categoryName}. Descontos especiais por tempo limitado!`;
+      }
+      
+      // Textos de botão mais específicos
+      let buttonText = 'Ver Produto';
+      if (product.desconto_porcentagem > 0) {
+        if (product.desconto_porcentagem >= 50) {
+          buttonText = 'SUPER OFERTA!';
+        } else if (product.desconto_porcentagem >= 30) {
+          buttonText = `${product.desconto_porcentagem}% OFF`;
+        } else {
+          buttonText = 'Aproveitar';
+        }
+      }
+      
+      return {
+        id: product.id,
+        title: bannerTitle,
+        description: bannerDescription,
+        imageUrl: imagemPrincipal?.url || '../images/home-slides/White-Sneakers-PNG-Clipart 1.png',
+        buttonText: buttonText,
+        buttonLink: `/produto/${product.slug}`,
+        discount: product.desconto_porcentagem || 0
+      };
+    });
+  } catch (error) {
+    console.error('Erro ao buscar produtos para hero banner:', error);
+    return [];
+  }
 };
 
 // Get featured products for home page

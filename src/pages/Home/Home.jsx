@@ -7,13 +7,14 @@ import CategoryNavigation from '../../components/CategoryNavigation/CategoryNavi
 import FeaturedProducts from '../../components/FeaturedProducts/FeaturedProducts'; // Importando o novo componente
 import SpecialOffer from '../../components/SpecialOffer/SpecialOffer';
 
+const customSlides = [];
 const Home = () => {
   return (
     <Layout>
       <div className="min-h-screen bg-gray-50 w-full overflow-hidden">
         {/* Banner Principal */}
         <section className="mb-12">
-          <HeroBanner />
+          <HeroBanner slides={customSlides} />
         </section>
 
         {/* Coleções em Destaque */}
