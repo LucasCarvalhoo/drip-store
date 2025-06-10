@@ -1,18 +1,13 @@
-// src/components/StatusBadge/StatusBadge.jsx
 import React from 'react';
 import styles from './StatusBadge.module.css';
 
-/**
- * StatusBadge Component - Displays order status with appropriate styling
- * 
- * @param {string} status - The status text to display
- * @param {string} type - The type of status (transit, completed, canceled)
- * @returns {JSX.Element} A styled status badge
- */
 const StatusBadge = ({ status, type }) => {
-  // Map status types to CSS class names
   const getStatusClass = () => {
     switch (type) {
+      case 'pending':
+        return styles.pending;
+      case 'processing':
+        return styles.processing;
       case 'transit':
         return styles.transit;
       case 'completed':
@@ -31,13 +26,20 @@ const StatusBadge = ({ status, type }) => {
   );
 };
 
-// Helper function to create predefined status badges
+StatusBadge.Pending = () => (
+  <StatusBadge status="Aguardando Pagamento" type="pending" />
+);
+
+StatusBadge.Processing = () => (
+  <StatusBadge status="Em Preparação" type="processing" />
+);
+
 StatusBadge.Transit = () => (
-  <StatusBadge status="Produto em trânsito" type="transit" />
+  <StatusBadge status="Em Trânsito" type="transit" />
 );
 
 StatusBadge.Completed = () => (
-  <StatusBadge status="Finalizado" type="completed" />
+  <StatusBadge status="Entregue" type="completed" />
 );
 
 StatusBadge.Canceled = () => (

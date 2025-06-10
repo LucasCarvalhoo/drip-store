@@ -1,7 +1,6 @@
-// src/pages/ProductList/ProductList.jsx (Atualizada com integração Supabase)
 import React, { useState, useEffect } from "react";
 import { ChevronRight, X, Filter, ChevronDown } from "lucide-react";
-import { Link, useSearchParams, useNavigate } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { supabase } from "../../services/supabase";
 import Layout from "../../components/layout/Layout";
 import ProductCard from "../../components/ProductCard/ProductCard";
@@ -9,202 +8,275 @@ import styles from "./ProductList.module.css";
 
 const ProductList = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
 
-  // Estado para controle de filtros e produtos
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [productCount, setProductCount] = useState(0);
 
-  // Estados para filtros
   const [activeFilters, setActiveFilters] = useState({
-    brands: searchParams.getAll('marca') || [],
-    categories: searchParams.getAll('categoria') || [],
-    price: searchParams.get('preco') || null,
-    gender: searchParams.getAll('genero') || [],
-    condition: searchParams.get('estado') || null,
+    brands: [],
+    categories: [],
+    price: null,
+    gender: [],
+    condition: null,
   });
+  const [sortBy, setSortBy] = useState("relevancia");
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(12);
 
-  // Estado para ordenação
-  const [sortBy, setSortBy] = useState(searchParams.get('ordenar') || "relevancia");
-
-  // Estado para paginação
-  const [page, setPage] = useState(parseInt(searchParams.get('pagina') || '1', 10));
-  const [pageSize, setPageSize] = useState(parseInt(searchParams.get('itens') || '12', 10));
-
-  // Carregar categorias e marcas do banco de dados
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
 
-  // Carregar dados iniciais
+  const searchQuery = searchParams.get("q") || "";
+
+  const normalizeText = (text) => {
+    return text
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim();
+  };
+
+  const createSearchVariations = (term) => {
+    const normalized = normalizeText(term);
+    const words = normalized.split(" ").filter((word) => word.length > 1);
+    const variations = [normalized];
+    words.forEach((word) => {
+      if (word.endsWith("s") && word.length > 3)
+        variations.push(word.slice(0, -1));
+      if (word.endsWith("es") && word.length > 4)
+        variations.push(word.slice(0, -2));
+      if (!word.endsWith("s")) {
+        variations.push(word + "s");
+        if (!/[aeiou]$/.test(word)) variations.push(word + "es");
+      }
+      const specialCases = {
+        tenis: ["tenis", "tennis"],
+        tennis: ["tenis", "tennis"],
+        bone: ["bone", "bones", "boné", "bonés"],
+        bones: ["bone", "bones", "boné", "bonés"],
+        calca: ["calca", "calcas", "calça", "calças"],
+        calcas: ["calca", "calcas", "calça", "calças"],
+        camisa: ["camisa", "camisas", "camiseta", "camisetas"],
+        camiseta: ["camisa", "camisas", "camiseta", "camisetas"],
+        camisetas: ["camisa", "camisas", "camiseta", "camisetas"],
+        headphone: ["headphone", "headphones", "fone", "fones"],
+        headphones: ["headphone", "headphones", "fone", "fones"],
+      };
+      if (specialCases[word]) variations.push(...specialCases[word]);
+    });
+    return [...new Set(variations)];
+  };
+
   useEffect(() => {
     const loadInitialData = async () => {
       try {
-        // Carregar categorias
         const { data: categoriesData, error: categoriesError } = await supabase
-          .from('categorias')
-          .select('id, nome, slug')
-          .eq('ativo', true)
-          .order('nome', { ascending: true });
-
+          .from("categorias")
+          .select("id, nome, slug")
+          .eq("ativo", true)
+          .order("nome", { ascending: true });
         if (categoriesError) throw categoriesError;
         setCategories(categoriesData || []);
 
-        // Carregar marcas
         const { data: brandsData, error: brandsError } = await supabase
-          .from('marcas')
-          .select('id, nome, slug')
-          .eq('ativo', true)
-          .order('nome', { ascending: true });
-
+          .from("marcas")
+          .select("id, nome, slug")
+          .eq("ativo", true)
+          .order("nome", { ascending: true });
         if (brandsError) throw brandsError;
         setBrands(brandsData || []);
-
-      } catch (error) {
-        console.error('Erro ao carregar dados iniciais:', error);
-        setError('Não foi possível carregar os filtros. Por favor, tente novamente mais tarde.');
+      } catch (fetchError) {
+        console.error("Erro ao carregar dados iniciais:", fetchError);
+        setError(
+          "Não foi possível carregar os filtros. Por favor, tente novamente mais tarde."
+        );
       }
     };
-
     loadInitialData();
   }, []);
 
-  // Carregar produtos com base nos filtros
   useEffect(() => {
-    const loadProducts = async () => {
+    setLoading(true);
+    setProducts([]);
+    setActiveFilters({
+      brands: searchParams.getAll("marca") || [],
+      categories: searchParams.getAll("categoria") || [],
+      price: searchParams.get("preco") || null,
+      gender: searchParams.getAll("genero") || [],
+      condition: searchParams.get("estado") || null,
+    });
+    setSortBy(searchParams.get("ordenar") || "relevancia");
+    setPage(parseInt(searchParams.get("pagina") || "1", 10));
+    window.scrollTo(0, 0);
+  }, [searchParams]);
+
+  useEffect(() => {
+    const fetchProductsData = async () => {
       try {
-        setLoading(true);
+        const currentCategorySlugs = activeFilters.categories;
+        const currentBrandSlugs = activeFilters.brands;
 
-        // Carregar IDs de categorias e marcas filtradas para usar na consulta
         let categoryIds = [];
+        if (currentCategorySlugs.length > 0) {
+          if (categories.length === 0) {
+            setLoading(true);
+            return;
+          }
+          categoryIds = categories
+            .filter((cat) => currentCategorySlugs.includes(cat.slug))
+            .map((cat) => cat.id);
+        }
+
         let brandIds = [];
-
-        if (activeFilters.categories.length > 0) {
-          const { data: categoryData } = await supabase
-            .from('categorias')
-            .select('id')
-            .in('slug', activeFilters.categories);
-
-          if (categoryData) {
-            categoryIds = categoryData.map(cat => cat.id);
+        if (currentBrandSlugs.length > 0) {
+          if (brands.length === 0) {
+            setLoading(true);
+            return;
           }
+          brandIds = brands
+            .filter((brand) => currentBrandSlugs.includes(brand.slug))
+            .map((brand) => brand.id);
         }
 
-        if (activeFilters.brands.length > 0) {
-          const { data: brandData } = await supabase
-            .from('marcas')
-            .select('id')
-            .in('slug', activeFilters.brands);
-
-          if (brandData) {
-            brandIds = brandData.map(brand => brand.id);
-          }
-        }
-
-        // Construir query base
         let query = supabase
-          .from('produtos')
-          .select(`
-            id, 
-            nome, 
-            slug, 
-            preco_original, 
-            preco_promocional,
-            desconto_porcentagem,
-            categoria_id (id, nome, slug),
-            marca_id (id, nome, slug),
-            genero,
-            estado,
-            imagens_produto (id, url, principal, ordem)
-          `, { count: 'exact' })
-          .eq('ativo', true);
+          .from("produtos")
+          .select(
+            `id, nome, slug, preco_original, preco_promocional,
+            desconto_porcentagem, categoria_id (id, nome, slug),
+            marca_id (id, nome, slug), genero, estado, descricao,
+            imagens_produto (id, url, principal, ordem)`,
+            { count: "exact" }
+          )
+          .eq("ativo", true);
 
-        // Aplicar filtros usando IDs em vez de slugs
-        if (brandIds.length > 0) {
-          query = query.in('marca_id', brandIds);
+        if (currentBrandSlugs.length > 0) {
+          query = query.in(
+            "marca_id",
+            brandIds.length > 0 ? brandIds : ["dummy-nonexistent-id"]
+          );
+        }
+        if (currentCategorySlugs.length > 0) {
+          query = query.in(
+            "categoria_id",
+            categoryIds.length > 0 ? categoryIds : ["dummy-nonexistent-id"]
+          );
         }
 
-        if (categoryIds.length > 0) {
-          query = query.in('categoria_id', categoryIds);
-        }
+        if (activeFilters.gender.length > 0)
+          query = query.in("genero", activeFilters.gender);
+        if (activeFilters.condition)
+          query = query.eq("estado", activeFilters.condition);
 
-        // Resto do código de filtro permanece igual
-        if (activeFilters.gender.length > 0) {
-          query = query.in('genero', activeFilters.gender);
-        }
-
-        if (activeFilters.condition) {
-          query = query.eq('estado', activeFilters.condition);
-        }
-
-        // Filtro de preço
         if (activeFilters.price) {
           switch (activeFilters.price) {
-            case 'Até R$50':
-              query = query.lt('preco_promocional', 50);
+            case "Até R$50":
+              query = query.lt("preco_promocional", 50);
               break;
-            case 'R$50 a R$100':
-              query = query.gte('preco_promocional', 50).lte('preco_promocional', 100);
+            case "R$50 a R$100":
+              query = query
+                .gte("preco_promocional", 50)
+                .lte("preco_promocional", 100);
               break;
-            case 'R$100 a R$200':
-              query = query.gte('preco_promocional', 100).lte('preco_promocional', 200);
+            case "R$100 a R$200":
+              query = query
+                .gte("preco_promocional", 100)
+                .lte("preco_promocional", 200);
               break;
-            case 'Acima de R$200':
-              query = query.gt('preco_promocional', 200);
+            case "Acima de R$200":
+              query = query.gt("preco_promocional", 200);
               break;
             default:
               break;
           }
         }
 
-        // Pesquisa por texto
         if (searchQuery) {
-          // Pesquisa de texto completo em Postgres
-          query = query.textSearch('nome', searchQuery, {
-            config: 'portuguese'
+          const searchVariations = createSearchVariations(searchQuery);
+          let searchConditions = [];
+          searchVariations.forEach((variation) => {
+            searchConditions.push(`nome.ilike.%${variation}%`);
+            searchConditions.push(`descricao.ilike.%${variation}%`);
           });
+          if (categories.length > 0) {
+            const matchingCategories = categories.filter((cat) => {
+              const normalizedCategoryName = normalizeText(cat.nome);
+              return searchVariations.some(
+                (v) =>
+                  normalizedCategoryName.includes(v) ||
+                  v.includes(normalizedCategoryName)
+              );
+            });
+            if (matchingCategories.length > 0) {
+              searchConditions.push(
+                `categoria_id.in.(${matchingCategories
+                  .map((c) => c.id)
+                  .join(",")})`
+              );
+            }
+          }
+          if (searchConditions.length > 0)
+            query = query.or(searchConditions.join(","));
         }
 
-        // Aplicar ordenação
         if (sortBy) {
           switch (sortBy) {
-            case 'menor_preco':
-              query = query.order('preco_promocional', { ascending: true });
+            case "menor_preco":
+              query = query.order("preco_promocional", { ascending: true });
               break;
-            case 'maior_preco':
-              query = query.order('preco_promocional', { ascending: false });
+            case "maior_preco":
+              query = query.order("preco_promocional", { ascending: false });
               break;
-            case 'mais_recente':
-              query = query.order('data_criacao', { ascending: false });
+            case "mais_recente":
+              query = query.order("data_criacao", { ascending: false });
               break;
-            case 'mais_vendido':
-              query = query.order('quantidade_vendas', { ascending: false });
+            case "mais_vendido":
+              query = query.order("quantidade_vendas", { ascending: false });
               break;
-            default: // relevância ou default
-              query = query.order('destacado', { ascending: false }).order('quantidade_vendas', { ascending: false });
+            default:
+              query = query
+                .order("destacado", { ascending: false })
+                .order("quantidade_vendas", { ascending: false });
               break;
           }
         }
 
-        // Paginação
         const from = (page - 1) * pageSize;
         const to = from + pageSize - 1;
+        const { data, error: queryError, count } = await query.range(from, to);
 
-        // Executar a consulta com intervalo para paginação
-        const { data, error, count } = await query
-          .range(from, to);
+        if (queryError) throw queryError;
 
-        if (error) throw error;
+        let processedData = data || [];
+        if (searchQuery && processedData.length > 0) {
+          const normalizedQuery = normalizeText(searchQuery);
+          processedData = processedData.sort((a, b) => {
+            const aNormalized = normalizeText(a.nome);
+            const bNormalized = normalizeText(b.nome);
+            const aDescNormalized = normalizeText(a.descricao || "");
+            const bDescNormalized = normalizeText(b.descricao || "");
+            const aHasExactInName = aNormalized.includes(normalizedQuery);
+            const bHasExactInName = bNormalized.includes(normalizedQuery);
+            if (aHasExactInName && !bHasExactInName) return -1;
+            if (!aHasExactInName && bHasExactInName) return 1;
+            const aStartsWith = aNormalized.startsWith(normalizedQuery);
+            const bStartsWith = bNormalized.startsWith(normalizedQuery);
+            if (aStartsWith && !bStartsWith) return -1;
+            if (!aStartsWith && bStartsWith) return 1;
+            const aHasInDesc = aDescNormalized.includes(normalizedQuery);
+            const bHasInDesc = bDescNormalized.includes(normalizedQuery);
+            if (aHasInDesc && !bHasInDesc) return -1;
+            if (!aHasInDesc && bHasInDesc) return 1;
+            return 0;
+          });
+        }
 
-        // Transformar os dados para o formato necessário para o ProductCard
-        const formattedData = data.map(product => {
-          // Encontrar a imagem principal ou a primeira disponível
+        const formattedData = processedData.map((product) => {
           const imagens = product.imagens_produto || [];
-          const imagemPrincipal = imagens.find(img => img.principal) || imagens[0];
-
+          const imagemPrincipal =
+            imagens.find((img) => img.principal) || imagens[0];
           return {
             id: product.id,
             nome: product.nome,
@@ -212,9 +284,10 @@ const ProductList = () => {
             precoOriginal: product.preco_original,
             precoAtual: product.preco_promocional || product.preco_original,
             desconto: product.desconto_porcentagem,
-            categoria: product.categoria_id?.nome || '',
-            marca: product.marca_id?.nome || '',
-            imagemUrl: imagemPrincipal?.url || '../images/products/produc-image-0.png'
+            categoria: product.categoria_id?.nome || "",
+            marca: product.marca_id?.nome || "",
+            imagemUrl:
+              imagemPrincipal?.url || "../images/products/produc-image-0.png",
           };
         });
 
@@ -222,110 +295,113 @@ const ProductList = () => {
         setProductCount(count || 0);
         setError(null);
       } catch (err) {
-        console.error('Erro ao carregar produtos:', err);
-        setError('Não foi possível carregar os produtos. Tente novamente mais tarde.');
+        console.error("Erro ao carregar produtos:", err);
+        setError(
+          "Não foi possível carregar os produtos. Tente novamente mais tarde."
+        );
         setProducts([]);
+        setProductCount(0);
       } finally {
         setLoading(false);
       }
     };
 
-    loadProducts();
+    const categorySlugsPresent = activeFilters.categories.length > 0;
+    const brandSlugsPresent = activeFilters.brands.length > 0;
+    const masterCategoriesReady = categories.length > 0;
+    const masterBrandsReady = brands.length > 0;
 
-    // Atualizar URL com os filtros ativos
-    const newParams = new URLSearchParams();
+    let effectivelyLoadingMasterData = false;
+    if (categorySlugsPresent && !masterCategoriesReady)
+      effectivelyLoadingMasterData = true;
+    if (brandSlugsPresent && !masterBrandsReady)
+      effectivelyLoadingMasterData = true;
 
-    // Adicionar filtros à URL
-    activeFilters.brands.forEach(brand => newParams.append('marca', brand));
-    activeFilters.categories.forEach(category => newParams.append('categoria', category));
-    activeFilters.gender.forEach(gender => newParams.append('genero', gender));
+    if (effectivelyLoadingMasterData) {
+      if (!loading) setLoading(true);
+      return;
+    }
 
-    if (activeFilters.price) newParams.set('preco', activeFilters.price);
-    if (activeFilters.condition) newParams.set('estado', activeFilters.condition);
-    if (sortBy) newParams.set('ordenar', sortBy);
-    if (page > 1) newParams.set('pagina', page.toString());
-    if (searchQuery) newParams.set('q', searchQuery);
+    fetchProductsData();
+  }, [activeFilters, sortBy, page, pageSize, searchQuery, categories, brands]);
 
-    setSearchParams(newParams);
-
-  }, [activeFilters, sortBy, page, pageSize, searchQuery, setSearchParams]);
-
-  // Função para lidar com a abertura/fechamento do filtro no mobile
   const toggleFilter = () => {
     setIsFilterOpen(!isFilterOpen);
   };
 
-  // Função para aplicar um filtro
   const handleFilterChange = (category, value) => {
-    setActiveFilters((prev) => {
-      const updated = { ...prev };
+    const newParams = new URLSearchParams(searchParams);
+    const paramKeyMap = {
+      brands: "marca",
+      categories: "categoria",
+      gender: "genero",
+      price: "preco",
+      condition: "estado",
+    };
+    const actualParamKey = paramKeyMap[category] || category;
 
-      // Lidar com arrays (checkboxes)
-      if (Array.isArray(updated[category])) {
-        if (updated[category].includes(value)) {
-          updated[category] = updated[category].filter(
-            (item) => item !== value
-          );
-        } else {
-          updated[category] = [...updated[category], value];
-        }
+    if (Array.isArray(activeFilters[category])) {
+      const currentValues = newParams.getAll(actualParamKey);
+      if (currentValues.includes(value)) {
+        newParams.delete(actualParamKey);
+        currentValues
+          .filter((item) => item !== value)
+          .forEach((item) => newParams.append(actualParamKey, item));
+      } else {
+        newParams.append(actualParamKey, value);
       }
-      // Lidar com valores únicos (radio buttons)
-      else {
-        updated[category] = updated[category] === value ? null : value;
+    } else {
+      if (newParams.get(actualParamKey) === value) {
+        newParams.delete(actualParamKey);
+      } else {
+        newParams.set(actualParamKey, value);
       }
-
-      return updated;
-    });
-
-    // Resetar página ao aplicar filtro
-    setPage(1);
+    }
+    newParams.delete("pagina");
+    setSearchParams(newParams);
   };
 
-  // Função para lidar com a ordenação
   const handleSortChange = (event) => {
-    setSortBy(event.target.value);
-    // Resetar página ao mudar ordenação
-    setPage(1);
+    const newSortBy = event.target.value;
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("ordenar", newSortBy);
+    newParams.delete("pagina");
+    setSearchParams(newParams);
   };
 
-  // Limpar todos os filtros
   const clearAllFilters = () => {
-    setActiveFilters({
-      brands: [],
-      categories: [],
-      price: null,
-      gender: [],
-      condition: null,
-    });
-    setPage(1);
-
-    // Limpar URL
-    navigate('/produtos');
+    const newParams = new URLSearchParams();
+    if (searchQuery) {
+      newParams.set("q", searchQuery);
+    }
+    setSearchParams(newParams);
   };
 
-  // Lidar com mudança de página
   const handlePageChange = (newPage) => {
-    setPage(newPage);
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("pagina", newPage.toString());
+    setSearchParams(newParams);
     window.scrollTo(0, 0);
   };
 
-  // Construir título dinâmico baseado nos filtros
   const getPageTitle = () => {
     if (searchQuery) {
       return `Resultados para "${searchQuery}"`;
     }
-
-    if (activeFilters.categories.length === 1) {
-      const categoryName = categories.find(cat => cat.slug === activeFilters.categories[0])?.nome;
+    const categorySlugs = searchParams.getAll("categoria");
+    if (categorySlugs.length === 1 && categories.length > 0) {
+      const categoryName = categories.find(
+        (cat) => cat.slug === categorySlugs[0]
+      )?.nome;
       return categoryName || "Produtos";
     }
-
-    if (activeFilters.brands.length === 1) {
-      const brandName = brands.find(brand => brand.slug === activeFilters.brands[0])?.nome;
-      return `Produtos ${brandName}` || "Produtos";
+    const brandSlugs = searchParams.getAll("marca");
+    if (brandSlugs.length === 1 && brands.length > 0) {
+      const brandName = brands.find(
+        (brand) => brand.slug === brandSlugs[0]
+      )?.nome;
+      return brandName ? `Produtos ${brandName}` : "Produtos";
     }
-
     return "Produtos";
   };
 
@@ -333,7 +409,6 @@ const ProductList = () => {
     <Layout>
       <main className="flex-grow bg-gray-50">
         <div className="container mx-auto px-4 py-6">
-          {/* Breadcrumb */}
           <div className="flex items-center text-sm text-gray-500 mb-6">
             <Link to="/" className="hover:text-pink-600 transition-colors">
               Home
@@ -342,18 +417,18 @@ const ProductList = () => {
             <span className="text-gray-900 font-medium">Produtos</span>
           </div>
 
-          {/* Título da página com contador de resultados e ordenação */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
             <div>
               <h1 className="text-xl font-medium">{getPageTitle()}</h1>
               <span className="text-sm text-gray-500">
-                {productCount} {productCount === 1 ? 'produto' : 'produtos'}
+                {loading
+                  ? "Carregando..."
+                  : `${productCount} ${
+                      productCount === 1 ? "produto" : "produtos"
+                    }`}
               </span>
             </div>
-
-            {/* Linha de ordenação e filtro mobile (agora na mesma linha) */}
             <div className="flex items-center w-full md:w-auto justify-between">
-              {/* Dropdown de ordenação */}
               <div className="relative flex items-center">
                 <label htmlFor="sort" className="text-sm text-gray-500 mr-2">
                   Ordenar por:
@@ -376,8 +451,6 @@ const ProductList = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Botão filtro mobile - ícone e na cor rosa */}
               <button
                 onClick={toggleFilter}
                 className="md:hidden bg-pink-600 text-white p-2 rounded-md hover:bg-pink-700 transition-colors"
@@ -389,27 +462,25 @@ const ProductList = () => {
           </div>
 
           <div className="flex flex-col md:flex-row gap-6">
-            {/* Sidebar de filtros para desktop */}
             <aside className="hidden md:block w-64 flex-shrink-0">
               <div className="bg-white rounded-md shadow-sm p-4">
-                {/* Título com linha divisória abaixo */}
                 <div className="flex justify-between items-center">
-                  <h2 className="font-medium mb-4 pb-3 border-b border-gray-200 w-full">Filtrar por</h2>
-                  {activeFilters.brands.length > 0 ||
-                    activeFilters.categories.length > 0 ||
-                    activeFilters.price ||
-                    activeFilters.gender.length > 0 ||
-                    activeFilters.condition ? (
+                  <h2 className="font-medium mb-4 pb-3 border-b border-gray-200 w-full">
+                    Filtrar por
+                  </h2>
+                  {(searchParams.has("marca") ||
+                    searchParams.has("categoria") ||
+                    searchParams.has("preco") ||
+                    searchParams.has("genero") ||
+                    searchParams.has("estado")) && (
                     <button
                       onClick={clearAllFilters}
                       className="text-sm text-pink-600 hover:text-pink-800 transition-colors ml-2"
                     >
                       Limpar
                     </button>
-                  ) : null}
+                  )}
                 </div>
-
-                {/* Filtro por marca */}
                 <div className="mb-6">
                   <h3 className="text-sm font-medium mb-3">Marca</h3>
                   <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
@@ -422,15 +493,15 @@ const ProductList = () => {
                           type="checkbox"
                           className={styles.customCheckbox}
                           checked={activeFilters.brands.includes(brand.slug)}
-                          onChange={() => handleFilterChange("brands", brand.slug)}
+                          onChange={() =>
+                            handleFilterChange("brands", brand.slug)
+                          }
                         />
                         {brand.nome}
                       </label>
                     ))}
                   </div>
                 </div>
-
-                {/* Filtro por categoria */}
                 <div className="mb-6">
                   <h3 className="text-sm font-medium mb-3">Categoria</h3>
                   <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
@@ -442,16 +513,18 @@ const ProductList = () => {
                         <input
                           type="checkbox"
                           className={styles.customCheckbox}
-                          checked={activeFilters.categories.includes(category.slug)}
-                          onChange={() => handleFilterChange("categories", category.slug)}
+                          checked={activeFilters.categories.includes(
+                            category.slug
+                          )}
+                          onChange={() =>
+                            handleFilterChange("categories", category.slug)
+                          }
                         />
                         {category.nome}
                       </label>
                     ))}
                   </div>
                 </div>
-
-                {/* Filtro por preço */}
                 <div className="mb-6">
                   <h3 className="text-sm font-medium mb-3">Preço</h3>
                   <div className="space-y-2">
@@ -470,20 +543,23 @@ const ProductList = () => {
                           name="price"
                           className={styles.customRadio}
                           checked={activeFilters.price === priceRange}
-                          onChange={() => handleFilterChange("price", priceRange)}
+                          onChange={() =>
+                            handleFilterChange("price", priceRange)
+                          }
                         />
                         {priceRange}
                       </label>
                     ))}
                   </div>
                 </div>
-
-                {/* Filtro por gênero */}
                 <div className="mb-6">
                   <h3 className="text-sm font-medium mb-3">Gênero</h3>
                   <div className="space-y-2">
                     {["Masculino", "Feminino", "Unisex"].map((gender) => (
-                      <label key={gender} className={`${styles.checkboxLabel} text-sm`}>
+                      <label
+                        key={gender}
+                        className={`${styles.checkboxLabel} text-sm`}
+                      >
                         <input
                           type="checkbox"
                           className={styles.customCheckbox}
@@ -495,8 +571,6 @@ const ProductList = () => {
                     ))}
                   </div>
                 </div>
-
-                {/* Filtro por estado */}
                 <div>
                   <h3 className="text-sm font-medium mb-3">Estado</h3>
                   <div className="space-y-2">
@@ -510,7 +584,9 @@ const ProductList = () => {
                           name="condition"
                           className={styles.customRadio}
                           checked={activeFilters.condition === condition}
-                          onChange={() => handleFilterChange("condition", condition)}
+                          onChange={() =>
+                            handleFilterChange("condition", condition)
+                          }
                         />
                         {condition}
                       </label>
@@ -520,7 +596,6 @@ const ProductList = () => {
               </div>
             </aside>
 
-            {/* Área principal com produtos */}
             <div className="flex-grow">
               {loading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
@@ -543,7 +618,9 @@ const ProductList = () => {
                 </div>
               ) : products.length === 0 ? (
                 <div className="bg-white rounded-md p-8 text-center">
-                  <p className="text-gray-500 mb-4">Nenhum produto encontrado com os filtros selecionados.</p>
+                  <p className="text-gray-500 mb-4">
+                    Nenhum produto encontrado com os filtros selecionados.
+                  </p>
                   <button
                     onClick={clearAllFilters}
                     className="bg-pink-600 text-white px-4 py-2 rounded-md hover:bg-pink-700 transition-colors"
@@ -554,8 +631,6 @@ const ProductList = () => {
               ) : (
                 <div>
                   <ProductCard produtos={products} />
-
-                  {/* Paginação */}
                   {productCount > pageSize && (
                     <div className="mt-8 flex justify-center">
                       <div className="flex space-x-2">
@@ -567,26 +642,30 @@ const ProductList = () => {
                             Anterior
                           </button>
                         )}
-
-                        {[...Array(Math.ceil(productCount / pageSize))].slice(
-                          Math.max(0, page - 3),
-                          Math.min(Math.ceil(productCount / pageSize), page + 2)
-                        ).map((_, i) => {
-                          const pageNumber = Math.max(1, page - 2) + i;
-                          return (
-                            <button
-                              key={pageNumber}
-                              onClick={() => handlePageChange(pageNumber)}
-                              className={`px-4 py-2 border rounded-md ${pageNumber === page
-                                  ? 'bg-pink-600 text-white border-pink-600'
-                                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                        {[...Array(Math.ceil(productCount / pageSize))]
+                          .slice(
+                            Math.max(0, page - 3),
+                            Math.min(
+                              Math.ceil(productCount / pageSize),
+                              page + 2
+                            )
+                          )
+                          .map((_, i) => {
+                            const pageNumber = Math.max(1, page - 2) + i;
+                            return (
+                              <button
+                                key={pageNumber}
+                                onClick={() => handlePageChange(pageNumber)}
+                                className={`px-4 py-2 border rounded-md ${
+                                  pageNumber === page
+                                    ? "bg-pink-600 text-white border-pink-600"
+                                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
                                 }`}
-                            >
-                              {pageNumber}
-                            </button>
-                          );
-                        })}
-
+                              >
+                                {pageNumber}
+                              </button>
+                            );
+                          })}
                         {page < Math.ceil(productCount / pageSize) && (
                           <button
                             onClick={() => handlePageChange(page + 1)}
@@ -605,10 +684,12 @@ const ProductList = () => {
         </div>
       </main>
 
-      {/* Filtro mobile - aparece abaixo do botão como um dropdown */}
       {isFilterOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          <div className="absolute inset-0 bg-black bg-opacity-50" onClick={toggleFilter}></div>
+          <div
+            className="absolute inset-0 bg-black bg-opacity-50"
+            onClick={toggleFilter}
+          ></div>
           <div className="absolute top-0 right-0 bottom-0 w-80 bg-white overflow-y-auto">
             <div className="p-4">
               <div className="flex justify-between items-center mb-6">
@@ -617,27 +698,27 @@ const ProductList = () => {
                   <X size={24} />
                 </button>
               </div>
-
-              {/* Filtros mobile - mesmo conteúdo que o desktop */}
-              {/* Filtro por marca */}
               <div className="mb-6">
                 <h3 className="text-sm font-medium mb-3">Marca</h3>
                 <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
                   {brands.map((brand) => (
-                    <label key={brand.id} className={`${styles.checkboxLabel} text-sm`}>
+                    <label
+                      key={brand.id}
+                      className={`${styles.checkboxLabel} text-sm`}
+                    >
                       <input
                         type="checkbox"
                         className={styles.customCheckbox}
                         checked={activeFilters.brands.includes(brand.slug)}
-                        onChange={() => handleFilterChange("brands", brand.slug)}
+                        onChange={() =>
+                          handleFilterChange("brands", brand.slug)
+                        }
                       />
                       {brand.nome}
                     </label>
                   ))}
                 </div>
               </div>
-
-              {/* Categoria */}
               <div className="mb-6">
                 <h3 className="text-sm font-medium mb-3">Categoria</h3>
                 <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
@@ -649,16 +730,18 @@ const ProductList = () => {
                       <input
                         type="checkbox"
                         className={styles.customCheckbox}
-                        checked={activeFilters.categories.includes(category.slug)}
-                        onChange={() => handleFilterChange("categories", category.slug)}
+                        checked={activeFilters.categories.includes(
+                          category.slug
+                        )}
+                        onChange={() =>
+                          handleFilterChange("categories", category.slug)
+                        }
                       />
                       {category.nome}
                     </label>
                   ))}
                 </div>
               </div>
-
-              {/* Preço */}
               <div className="mb-6">
                 <h3 className="text-sm font-medium mb-3">Preço</h3>
                 <div className="space-y-2">
@@ -684,13 +767,14 @@ const ProductList = () => {
                   ))}
                 </div>
               </div>
-
-              {/* Gênero */}
               <div className="mb-6">
                 <h3 className="text-sm font-medium mb-3">Gênero</h3>
                 <div className="space-y-2">
                   {["Masculino", "Feminino", "Unisex"].map((gender) => (
-                    <label key={gender} className={`${styles.checkboxLabel} text-sm`}>
+                    <label
+                      key={gender}
+                      className={`${styles.checkboxLabel} text-sm`}
+                    >
                       <input
                         type="checkbox"
                         className={styles.customCheckbox}
@@ -702,8 +786,6 @@ const ProductList = () => {
                   ))}
                 </div>
               </div>
-
-              {/* Estado */}
               <div className="mb-6">
                 <h3 className="text-sm font-medium mb-3">Estado</h3>
                 <div className="space-y-2">
@@ -717,41 +799,39 @@ const ProductList = () => {
                         name="condition-mobile"
                         className={styles.customRadio}
                         checked={activeFilters.condition === condition}
-                        onChange={() => handleFilterChange("condition", condition)}
+                        onChange={() =>
+                          handleFilterChange("condition", condition)
+                        }
                       />
                       {condition}
                     </label>
                   ))}
                 </div>
               </div>
-
-              {/* Botão para limpar filtros - único botão */}
               <div className="mt-6">
                 <button
                   className="w-full py-2 text-white bg-pink-600 rounded-md hover:bg-pink-700 transition-colors"
                   onClick={() => {
-                    clearAllFilters();
                     toggleFilter();
                   }}
                 >
                   Aplicar Filtros
                 </button>
-
-                {(activeFilters.brands.length > 0 ||
-                  activeFilters.categories.length > 0 ||
-                  activeFilters.price ||
-                  activeFilters.gender.length > 0 ||
-                  activeFilters.condition) && (
-                    <button
-                      className="w-full mt-3 py-2 text-sm text-gray-700 hover:text-pink-600 transition-colors underline"
-                      onClick={() => {
-                        clearAllFilters();
-                        toggleFilter();
-                      }}
-                    >
-                      Limpar Filtros
-                    </button>
-                  )}
+                {(searchParams.has("marca") ||
+                  searchParams.has("categoria") ||
+                  searchParams.has("preco") ||
+                  searchParams.has("genero") ||
+                  searchParams.has("estado")) && (
+                  <button
+                    className="w-full mt-3 py-2 text-sm text-gray-700 hover:text-pink-600 transition-colors underline"
+                    onClick={() => {
+                      clearAllFilters();
+                      toggleFilter();
+                    }}
+                  >
+                    Limpar Filtros
+                  </button>
+                )}
               </div>
             </div>
           </div>

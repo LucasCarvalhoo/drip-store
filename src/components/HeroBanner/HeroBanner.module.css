@@ -1,0 +1,149 @@
+.hero-banner-swiper .swiper-pagination {
+  position: relative;
+  margin-top: 16px;
+  bottom: 0;
+}
+
+.hero-banner-swiper .custom-bullet {
+  width: 8px;
+  height: 8px;
+  background-color: #d1d5db;
+  opacity: 1;
+  margin: 0 4px;
+  transition: all 0.3s ease;
+}
+
+.hero-banner-swiper .custom-bullet-active {
+  background-color: #db2777;
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.hero-banner-swiper .swiper-pagination-bullet {
+  border: none;
+  cursor: pointer;
+}
+
+.hero-banner-swiper {
+  margin-bottom: 20px;
+}
+
+.mobile-banner-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-banner-image-mobile {
+  width: auto;
+  max-width: 80%;
+  max-height: 220px;
+  object-fit: contain;
+  filter: drop-shadow(0px 8px 16px rgba(0, 0, 0, 0.1));
+  transition: transform 0.3s ease;
+}
+
+.hero-banner-image-mobile:hover {
+  transform: scale(1.05);
+}
+
+.mobile-pattern-dots {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 100px;
+  height: 100px;
+  background-image: radial-gradient(#f59e0b 2px, transparent 2px);
+  background-size: 15px 15px;
+  opacity: 0.3;
+  z-index: 1;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.hero-banner-swiper .animate-pulse {
+  animation: pulse-glow 2s infinite;
+}
+
+@media (min-width: 768px) {
+  .hero-banner-swiper .swiper-slide img {
+    transition: transform 0.5s ease;
+  }
+  
+  .hero-banner-swiper .swiper-slide:hover img {
+    transform: scale(1.03);
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-banner-image-mobile {
+    max-height: 180px;
+    max-width: 90%;
+  }
+  
+  .mobile-pattern-dots {
+    width: 80px;
+    height: 80px;
+    background-size: 12px 12px;
+  }
+}
+
+.hero-banner-loading {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.hero-banner-swiper a {
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0);
+}
+
+.hero-banner-swiper a:hover::before {
+  left: 100%;
+}
+
+.hero-banner-swiper .swiper-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.hero-banner-swiper .custom-bullet:hover {
+  background-color: #be185d;
+  transform: scale(1.1);
+}
+
+.hero-banner-swiper .swiper-slide:focus {
+  outline: 2px solid #db2777;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-banner-image-mobile,
+  .hero-banner-swiper .swiper-slide img,
+  .mobile-pattern-dots,
+  .custom-bullet {
+    transition: none;
+    animation: none;
+  }
+}

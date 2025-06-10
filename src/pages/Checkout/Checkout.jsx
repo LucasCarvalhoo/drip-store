@@ -1,17 +1,15 @@
-// src/pages/Checkout/Checkout.jsx - VERSÃO ATUALIZADA SEM ALERTS
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { CheckCircle, X, ShoppingCart, Info } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { CheckCircle, X, ShoppingCart, Info, Plus, CreditCard } from 'lucide-react';
 import Layout from '../../components/layout/Layout';
 import { useUser } from '../../contexts/UserContext';
 import { useCart } from '../../contexts/CartContext';
-import { getUserProfile } from '../../services/userService';
+import { getUserProfile, getUserPaymentMethods } from '../../services/userService';
 import { createOrder } from '../../services/orderService';
 import { validateCoupon, applyCoupon } from '../../services/couponService';
 import { getShippingCost } from '../../services/shippingService';
 import styles from './Checkout.module.css';
 
-// Toast Component
 const Toast = ({ message, type = 'success', isVisible, onClose, duration = 4000 }) => {
   useEffect(() => {
     if (isVisible) {
@@ -53,7 +51,7 @@ const Toast = ({ message, type = 'success', isVisible, onClose, duration = 4000 
 
   const toastStyles = {
     position: 'fixed',
-    top: '20px',
+    top: '80px',
     right: '20px',
     zIndex: 1000,
     maxWidth: '400px',
@@ -90,52 +88,119 @@ const Toast = ({ message, type = 'success', isVisible, onClose, duration = 4000 
   );
 };
 
+const PaymentMethodCard = ({ method, isSelected, onSelect, disabled }) => {
+  const getCardBrandDisplay = (brand) => {
+    switch (brand?.toLowerCase()) {
+      case 'visa':
+        return { text: 'VISA', className: 'bg-blue-600 text-white' };
+      case 'mastercard':
+        return { text: 'MC', className: 'bg-red-600 text-white' };
+      case 'amex':
+        return { text: 'AMEX', className: 'bg-green-600 text-white' };
+      case 'elo':
+        return { text: 'ELO', className: 'bg-yellow-600 text-white' };
+      default:
+        return { text: brand?.toUpperCase() || 'CARD', className: 'bg-gray-600 text-white' };
+    }
+  };
+
+  const formatExpiryDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    if (dateString.includes('/')) return dateString;
+    if (dateString.includes('-')) {
+      const [year, month] = dateString.split('-');
+      return `${month}/${year.slice(-2)}`;
+    }
+    return dateString;
+  };
+
+  const brandInfo = getCardBrandDisplay(method.bandeira);
+
+  return (
+    <div
+      className={`border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 ${isSelected
+        ? 'border-pink-500 bg-pink-50'
+        : 'border-gray-200 hover:border-gray-300 bg-white'
+        } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      onClick={() => !disabled && onSelect(method)}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <div className={`w-12 h-8 rounded flex items-center justify-center text-xs font-bold ${brandInfo.className}`}>
+            {brandInfo.text}
+          </div>
+          <div>
+            <p className="font-medium text-gray-900">
+              •••• •••• •••• {method.ultimos_digitos}
+            </p>
+            <p className="text-sm text-gray-500">
+              {method.nome_titular} • Válido até {formatExpiryDate(method.data_validade)}
+            </p>
+            {method.padrao && (
+              <span className="inline-block mt-1 px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
+                Padrão
+              </span>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center">
+          <input
+            type="radio"
+            checked={isSelected}
+            onChange={() => !disabled && onSelect(method)}
+            className="w-4 h-4 text-pink-600 border-gray-300 focus:ring-pink-500"
+            disabled={disabled}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Checkout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, profile } = useUser();
   const { cartItems, cartSubtotal } = useCart();
 
-  // Form states
+  const [checkoutData, setCheckoutData] = useState(null);
+
   const [formData, setFormData] = useState({
-    // Personal info
     fullName: '',
     cpf: '',
     email: '',
     phone: '',
-    // Shipping info
     address: '',
     neighborhood: '',
     city: '',
     zipcode: '',
     complement: '',
-    // Payment info
-    paymentMethod: 'credit',
+    paymentMethod: 'saved',
+    selectedPaymentMethodId: '',
     cardName: '',
     cardNumber: '',
     expiryDate: '',
     cvv: ''
   });
 
-  // Checkout states
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-  
-  // Pricing states
+
   const [discount, setDiscount] = useState(0);
   const [shipping, setShipping] = useState(0);
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [shippingCalculated, setShippingCalculated] = useState(false);
 
-  // Toast state
   const [toast, setToast] = useState({
     isVisible: false,
     message: '',
     type: 'success'
   });
 
-  // Toast helpers
   const showToast = (message, type = 'success') => {
     setToast({
       isVisible: true,
@@ -148,32 +213,67 @@ const Checkout = () => {
     setToast(prev => ({ ...prev, isVisible: false }));
   };
 
-  // Load user data and cart
   useEffect(() => {
-    const loadCheckoutData = async () => {
+    const loadCheckoutData = () => {
+      try {
+        let data = location.state?.checkoutData;
+
+        if (!data) {
+          const storedData = localStorage.getItem('checkoutData');
+          if (storedData) {
+            data = JSON.parse(storedData);
+          }
+        }
+
+        if (data) {
+          setCheckoutData(data);
+
+          if (data.discount > 0) {
+            setDiscount(data.discount);
+            setAppliedCoupon(data.appliedCoupon);
+
+            if (data.appliedCoupon?.code) {
+              setCouponCode(data.appliedCoupon.code);
+            }
+          }
+
+          if (data.shipping >= 0) {
+            setShipping(data.shipping);
+            setShippingCalculated(true);
+          }
+
+          console.log('Checkout data loaded:', data);
+        }
+      } catch (err) {
+        console.error('Error loading checkout data:', err);
+      }
+    };
+
+    loadCheckoutData();
+  }, [location.state]);
+
+  useEffect(() => {
+    const loadUserAndCartData = async () => {
       try {
         setLoading(true);
         setError('');
 
-        // Check if user is logged in
         if (!user) {
           navigate('/login');
           return;
         }
 
-        // Check if cart has items
-        if (!cartItems || cartItems.length === 0) {
+        const itemsToCheck = checkoutData?.items || cartItems;
+        if (!itemsToCheck || itemsToCheck.length === 0) {
           navigate('/carrinho');
           return;
         }
 
-        // Load user profile data
         let userProfile = profile;
         if (!userProfile) {
           userProfile = await getUserProfile(user.id);
         }
 
-        // Pre-fill form with user data
         if (userProfile) {
           setFormData(prev => ({
             ...prev,
@@ -188,15 +288,46 @@ const Checkout = () => {
             complement: userProfile.complemento || ''
           }));
 
-          // Auto-calculate shipping if CEP is available
-          if (userProfile.cep) {
+          if (userProfile.cep && !shippingCalculated) {
             handleShippingCalculation(userProfile.cep);
           }
         } else {
-          // Fill with user email at least
           setFormData(prev => ({
             ...prev,
             email: user.email || ''
+          }));
+        }
+
+        try {
+          const methods = await getUserPaymentMethods(user.id);
+          setPaymentMethods(methods);
+
+          const defaultMethod = methods.find(method => method.padrao);
+          if (defaultMethod) {
+            setSelectedPaymentMethod(defaultMethod);
+            setFormData(prev => ({
+              ...prev,
+              paymentMethod: 'saved',
+              selectedPaymentMethodId: defaultMethod.id
+            }));
+          } else if (methods.length > 0) {
+            setSelectedPaymentMethod(methods[0]);
+            setFormData(prev => ({
+              ...prev,
+              paymentMethod: 'saved',
+              selectedPaymentMethodId: methods[0].id
+            }));
+          } else {
+            setFormData(prev => ({
+              ...prev,
+              paymentMethod: 'new'
+            }));
+          }
+        } catch (paymentError) {
+          console.error('Error loading payment methods:', paymentError);
+          setFormData(prev => ({
+            ...prev,
+            paymentMethod: 'new'
           }));
         }
 
@@ -208,10 +339,11 @@ const Checkout = () => {
       }
     };
 
-    loadCheckoutData();
-  }, [user, profile, cartItems, navigate]);
+    if (user !== undefined) {
+      loadUserAndCartData();
+    }
+  }, [user, profile, navigate, checkoutData, shippingCalculated]);
 
-  // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -220,7 +352,27 @@ const Checkout = () => {
     }));
   };
 
-  // Handle coupon application - NO MORE ALERTS
+  const handlePaymentMethodSelection = (method) => {
+    setSelectedPaymentMethod(method);
+    setFormData(prev => ({
+      ...prev,
+      selectedPaymentMethodId: method.id,
+      paymentMethod: 'saved'
+    }));
+  };
+
+  const handlePaymentTypeChange = (type) => {
+    setFormData(prev => ({
+      ...prev,
+      paymentMethod: type,
+      selectedPaymentMethodId: type === 'new' ? '' : prev.selectedPaymentMethodId
+    }));
+
+    if (type === 'new') {
+      setSelectedPaymentMethod(null);
+    }
+  };
+
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
       showToast('Digite um código de cupom.', 'error');
@@ -228,16 +380,16 @@ const Checkout = () => {
     }
 
     try {
-      const result = await validateCoupon(couponCode, cartSubtotal);
-      
+      const currentSubtotal = checkoutData?.subtotal || cartSubtotal;
+      const result = await validateCoupon(couponCode, currentSubtotal);
+
       if (result.isValid) {
         setAppliedCoupon(result.coupon);
         setDiscount(result.coupon.discountValue);
         showToast(`Cupom "${result.coupon.code}" aplicado com sucesso!`, 'success');
-        
-        // Recalculate shipping if free shipping coupon
+
         if (result.coupon.freeShipping && formData.zipcode) {
-          const shippingResult = await getShippingCost(formData.zipcode, cartSubtotal, true);
+          const shippingResult = await getShippingCost(formData.zipcode, currentSubtotal, true);
           setShipping(shippingResult.cost);
         }
       } else {
@@ -249,7 +401,6 @@ const Checkout = () => {
     }
   };
 
-  // Handle shipping calculation - NO MORE ALERTS
   const handleShippingCalculation = async (zipCode) => {
     if (!zipCode || zipCode.replace(/\D/g, '').length !== 8) {
       showToast('Digite um CEP válido.', 'error');
@@ -257,16 +408,17 @@ const Checkout = () => {
     }
 
     try {
+      const currentSubtotal = checkoutData?.subtotal || cartSubtotal;
       const freeShipping = appliedCoupon?.freeShipping || false;
-      const result = await getShippingCost(zipCode, cartSubtotal, freeShipping);
-      
+      const result = await getShippingCost(zipCode, currentSubtotal, freeShipping);
+
       setShipping(result.cost);
       setShippingCalculated(true);
-      
-      const message = result.isFree 
+
+      const message = result.isFree
         ? `Frete grátis! Entrega em ${result.deliveryTime}`
         : `Frete: R$ ${result.cost.toFixed(2).replace('.', ',')} - Entrega em ${result.deliveryTime}`;
-      
+
       showToast(message, 'success');
     } catch (error) {
       console.error('Error calculating shipping:', error);
@@ -274,41 +426,47 @@ const Checkout = () => {
     }
   };
 
-  // Calculate total
-  const total = cartSubtotal + shipping - discount;
+  const getCurrentSubtotal = () => {
+    return checkoutData?.subtotal || cartSubtotal || 0;
+  };
 
-  // Form validation
+  const getCurrentItems = () => {
+    return checkoutData?.items || cartItems || [];
+  };
+
+  const total = getCurrentSubtotal() + shipping - discount;
+
   const validateForm = () => {
     const required = ['fullName', 'cpf', 'email', 'phone', 'address', 'neighborhood', 'city', 'zipcode'];
-    
+
     for (const field of required) {
       if (!formData[field].trim()) {
         throw new Error('Por favor, preencha todos os campos obrigatórios.');
       }
     }
 
-    // Validate CPF
     const cpfNumbers = formData.cpf.replace(/\D/g, '');
     if (cpfNumbers.length !== 11) {
       throw new Error('CPF deve ter 11 dígitos.');
     }
 
-    // Validate phone
     const phoneNumbers = formData.phone.replace(/\D/g, '');
     if (phoneNumbers.length < 10 || phoneNumbers.length > 11) {
       throw new Error('Número de telefone inválido.');
     }
 
-    // Validate CEP
     const cepNumbers = formData.zipcode.replace(/\D/g, '');
     if (cepNumbers.length !== 8) {
       throw new Error('CEP deve ter 8 dígitos.');
     }
 
-    // Validate payment method
-    if (formData.paymentMethod === 'credit') {
+    if (formData.paymentMethod === 'saved') {
+      if (!selectedPaymentMethod || !formData.selectedPaymentMethodId) {
+        throw new Error('Selecione um método de pagamento.');
+      }
+    } else if (formData.paymentMethod === 'new') {
       if (!formData.cardName.trim()) {
-        throw new Error('Nome do cartão é obrigatório.');
+        throw new Error('Nome no cartão é obrigatório.');
       }
       if (!formData.cardNumber.trim() || formData.cardNumber.replace(/\D/g, '').length < 13) {
         throw new Error('Número do cartão inválido.');
@@ -321,66 +479,78 @@ const Checkout = () => {
       }
     }
 
-    // Check if shipping was calculated
     if (!shippingCalculated) {
       throw new Error('Por favor, calcule o frete antes de finalizar.');
     }
   };
 
-  // Handle form submission - NO MORE ALERTS
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
       setSubmitting(true);
       setError('');
 
-      // Validate form
       validateForm();
 
-      // Prepare order data
+      const currentSubtotal = getCurrentSubtotal();
+      const currentItems = getCurrentItems();
+
       const orderData = {
         userId: user.id,
-        subtotal: cartSubtotal,
+        subtotal: currentSubtotal,
         shipping: shipping,
         discount: discount,
         total: total,
-        paymentMethod: formData.paymentMethod === 'credit' ? 'Cartão de Crédito' : 'Boleto Bancário',
-        installments: formData.paymentMethod === 'credit' ? 10 : 1,
+        paymentMethod: formData.paymentMethod === 'saved'
+          ? selectedPaymentMethod?.tipo || 'Cartão de Crédito'
+          : formData.paymentMethod === 'boleto'
+            ? 'Boleto Bancário'
+            : 'Cartão de Crédito',
+        installments: formData.paymentMethod === 'boleto' ? 1 : 10,
         shippingAddress: {
           endereco: formData.address,
           bairro: formData.neighborhood,
           cidade: formData.city,
-          estado: 'CE', // Default - could be made dynamic
+          estado: 'CE',
           cep: formData.zipcode.replace(/\D/g, ''),
           complemento: formData.complement
         },
-        items: cartItems.map(item => ({
+        items: currentItems.map(item => ({
           produto_id: item.produto.id,
-          variacao_id: null, // Simplified for now
+          variacao_id: null,
           quantidade: item.quantidade,
           preco_unitario: item.produto.precoAtual
-        }))
+        })),
+        paymentMethodInfo: formData.paymentMethod === 'saved'
+          ? {
+            type: 'saved',
+            cardLastDigits: selectedPaymentMethod?.ultimos_digitos,
+            cardHolder: selectedPaymentMethod?.nome_titular
+          }
+          : {
+            type: 'new',
+            cardLastDigits: formData.cardNumber.slice(-4),
+            cardHolder: formData.cardName
+          }
       };
 
       console.log('Creating order with data:', orderData);
 
-      // Create order
       const order = await createOrder(orderData);
       console.log('Order created successfully:', order);
 
-      // Apply coupon if used
       if (appliedCoupon) {
         await applyCoupon(appliedCoupon.id);
       }
 
-      // Show success toast instead of alert
+      localStorage.removeItem('checkoutData');
+
       showToast(`✅ Pedido realizado com sucesso! Número: ${order.codigo}`, 'success');
-      
-      // Navigate to success page after a brief delay
+
       setTimeout(() => {
-        navigate('/compra-realizada', { 
-          state: { 
+        navigate('/compra-realizada', {
+          state: {
             orderCode: order.codigo,
             orderData: orderData
           }
@@ -396,7 +566,7 @@ const Checkout = () => {
     }
   };
 
-  // Loading state
+
   if (loading) {
     return (
       <Layout>
@@ -428,9 +598,11 @@ const Checkout = () => {
     );
   }
 
+  const currentItems = getCurrentItems();
+  const currentSubtotal = getCurrentSubtotal();
+
   return (
     <Layout>
-      {/* Toast Notification */}
       <Toast
         message={toast.message}
         type={toast.type}
@@ -448,12 +620,38 @@ const Checkout = () => {
             </div>
           )}
 
+          {appliedCoupon && discount > 0 && (
+            <div className="bg-green-50 border border-green-200 rounded-md p-4 mb-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-sm font-medium text-green-800">
+                    ✅ Cupom Aplicado: "{appliedCoupon.code}"
+                  </h4>
+                  <p className="text-xs text-green-600 mt-1">
+                    Desconto: R$ {discount.toFixed(2).replace('.', ',')}
+                    {appliedCoupon.freeShipping && ' + Frete Grátis'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setAppliedCoupon(null);
+                    setDiscount(0);
+                    setCouponCode('');
+                    showToast('Cupom removido', 'info');
+                  }}
+                  className="text-red-600 hover:text-red-800 text-sm underline"
+                  disabled={submitting}
+                >
+                  Remover
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Form Section */}
             <div className="lg:col-span-2">
               <form onSubmit={handleSubmit} className="bg-white rounded-md p-6 space-y-8">
-                
-                {/* Personal Information */}
+
                 <div>
                   <h2 className="text-lg font-semibold mb-4">Informações Pessoais</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -516,7 +714,6 @@ const Checkout = () => {
                   </div>
                 </div>
 
-                {/* Shipping Information */}
                 <div>
                   <h2 className="text-lg font-semibold mb-4">Informações de Entrega</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -602,7 +799,6 @@ const Checkout = () => {
                   </div>
                 </div>
 
-                {/* Coupon Section */}
                 <div>
                   <h2 className="text-lg font-semibold mb-4">Cupom de Desconto</h2>
                   <div className="flex max-w-md">
@@ -612,130 +808,152 @@ const Checkout = () => {
                       onChange={(e) => setCouponCode(e.target.value)}
                       placeholder="Digite o código do cupom"
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                      disabled={submitting}
+                      disabled={submitting || appliedCoupon}
                     />
                     <button
                       type="button"
                       onClick={handleApplyCoupon}
                       className="px-4 py-2 bg-pink-600 text-white rounded-r-md hover:bg-pink-700 disabled:bg-gray-400"
-                      disabled={submitting}
+                      disabled={submitting || appliedCoupon}
                     >
                       Aplicar
                     </button>
                   </div>
-                  {appliedCoupon && (
-                    <div className="mt-2 text-sm text-green-600">
-                      ✅ Cupom "{appliedCoupon.code}" aplicado - Desconto: R$ {discount.toFixed(2).replace('.', ',')}
-                    </div>
-                  )}
                 </div>
 
-                {/* Payment Information */}
                 <div>
                   <h2 className="text-lg font-semibold mb-4">Informações de Pagamento</h2>
-                  
-                  {/* Payment Method Selection */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium mb-2">Forma de Pagamento</label>
-                    <div className="flex space-x-4">
+
+                  <div className="mb-6">
+                    <div className="flex flex-wrap gap-4 mb-4">
+                      {paymentMethods.length > 0 && (
+                        <label className="flex items-center">
+                          <input
+                            type="radio"
+                            name="paymentMethodType"
+                            value="saved"
+                            checked={formData.paymentMethod === 'saved'}
+                            onChange={(e) => handlePaymentTypeChange(e.target.value)}
+                            className="mr-2"
+                            disabled={submitting}
+                          />
+                          Usar cartão salvo
+                        </label>
+                      )}
                       <label className="flex items-center">
                         <input
                           type="radio"
-                          name="paymentMethod"
-                          value="credit"
-                          checked={formData.paymentMethod === 'credit'}
-                          onChange={handleInputChange}
+                          name="paymentMethodType"
+                          value="new"
+                          checked={formData.paymentMethod === 'new'}
+                          onChange={(e) => handlePaymentTypeChange(e.target.value)}
                           className="mr-2"
                           disabled={submitting}
                         />
-                        Cartão de Crédito
+                        Usar novo cartão
                       </label>
                       <label className="flex items-center">
                         <input
                           type="radio"
-                          name="paymentMethod"
-                          value="bankSlip"
-                          checked={formData.paymentMethod === 'bankSlip'}
-                          onChange={handleInputChange}
+                          name="paymentMethodType"
+                          value="boleto"
+                          checked={formData.paymentMethod === 'boleto'}
+                          onChange={(e) => handlePaymentTypeChange(e.target.value)}
                           className="mr-2"
                           disabled={submitting}
                         />
                         Boleto Bancário
                       </label>
                     </div>
+
+                    {formData.paymentMethod === 'saved' && paymentMethods.length > 0 && (
+                      <div className="space-y-3">
+                        <h3 className="text-sm font-medium text-gray-700 mb-3">
+                          Selecione um cartão salvo:
+                        </h3>
+                        {paymentMethods.map((method) => (
+                          <PaymentMethodCard
+                            key={method.id}
+                            method={method}
+                            isSelected={selectedPaymentMethod?.id === method.id}
+                            onSelect={handlePaymentMethodSelection}
+                            disabled={submitting}
+                          />
+                        ))}
+                      </div>
+                    )}
+
+                    {formData.paymentMethod === 'new' && (
+                      <div className="space-y-4">
+                        <div className="p-6 bg-gray-50 border border-gray-200 rounded-md text-center">
+                          <div className="mb-4">
+                            <CreditCard className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                            <h3 className="text-lg font-medium text-gray-700 mb-2">Adicionar Novo Cartão</h3>
+                            <p className="text-sm text-gray-600">
+                              Para usar um novo cartão, você precisa adicioná-lo primeiro aos seus métodos de pagamento.
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => navigate('/adicionar-cartao')}
+                            className="bg-pink-600 text-white px-6 py-3 rounded-md hover:bg-pink-700 transition-colors flex items-center mx-auto"
+                            disabled={submitting}
+                          >
+                            <Plus className="w-4 h-4 mr-2" />
+                            Adicionar Novo Cartão
+                          </button>
+                          <p className="text-xs text-gray-500 mt-3">
+                            Após adicionar o cartão, você pode retornar ao checkout para finalizar sua compra.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {formData.paymentMethod === 'boleto' && (
+                      <div className="space-y-4">
+                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
+                          <h4 className="text-sm font-medium text-blue-800 mb-2">Pagamento via Boleto Bancário</h4>
+                          <ul className="text-xs text-blue-700 space-y-1">
+                            <li>• O boleto será gerado após a confirmação do pedido</li>
+                            <li>• Prazo de vencimento: 3 dias úteis</li>
+                            <li>• Pagamento à vista (sem parcelamento)</li>
+                            <li>• Processamento em até 2 dias úteis após o pagamento</li>
+                          </ul>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Credit Card Fields */}
-                  {formData.paymentMethod === 'credit' && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium mb-1">
-                          Nome do Cartão <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          name="cardName"
-                          value={formData.cardName}
-                          onChange={handleInputChange}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                          required={formData.paymentMethod === 'credit'}
-                          disabled={submitting}
-                        />
-                      </div>
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium mb-1">
-                          Número do Cartão <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          name="cardNumber"
-                          value={formData.cardNumber}
-                          onChange={handleInputChange}
-                          placeholder="0000 0000 0000 0000"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                          required={formData.paymentMethod === 'credit'}
-                          disabled={submitting}
-                        />
-                      </div>
+                  <div className="mt-4 mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+                    <div className="flex items-start">
+                      <Info className="w-5 h-5 text-blue-600 mt-0.5 mr-2 flex-shrink-0" />
                       <div>
-                        <label className="block text-sm font-medium mb-1">
-                          Data de Validade <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          name="expiryDate"
-                          value={formData.expiryDate}
-                          onChange={handleInputChange}
-                          placeholder="MM/AA"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                          required={formData.paymentMethod === 'credit'}
-                          disabled={submitting}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">
-                          CVV <span className="text-red-500">*</span>
-                        </label>
-                        <input
-                          type="text"
-                          name="cvv"
-                          value={formData.cvv}
-                          onChange={handleInputChange}
-                          placeholder="123"
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-pink-500"
-                          required={formData.paymentMethod === 'credit'}
-                          disabled={submitting}
-                        />
+                        {paymentMethods.length === 0 ? (
+                          <p className="text-sm text-blue-800">
+                            Você não tem cartões salvos. Após este pedido, você pode salvar seus cartões em{' '}
+                            <button
+                              type="button"
+                              onClick={() => navigate('/metodos-pagamento')}
+                              className="underline hover:no-underline"
+                            >
+                              Métodos de Pagamento
+                            </button>{' '}
+                            para checkout mais rápido.
+                          </p>
+                        ) : (
+                          <p className="text-sm text-blue-800">
+                            Seus cartões salvos estão disponíveis para seleção. Você também pode usar um novo cartão ou pagar via boleto.
+                          </p>
+                        )}
                       </div>
                     </div>
-                  )}
+                  </div>
                 </div>
 
-                {/* Submit Button - Mobile */}
                 <div className="md:hidden">
                   <button
                     type="submit"
-                    disabled={submitting || cartItems.length === 0}
+                    disabled={submitting || currentItems.length === 0}
                     className="w-full bg-yellow-500 text-white py-3 px-6 rounded-md font-medium hover:bg-yellow-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
                   >
                     {submitting ? 'Processando...' : 'Realizar Pagamento'}
@@ -745,14 +963,12 @@ const Checkout = () => {
               </form>
             </div>
 
-            {/* Order Summary */}
             <div className="lg:col-span-1">
               <div className="bg-white rounded-md p-6 sticky top-4">
                 <h2 className="text-lg font-semibold mb-4">Resumo do Pedido</h2>
 
-                {/* Cart Items */}
                 <div className="space-y-3">
-                  {cartItems.slice(0, 3).map((item) => (
+                  {currentItems.slice(0, 3).map((item) => (
                     <div key={item.id} className="flex items-center space-x-3">
                       <div className="w-12 h-12 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
                         <img
@@ -778,62 +994,73 @@ const Checkout = () => {
                       </div>
                     </div>
                   ))}
-                  
-                  {cartItems.length > 3 && (
+
+                  {currentItems.length > 3 && (
                     <div className="text-sm text-gray-500 text-center">
-                      +{cartItems.length - 3} outros itens
+                      +{currentItems.length - 3} outros itens
                     </div>
                   )}
                 </div>
 
                 <hr className="my-4" />
 
-                {/* Pricing Summary */}
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Subtotal:</span>
-                    <span>R$ {cartSubtotal.toFixed(2).replace('.', ',')}</span>
+                    <span>R$ {currentSubtotal.toFixed(2).replace('.', ',')}</span>
                   </div>
-                  
+
                   <div className="flex justify-between text-sm">
                     <span>Frete:</span>
                     <span>
                       {shipping === 0 ? 'Grátis' : `R$ ${shipping.toFixed(2).replace('.', ',')}`}
                     </span>
                   </div>
-                  
+
                   {discount > 0 && (
                     <div className="flex justify-between text-sm text-green-600">
                       <span>Desconto:</span>
                       <span>-R$ {discount.toFixed(2).replace('.', ',')}</span>
                     </div>
                   )}
-                  
+
                   <hr className="my-2" />
-                  
+
                   <div className="flex justify-between text-lg font-semibold">
                     <span>Total:</span>
                     <span className="text-pink-600">R$ {total.toFixed(2).replace('.', ',')}</span>
                   </div>
-                  
+
                   <div className="text-xs text-gray-500 text-right">
                     ou 10x de R$ {(total / 10).toFixed(2).replace('.', ',')} sem juros
                   </div>
                 </div>
 
-                {/* Submit Button - Desktop */}
+                {formData.paymentMethod === 'saved' && selectedPaymentMethod && (
+                  <div className="mt-4 p-3 bg-gray-50 rounded-md">
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">Método de Pagamento:</h4>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-8 h-5 bg-blue-600 text-white text-xs flex items-center justify-center rounded">
+                        {selectedPaymentMethod.bandeira?.toUpperCase() || 'CARD'}
+                      </div>
+                      <span className="text-sm text-gray-600">
+                        •••• {selectedPaymentMethod.ultimos_digitos}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
                 <div className="hidden md:block mt-6">
                   <button
                     type="button"
                     onClick={handleSubmit}
-                    disabled={submitting || cartItems.length === 0}
+                    disabled={submitting || currentItems.length === 0}
                     className="w-full bg-yellow-500 text-white py-3 px-6 rounded-md font-medium hover:bg-yellow-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
                   >
                     {submitting ? 'Processando...' : 'Realizar Pagamento'}
                   </button>
                 </div>
 
-                {/* Payment Info */}
                 <div className="mt-4 text-xs text-gray-500 text-center">
                   🔒 Suas informações estão seguras e protegidas
                 </div>
